@@ -1,0 +1,4 @@
+spring:
+  jwt:
+    secret: "asdflkasjdfladsfgglkajlskdjfad12441aasdgsagsagadsgasdgasd"
+    expiration: 3600000
