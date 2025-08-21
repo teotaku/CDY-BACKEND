@@ -1,17 +1,26 @@
 package com.cdy.cdy.service;
 
+import com.cdy.cdy.dto.response.ProjectResponse;
+import com.cdy.cdy.entity.Project;
+import com.cdy.cdy.entity.ProjectMember;
 import com.cdy.cdy.entity.User;
+import com.cdy.cdy.repository.ProjectMemberRepository;
 import com.cdy.cdy.repository.UserRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.Collections;
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 public class MyPageService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder; // 이미 SecurityConfig에 Bean 등록돼 있죠
+    private final ProjectMemberRepository projectMemberRepository;
+
 
     @Transactional
     public void changeNickname(Long userId, String newNickname) {
@@ -40,4 +49,23 @@ public class MyPageService {
         }
         u.changePasswordHash(passwordEncoder.encode(newPw)); // 엔티티 메서드 활용
     }
+
+    // 상태 컬럼이 없을 때(최근 1건)
+    public ProjectResponse getLatestProject(Long userId) {
+        ProjectMember pm = projectMemberRepository
+                .findFirstByUser_IdOrderByJoinedAtDesc(userId)
+                .orElseThrow(() -> new IllegalStateException("참여 중인 프로젝트가 없습니다."));
+
+        Project p = pm.getProject();
+
+        return ProjectResponse.of(
+                p,
+                p.getManager().getId(),
+                Collections.emptyList(),   // positions
+                Collections.emptyList(),   // techs
+                Collections.emptyList()    // questions
+        );
+    }
+
+
 }

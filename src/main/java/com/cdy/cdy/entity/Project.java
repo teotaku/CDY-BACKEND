@@ -1,49 +1,55 @@
-// src/main/java/com/cdy/cdy/entity/Project.java
 package com.cdy.cdy.entity;
 
+import com.cdy.cdy.dto.request.CreateProjectRequest;
+import com.cdy.cdy.entity.User;
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.AccessLevel;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+
 import java.util.Objects;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity
 @Table(name = "projects")
-public class Project extends BaseEntity {
+public class Project  {
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Column(length = 100, nullable = false)
-    private String name; // 프로젝트 이름
-
-    @Column(length = 200)
-    private String slogan; // 슬로건
+    private String title;
 
     @Lob
-    private String description; // 긴 설명
+    private String description;
 
-    @Column(name = "description_image_url", length = 500)
-    private String descriptionImageUrl; // 설명을 이미지로 대체 가능
+    private Integer capacity;
 
-    @ManyToOne(fetch = FetchType.LAZY) // ↑ 프로젝트:N - 팀장(유저):1
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "manager_id", nullable = false)
-    private User manager; // 팀장
+    private User manager;
 
-    @Column(name = "logo_image_url", length = 500)
-    private String logoImageUrl; // 대표 로고 이미지 URL
+    private String logoImageUrl; // null 허용 (이미지 나중에 붙일 수 있음)
 
-    public static Project create(String name, User manager, String slogan, String description, String descriptionImageUrl, String logoImageUrl) {
-        Objects.requireNonNull(name); Objects.requireNonNull(manager);
-        var p = new Project();
-        p.name = name; p.manager = manager; p.slogan = slogan; p.description = description;
-        p.descriptionImageUrl = descriptionImageUrl; p.logoImageUrl = logoImageUrl;
-        return p;
+    @Builder
+    private Project(String title, String description, Integer capacity, User manager, String logoImageUrl) {
+        this.title = Objects.requireNonNull(title);
+        this.description = description;
+        this.capacity = capacity;
+        this.manager = Objects.requireNonNull(manager);
+        this.logoImageUrl = logoImageUrl;
     }
 
-    public void changeManager(User newManager) { this.manager = Objects.requireNonNull(newManager); }
-
-    public void updateOverview(String slogan, String description, String descriptionImageUrl, String logoImageUrl) {
-        this.slogan = slogan; this.description = description; this.descriptionImageUrl = descriptionImageUrl; this.logoImageUrl = logoImageUrl;
+    // 👉 DTO에서 바로 변환할 수 있게 팩토리 메서드
+    public static Project from(CreateProjectRequest req, User leader) {
+        return Project.builder()
+                .title(req.getTitle())
+                .description(req.getDescription())
+                .capacity(req.getCapacity())
+                .manager(leader)
+                .logoImageUrl(null) // null 가능
+                .build();
     }
 }

@@ -46,5 +46,12 @@ public class ProjectMember {
         return pm;
     }
 
+    @Builder
+    public ProjectMember(Project project, User user, ProjectMemberRole role) {
+        this.project = project;
+        this.user = user;
+        this.role = role;
+    }
+
     public void changeRole(ProjectMemberRole newRole) { this.role = Objects.requireNonNull(newRole); }
 }

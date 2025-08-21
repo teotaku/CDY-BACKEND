@@ -34,4 +34,10 @@ public class ProjectTech {
         pt.project = project; pt.techTag = techTag;
         return pt;
     }
+
+    @Builder
+    public ProjectTech(Project project, String techName) {
+        this.project = project;
+        this.techName = techName;
+    }
 }
