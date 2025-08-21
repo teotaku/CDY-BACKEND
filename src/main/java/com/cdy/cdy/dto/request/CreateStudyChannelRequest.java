@@ -13,8 +13,10 @@ import lombok.*;
 @Builder
 public class CreateStudyChannelRequest {
     @NotNull @Positive
-    private Long projectId;
+    private Long Id;
+
+    private String Category;
 
     @NotBlank
-    private String url;
+    private String content;
 }

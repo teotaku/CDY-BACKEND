@@ -23,7 +23,7 @@ public class ProjectController {
     private final ProjectService projectService;
 
 
-    @PostMapping
+    @PostMapping("/create")
     public ResponseEntity<ProjectResponse> createProject(
             @AuthenticationPrincipal CustomUserDetails principal,
             @Valid @RequestBody CreateProjectRequest request
