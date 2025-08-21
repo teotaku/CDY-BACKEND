@@ -31,6 +31,12 @@ public class ProjectQuestion extends BaseEntity {
         return q;
     }
 
+    @Builder
+    public ProjectQuestion(Project project, String content) {
+        this.project = project;
+        this.questionText = content;
+    }
+
     public void changeOrder(int newOrder) { this.displayOrder = Math.max(1, newOrder); }
     public void changeText(String text) { this.questionText = Objects.requireNonNull(text); }
 }

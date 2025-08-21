@@ -26,14 +26,14 @@ public class JoinController {
 
     @Operation(summary = "", description = "이메일과 비밀번호로 로그인하여 JWT 토큰 발급")
     @PostMapping("/join")
-    public ResponseEntity<String> joinProcess(@RequestBody LoginRequest loginRequest) {
+    public ResponseEntity<String> joinProcess(@RequestBody @Valid LoginRequest loginRequest) {
         return ResponseEntity.ok("회원가입 성공");
     }
 
     //로그인
 
     @Operation(summary = "", description = "이메일과 비밀번호로 로그인하여 JWT 토큰 발급")
-    @PostMapping
+    @PostMapping("/login")
     public ResponseEntity<LoginResponse> login(@RequestBody @Valid LoginRequest request) {
         LoginResponse token = authService.login(request);
         return ResponseEntity.ok(token);

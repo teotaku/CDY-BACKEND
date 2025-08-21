@@ -2,6 +2,7 @@ package com.cdy.cdy.jwt;
 
 
 import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -48,14 +49,33 @@ public class JWTUtil {
                 .before(new Date());
     }
 
-    public String createJwt(String userEmail, String role, Long expireMs) {
+    public String createJwt(String userEmail, String role, long expireMs) {
+            long now = System.currentTimeMillis();
+
+            var builder = Jwts.builder()
+                    .claim("email", userEmail)    // 필요한 최소 정보
+                    .issuedAt(new Date(now))
+                    .expiration(new Date(now + expireMs));
+
+            if (role != null) {                   // null이면 아예 넣지 않음
+                builder.claim("role", role);
+            }
+
+            return builder
+                    .signWith(secretKey)          // 서버 비밀키로 서명(위조 방지)
+                    .compact();
+        }
+
+
+    public String createRefreshToken(Long userId, String role) {
+        long refreshExpireMs = 1000L * 60 * 60 * 24 * 7; // 7일
         return Jwts.builder()
-                .claim("email", userEmail)
+                .claim("userId", userId)
                 .claim("role", role)
-                .issuedAt(new Date(System.currentTimeMillis()))
-                //*1000 안하니까 바로 만료됨 뭐가 문젠지 확인해볼것.
-                .expiration(new Date(System.currentTimeMillis() + expiration))
-                .signWith(secretKey)
+                .setIssuedAt(new Date(System.currentTimeMillis()))
+                .setExpiration(new Date(System.currentTimeMillis() + refreshExpireMs))
+                .signWith(secretKey, SignatureAlgorithm.HS256)
                 .compact();
     }
+
 }

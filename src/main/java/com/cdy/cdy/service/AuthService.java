@@ -8,6 +8,7 @@ import com.cdy.cdy.entity.UserRole;
 import com.cdy.cdy.jwt.JWTUtil;
 import com.cdy.cdy.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,8 +22,12 @@ public class AuthService {
     private final PasswordEncoder passwordEncoder;
     private final JWTUtil jwtUtil;
 
+    @Value("${spring.jwt.expiration}")
+    private long accessExpireMs;
+
     @Transactional
     public void join(SignUpRequest signUpRequest) {
+
         if (userRepository.existsByuserEmail(signUpRequest.getEmail())) {
             throw new IllegalArgumentException("이미 가입된 이메일입니다.");
         }
@@ -47,9 +52,19 @@ public class AuthService {
             throw new IllegalArgumentException("잘못된 이메일 또는 비밀번호");
         }
 
-        String access = jwtUtil.createJwt(user.getEmail(), null,3600);
-        String refresh = jwtUtil.createRefreshToken(user.getId(), user.getRole());
-        return new LoginResponse(access, refresh);
+        String role = (user.getRole() == null) ? null : user.getRole().name();
+
+
+
+        String access = jwtUtil.createJwt(user.getEmail(), null,accessExpireMs);
+//        String refresh = jwtUtil.createRefreshToken(user.getId(), user.getRole().toString());
+
+
+        return LoginResponse.builder()
+                .userId(user.getId())
+                .email(user.getEmail())
+                .accessToken(access)
+                .build();
     }
 
 }
