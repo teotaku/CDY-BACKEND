@@ -69,4 +69,9 @@ public class User extends BaseEntity {
     public void changeRole(UserRole newRole) {
         this.role = Objects.requireNonNull(newRole);
     }
+
+    public void changeEmail(String newEmail) {
+        this.email = Objects.requireNonNull(newEmail);
+    }
+
 }
