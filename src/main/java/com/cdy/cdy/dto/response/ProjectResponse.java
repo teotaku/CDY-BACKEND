@@ -19,6 +19,10 @@ public class ProjectResponse {
     private LocalDateTime createdAt;
     private String imageUrl;
 
+
+    private long memberCount;     // 참여 인원 수
+    private String contact;      // 연락처
+
     private Long leaderId;
     private List<String> positions;
     private List<String> techs;
@@ -28,7 +32,7 @@ public class ProjectResponse {
                                      Long leaderId,
                                      List<String> positions,
                                      List<String> techs,
-                                     List<String> questions) {
+                                     List<String> questions, long memberCount,String phoneNumber) {
         return ProjectResponse.builder()
                 .id(p.getId())
                 .title(p.getTitle())
@@ -38,6 +42,9 @@ public class ProjectResponse {
                 .positions(positions)
                 .techs(techs)
                 .questions(questions)
+                .contact(phoneNumber)
+                .memberCount(memberCount)
                 .build();
+
     }
 }

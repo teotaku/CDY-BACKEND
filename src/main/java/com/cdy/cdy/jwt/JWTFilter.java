@@ -1,6 +1,6 @@
 package com.cdy.cdy.jwt;
 
-import com.cdy.cdy.dto.CustomUserDetails;
+import com.cdy.cdy.dto.response.CustomUserDetails;
 import com.cdy.cdy.entity.User;
 import com.cdy.cdy.entity.UserRole;
 import jakarta.servlet.FilterChain;

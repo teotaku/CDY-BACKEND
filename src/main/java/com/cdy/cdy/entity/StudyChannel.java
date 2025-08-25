@@ -1,6 +1,7 @@
 // src/main/java/com/cdy/cdy/entity/StudyChannel.java
 package com.cdy.cdy.entity;
 
+import com.cdy.cdy.dto.request.CreateStudyChannelRequest;
 import jakarta.persistence.*;
 import lombok.*;
 import java.util.Objects;
@@ -18,11 +19,10 @@ public class StudyChannel extends BaseEntity {
     @JoinColumn(name = "owner_id", nullable = false)
     private User owner; // 작성자
 
-    @Enumerated(EnumType.STRING) @Column(length = 30)
-    private StudyCategory category; // 카테고리
+    @Column
+    private String category; // 카테고리
 
-    @Column(length = 200, nullable = false)
-    private String title; // 제목
+
 
     @Lob
     // ↑ Large Object.
@@ -33,18 +33,28 @@ public class StudyChannel extends BaseEntity {
     @Column(name = "thumbnail_url", length = 500)
     private String thumbnailUrl; // 썸네일 이미지 URL(S3 등 외부 저장)
 
-    public static StudyChannel create(User owner, StudyCategory category, String title, String content, String thumbnailUrl) {
-        Objects.requireNonNull(owner); Objects.requireNonNull(title);
-        var s = new StudyChannel();
-        s.owner = owner; s.category = category; s.title = title; s.content = content; s.thumbnailUrl = thumbnailUrl;
-        return s;
+    // ✅ Builder 생성자
+    @Builder
+    private StudyChannel(User owner, String category, String title, String content, String thumbnailUrl) {
+        this.owner = Objects.requireNonNull(owner);
+        this.category = category;
+        this.content = content;
+        this.thumbnailUrl = thumbnailUrl;
     }
 
-    public void update(String title, String content, StudyCategory category, String thumbnailUrl) {
-        if (title != null) this.title = title;
-        if (content != null) this.content = content;
-        if (category != null) this.category = category;
-        this.thumbnailUrl = thumbnailUrl; // null이면 삭제 의도 허용
+    // ✅ 요청 DTO -> 엔티티 변환
+    public static StudyChannel from(User owner, CreateStudyChannelRequest req) {
+        return StudyChannel.builder()
+                .owner(owner)
+                .category(req.getCategory())
+                .content(req.getContent())
+                .build();
+    }
+
+    // ✅ 수정 메서드
+    public void update(CreateStudyChannelRequest req) {
+        if (req.getContent() != null) this.content = req.getContent();
+        if (req.getCategory() != null) this.category = req.getCategory();
     }
 }
 

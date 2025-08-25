@@ -28,7 +28,7 @@ public class AuthService {
     @Transactional
     public void join(SignUpRequest signUpRequest) {
 
-        if (userRepository.existsByuserEmail(signUpRequest.getEmail())) {
+        if (userRepository.existsByEmail(signUpRequest.getEmail())) {
             throw new IllegalArgumentException("이미 가입된 이메일입니다.");
         }
 
@@ -44,7 +44,7 @@ public class AuthService {
 
     @Transactional(readOnly = true)
     public LoginResponse login(LoginRequest request) {
-        User user = userRepository.findByUserEmail
+        User user = userRepository.findByEmail
                 (request.getEmail())
                 .orElseThrow(() -> new IllegalArgumentException("잘못된 이메일 또는 비밀번호"));
 

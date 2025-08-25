@@ -19,6 +19,5 @@ spring:
       mode: always   # schema.sql, data.sql 실행 (있으면)
 
   jwt:
-    secret: ${JWT_SECRET:my-secret-key}            # .env에서 가져오거나 기본값
-    expiration: ${JWT_EXPIRATION:3600000}         # 기본 1시간 (1000ms * 60 * 60)
-    issuer: ${JWT_ISSUER:my-app}                  # 기본 발급자
+    secret: asdfadsfasdgasdgadsg12sadgasdgdasgsdag4           # .env에서 가져오거나 기본값
+    expiration: 3600000       # 기본 1시간 (1000ms * 60 * 60)

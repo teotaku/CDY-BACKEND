@@ -29,6 +29,11 @@ public class ProjectMember {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
+    @Enumerated(EnumType.STRING)
+    @Column(length = 20, nullable = false)
+    private ProjectMemberStatus status;
+
+
     @Enumerated(EnumType.STRING) @Column(length = 30)
     private ProjectMemberRole role; // 역할(LEADER/DEV/...)
 
@@ -41,16 +46,20 @@ public class ProjectMember {
         var pm = new ProjectMember();
         pm.project = project; // ← 공개 세터 대신 생성 루트에서 필수값 주입
         pm.user = user;
-        pm.role = (role == null ? ProjectMemberRole.DEV : role);
+        pm.role = (role == null ? ProjectMemberRole.MEMBER : role);
         pm.joinedAt = (joinedAt == null ? LocalDateTime.now() : joinedAt);
         return pm;
     }
 
     @Builder
-    public ProjectMember(Project project, User user, ProjectMemberRole role) {
+    public ProjectMember(Project project, User user, ProjectMemberRole role,
+                         ProjectMemberStatus status, LocalDateTime joinedAt) {
+
         this.project = project;
         this.user = user;
         this.role = role;
+        this.joinedAt = joinedAt;
+        this.status = status;
     }
 
     public void changeRole(ProjectMemberRole newRole) { this.role = Objects.requireNonNull(newRole); }

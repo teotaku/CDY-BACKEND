@@ -29,6 +29,8 @@ public class User extends BaseEntity {
     // ↑ 이메일도 단일 유니크 제약(중복 가입 방지)
     private String email;
 
+    private String phoneNumber;
+
     @Column(name = "password_hash", length = 255, nullable = false)
     // ↑ 비밀번호 해시(평문 금지). 컬럼명 스네이크로 고정
     private String passwordHash;

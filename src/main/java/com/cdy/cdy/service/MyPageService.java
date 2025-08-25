@@ -1,10 +1,13 @@
 package com.cdy.cdy.service;
 
 import com.cdy.cdy.dto.response.ProjectResponse;
+import com.cdy.cdy.dto.response.StudyChannelResponse;
 import com.cdy.cdy.entity.Project;
 import com.cdy.cdy.entity.ProjectMember;
+import com.cdy.cdy.entity.StudyChannel;
 import com.cdy.cdy.entity.User;
 import com.cdy.cdy.repository.ProjectMemberRepository;
+import com.cdy.cdy.repository.StudyChannelRepository;
 import com.cdy.cdy.repository.UserRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -20,6 +23,7 @@ public class MyPageService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder; // 이미 SecurityConfig에 Bean 등록돼 있죠
     private final ProjectMemberRepository projectMemberRepository;
+    private final StudyChannelRepository studyChannelRepository;
 
 
     @Transactional
@@ -57,14 +61,37 @@ public class MyPageService {
                 .orElseThrow(() -> new IllegalStateException("참여 중인 프로젝트가 없습니다."));
 
         Project p = pm.getProject();
+        String phoneNumber = p.getManager().getPhoneNumber();
+        int size = p.getProjectMembers().size();
+
+
 
         return ProjectResponse.of(
                 p,
                 p.getManager().getId(),
                 Collections.emptyList(),   // positions
                 Collections.emptyList(),   // techs
-                Collections.emptyList()    // questions
+                Collections.emptyList() ,   // questions
+                size,
+                phoneNumber
         );
+    }
+
+    // 2. 단건 조회
+    public StudyChannelResponse getStudy(Long studyId) {
+        StudyChannel studyChannel = studyChannelRepository.findById(studyId)
+                .orElseThrow(() -> new IllegalArgumentException("해당 스터디 채널을 찾을 수 없습니다."));
+
+        return StudyChannelResponse.from(studyChannel);
+    }
+
+    // 3. 전체 조회
+    public List<StudyChannelResponse> getAllStudies() {
+        List<StudyChannel> studies = studyChannelRepository.findAll();
+
+        return studies.stream()
+                .map(StudyChannelResponse::from)
+                .toList();
     }
 
 

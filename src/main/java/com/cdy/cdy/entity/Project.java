@@ -8,6 +8,8 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 @Getter
@@ -26,6 +28,9 @@ public class Project  {
     private String description;
 
     private Integer capacity;
+
+    @OneToMany(mappedBy = "project", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ProjectMember> projectMembers = new ArrayList<>();
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "manager_id", nullable = false)
@@ -51,5 +56,15 @@ public class Project  {
                 .manager(leader)
                 .logoImageUrl(null) // null 가능
                 .build();
+    }
+
+    // ✅ 현재 참여 인원 수 계산 메서드
+    public int getMemberCount() {
+        return projectMembers.size();
+    }
+
+    // ✅ 매니저(팀장) 연락처 반환
+    public String getContact() {
+        return manager.getPhoneNumber(); // User 엔티티에 phone 필드 필요
     }
 }
