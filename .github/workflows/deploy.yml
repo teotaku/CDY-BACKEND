@@ -57,10 +57,10 @@ jobs:
           script_stop: true                      # 중간에 에러 나면 바로 종료
           # timeout, command_timeout 은 기본값(10분)으로도 충분하면 생략 가능
           script: |
-                  rm -rf /home/ubuntu/app/current
-                  mkdir -p /home/ubuntu/app/current
-                  mv /home/ubuntu/app/tobe/project.jar /home/ubuntu/app/current/project.jar
-                  cd /home/ubuntu/app/current
-                  sudo fuser -k -n tcp 8080 || true
-                  nohup java -jar project.jar > ./output.log 2>&1 &
-                  rm -rf /home/ubuntu/app/tobe
+            rm -rf /home/ubuntu/BE/current
+            mkdir -p /home/ubuntu/BE/current
+            mv /home/ubuntu/BE/tobe/project.jar /home/ubuntu/BE/current/project.jar
+            cd /home/ubuntu/BE/current
+            sudo fuser -k -n tcp 8080 || true
+            nohup java -jar project.jar > ./output.log 2>&1 &
+            rm -rf /home/ubuntu/BE/tobe
