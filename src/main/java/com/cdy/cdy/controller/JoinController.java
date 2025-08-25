@@ -27,7 +27,7 @@ public class JoinController {
     @Operation(summary = "", description = "이메일과 비밀번호로 로그인하여 JWT 토큰 발급")
     @PostMapping("/join")
     public ResponseEntity<String> joinProcess(@RequestBody @Valid LoginRequest loginRequest) {
-        return ResponseEntity.ok("회원가입 성공");
+        return ResponseEntity.ok("회원가입 성공1");
     }
 
     //로그인
