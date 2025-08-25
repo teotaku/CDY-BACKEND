@@ -45,7 +45,7 @@ jobs:
           username: ${{ secrets.EC2_USERNAME }}
           key: ${{ secrets.EC2_PRIVATE_KEY }}
           source: project.jar
-          target: /home/ubuntu/BE/tobe
+          target: /home/ubuntu/app
 
       # 8. EC2에 접속 후 jar 실행
       - name: EC2에 접속해서 실행하기
@@ -56,6 +56,6 @@ jobs:
           key: ${{ secrets.EC2_PRIVATE_KEY }}
           script_stop: true
           script: |
-            cd /home/ubuntu/BE/tobe
+            cd /home/ubuntu/app
             pkill -f 'project.jar' || true   # 기존 실행 중인 jar 종료
             nohup java -jar project.jar > app.log 2>&1 &
