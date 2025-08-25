@@ -57,28 +57,10 @@ jobs:
           script_stop: true                      # 중간에 에러 나면 바로 종료
           # timeout, command_timeout 은 기본값(10분)으로도 충분하면 생략 가능
           script: |
-            cd /home/ubuntu/app
-
-            # (1) 기존 실행 중인 project.jar 프로세스 종료 (없어도 통과)
-            pkill -f 'project.jar' || true
-            sleep 1
-
-            # (2) 자바 절대경로 지정 (비로그인 셸에서 PATH 문제 방지)
-            JAVA_BIN=/usr/bin/java
-            "$JAVA_BIN" -version
-
-            # (3) 새 jar 실행 (로그는 app.log로 저장, 외부 접속 허용)
-            nohup "$JAVA_BIN" -jar project.jar \
-              --server.address=0.0.0.0 \
-              --server.port=8080 \
-              > app.log 2>&1 &
-
-            # (4) 기동 대기 후 실행 확인
-            sleep 8
-            if pgrep -fa 'project.jar' >/dev/null; then
-              echo "✅ APP RUNNING"
-            else
-              echo "❌ APP NOT RUNNING"
-              tail -n 200 app.log || true
-              exit 1
-            fi
+                  rm -rf /home/ubuntu/app/current
+                  mkdir -p /home/ubuntu/app/current
+                  mv /home/ubuntu/app/tobe/project.jar /home/ubuntu/app/current/project.jar
+                  cd /home/ubuntu/app/current
+                  sudo fuser -k -n tcp 8080 || true
+                  nohup java -jar project.jar > ./output.log 2>&1 &
+                  rm -rf /home/ubuntu/app/tobe
