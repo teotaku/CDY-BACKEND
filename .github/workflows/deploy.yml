@@ -56,6 +56,23 @@ jobs:
           key: ${{ secrets.EC2_PRIVATE_KEY }}
           script_stop: true
           script: |
+            set -e
             cd /home/ubuntu/app
-            pkill -f 'project.jar' || true   # 기존 실행 중인 jar 종료
-            nohup java -jar project.jar > app.log 2>&1 &
+            
+            # 예전 프로세스 정리(둘 다)
+            pkill -f 'app.jar' || true
+            pkill -f 'project.jar' || true
+            
+            # 새로 실행(바인딩 명시)
+            nohup java -jar project.jar --server.address=0.0.0.0 --server.port=8080 > app.log 2>&1 &
+            
+            # 잠깐 대기 후 헬스/프로세스 확인 → 우리 손으로 성공/실패 결정
+            sleep 3
+            if pgrep -fa 'project.jar' >/dev/null; then
+              echo "APP RUNNING"
+              exit 0
+            else
+              echo "APP NOT RUNNING"
+              tail -n 200 app.log || true
+              exit 1
+            fi
