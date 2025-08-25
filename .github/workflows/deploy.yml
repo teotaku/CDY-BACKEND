@@ -55,27 +55,21 @@ jobs:
           username: ${{ secrets.EC2_USERNAME }}
           key: ${{ secrets.EC2_PRIVATE_KEY }}
           script_stop: true
-          timeout: 900          # 15분
-          command_timeout: 900  # 15분
+          timeout: 15m            # ← 단위 꼭!
+          command_timeout: 15m    # ← 단위 꼭!
           script: |
-            set -e
-            cd /home/ubuntu/app
-            pkill -f 'project.jar' || true
-            sleep 1
-            
-            # 자바 절대경로로 실행(환경파일 로딩 같은 거 안 함)
-            JAVA_BIN=/usr/bin/java
-            "$JAVA_BIN" -version
-            
-            nohup "$JAVA_BIN" -jar project.jar \
-              --server.address=0.0.0.0 --server.port=8080 \
-              > app.log 2>&1 &
-            
-            sleep 8
-            if pgrep -fa 'project.jar' >/dev/null; then
-              echo "APP RUNNING"
-            else
-              echo "APP NOT RUNNING"
-              tail -n 200 app.log || true
-              exit 1
-            fi
+              set -e
+              cd /home/ubuntu/app
+              pkill -f 'project.jar' || true
+              sleep 1
+              JAVA_BIN=/usr/bin/java
+              "$JAVA_BIN" -version
+              nohup "$JAVA_BIN" -jar project.jar --server.address=0.0.0.0 --server.port=8080 > app.log 2>&1 &
+              sleep 8
+              if pgrep -fa 'project.jar' >/dev/null; then
+                echo "APP RUNNING"
+              else
+                echo "APP NOT RUNNING"
+                tail -n 200 app.log || true
+                exit 1
+              fi
