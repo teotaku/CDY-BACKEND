@@ -51,25 +51,34 @@ jobs:
       - name: EC2에 접속해서 실행하기
         uses: appleboy/ssh-action@v1.0.3
         with:
-          host: ${{ secrets.EC2_HOST }}
-          username: ${{ secrets.EC2_USERNAME }}
-          key: ${{ secrets.EC2_PRIVATE_KEY }}
-          script_stop: true
-          timeout: 15m            # ← 단위 꼭!
-          command_timeout: 15m    # ← 단위 꼭!
+          host: ${{ secrets.EC2_HOST }}          # EC2 퍼블릭 IP (Secrets에 저장한 값)
+          username: ${{ secrets.EC2_USERNAME }}  # EC2 접속 유저 (ex: ubuntu)
+          key: ${{ secrets.EC2_PRIVATE_KEY }}    # 개인키 (Secrets에 저장한 값)
+          script_stop: true                      # 중간에 에러 나면 바로 종료
+          # timeout, command_timeout 은 기본값(10분)으로도 충분하면 생략 가능
           script: |
-              set -e
-              cd /home/ubuntu/app
-              pkill -f 'project.jar' || true
-              sleep 1
-              JAVA_BIN=/usr/bin/java
-              "$JAVA_BIN" -version
-              nohup "$JAVA_BIN" -jar project.jar --server.address=0.0.0.0 --server.port=8080 > app.log 2>&1 &
-              sleep 8
-              if pgrep -fa 'project.jar' >/dev/null; then
-                echo "APP RUNNING"
-              else
-                echo "APP NOT RUNNING"
-                tail -n 200 app.log || true
-                exit 1
-              fi
+            cd /home/ubuntu/app
+
+            # (1) 기존 실행 중인 project.jar 프로세스 종료 (없어도 통과)
+            pkill -f 'project.jar' || true
+            sleep 1
+
+            # (2) 자바 절대경로 지정 (비로그인 셸에서 PATH 문제 방지)
+            JAVA_BIN=/usr/bin/java
+            "$JAVA_BIN" -version
+
+            # (3) 새 jar 실행 (로그는 app.log로 저장, 외부 접속 허용)
+            nohup "$JAVA_BIN" -jar project.jar \
+              --server.address=0.0.0.0 \
+              --server.port=8080 \
+              > app.log 2>&1 &
+
+            # (4) 기동 대기 후 실행 확인
+            sleep 8
+            if pgrep -fa 'project.jar' >/dev/null; then
+              echo "✅ APP RUNNING"
+            else
+              echo "❌ APP NOT RUNNING"
+              tail -n 200 app.log || true
+              exit 1
+            fi
