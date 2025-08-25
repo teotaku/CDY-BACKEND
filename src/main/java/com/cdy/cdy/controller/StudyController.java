@@ -20,6 +20,7 @@ public class StudyController {
 
     private final StudyService studyService;
 
+    //스터디 생성
     @PostMapping
     public ResponseEntity<StudyChannelResponse> createStudy(
             @AuthenticationPrincipal CustomUserDetails user,
@@ -37,6 +38,14 @@ public class StudyController {
     @GetMapping
     public ResponseEntity<List<StudyChannelResponse>> getAllStudies() {
         return ResponseEntity.ok(studyService.getAllStudies());
+    }
+
+    @DeleteMapping("/delete/{studyId}")
+    public ResponseEntity<Void> deleteStudy(@PathVariable Long studyId,
+                                            @AuthenticationPrincipal CustomUserDetails userDetails) {
+        studyService.deleteStudy(studyId, userDetails.getId());
+        return ResponseEntity.ok().build();
+
     }
 }
 

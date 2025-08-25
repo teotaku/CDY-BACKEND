@@ -1,5 +1,23 @@
+server:
+  port: 8080
+  address: 0.0.0.0   # 👈 이게 꼭 필요함 (외부 접속 가능하도록 설정)
+
+
 spring:
+  datasource:
+    url: jdbc:mysql://localhost:3306/shoppingmall?useSSL=false&serverTimezone=Asia/Seoul&characterEncoding=UTF-8
+    username: root
+    password: mypassword   # 네가 mysql_secure_installation 에서 설정한 root 비번
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: create   # 실행할 때마다 테이블 새로 생성 (초기 개발 단계에 적합)
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQL8Dialect
+        format_sql: true
+    show-sql: true
   jwt:
-    secret: ${JWT_SECRET}
-    expiration: ${JWT_EXPIRATION:3600000}
-    issuer: ${JWT_ISSUER:my-app}
+    secret: your-secret-key-here
+    expiration: 3600000

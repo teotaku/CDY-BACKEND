@@ -1,6 +1,6 @@
 package com.cdy.cdy.jwt;
 
-import com.cdy.cdy.dto.CustomUserDetails;
+import com.cdy.cdy.dto.response.CustomUserDetails;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;

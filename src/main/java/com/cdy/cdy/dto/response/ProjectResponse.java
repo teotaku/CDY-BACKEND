@@ -20,7 +20,7 @@ public class ProjectResponse {
     private String imageUrl;
 
 
-    private int memberCount;     // 참여 인원 수
+    private long memberCount;     // 참여 인원 수
     private String contact;      // 연락처
 
     private Long leaderId;
@@ -32,7 +32,7 @@ public class ProjectResponse {
                                      Long leaderId,
                                      List<String> positions,
                                      List<String> techs,
-                                     List<String> questions, int memberCount,String phoneNumber) {
+                                     List<String> questions, long memberCount,String phoneNumber) {
         return ProjectResponse.builder()
                 .id(p.getId())
                 .title(p.getTitle())

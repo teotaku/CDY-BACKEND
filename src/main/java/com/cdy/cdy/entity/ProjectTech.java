@@ -38,6 +38,6 @@ public class ProjectTech {
     @Builder
     public ProjectTech(Project project, String techName) {
         this.project = project;
-        this.techName = techName;
+//        this.techName = techName;
     }
 }
