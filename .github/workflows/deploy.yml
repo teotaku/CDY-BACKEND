@@ -45,7 +45,7 @@ jobs:
           username: ${{ secrets.EC2_USERNAME }}
           key: ${{ secrets.EC2_PRIVATE_KEY }}
           source: project.jar
-          target: /home/ubuntu/app
+          target: /home/ubuntu/BE/tobe
 
       # 8. EC2에 접속 후 jar 실행
       - name: EC2에 접속해서 실행하기
