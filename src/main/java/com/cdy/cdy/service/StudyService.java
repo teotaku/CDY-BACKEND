@@ -9,6 +9,8 @@ import com.cdy.cdy.repository.StudyChannelRepository;
 import com.cdy.cdy.repository.UserRepository;
 import jakarta.persistence.Id;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Service;
@@ -82,12 +84,10 @@ public class StudyService {
     }
 
     // 3. 전체 조회
-    public List<StudyChannelResponse> getAllStudies() {
-        List<StudyChannel> studies = studyChannelRepository.findAll();
+    public Page<StudyChannelResponse> getAllStudies(Pageable pageable) {
 
-        return studies.stream()
-                .map(StudyChannelResponse::from)
-                .toList();
+        return studyChannelRepository.findAll(pageable)
+                .map(StudyChannelResponse::from);
     }
 
 }

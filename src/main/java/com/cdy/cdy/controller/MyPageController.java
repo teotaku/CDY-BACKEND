@@ -4,15 +4,15 @@ import com.cdy.cdy.dto.request.UpdateEmailRequest;
 import com.cdy.cdy.dto.request.UpdateNicknameRequest;
 import com.cdy.cdy.dto.request.UpdatePasswordRequest;
 import com.cdy.cdy.dto.response.CustomUserDetails;
+import com.cdy.cdy.dto.response.MypageResponse;
+import com.cdy.cdy.entity.User;
+import com.cdy.cdy.repository.UserRepository;
 import com.cdy.cdy.service.MyPageService;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.PatchMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("api/mypage")
@@ -20,6 +20,28 @@ import org.springframework.web.bind.annotation.RestController;
 public class MyPageController {
 
     private final MyPageService myPageService;
+    private final UserRepository userRepository;
+
+
+
+    //마이 페이지 조회
+    @GetMapping
+    public ResponseEntity<MypageResponse> getMyPage(@AuthenticationPrincipal CustomUserDetails userDetails) {
+        String email = userDetails.getEmail();
+        Long id = userDetails.getId();
+        User user = userRepository.findById(id)
+                .orElseThrow(()-> new IllegalArgumentException("아이디를 찾을수없습니다."));
+
+        String nickname = user.getNickname();
+
+        MypageResponse mypageResponse = MypageResponse.builder()
+                .nickName(nickname)
+                .email(email)
+                .build();
+        return ResponseEntity.ok(mypageResponse);
+
+
+    }
 
     // 닉네임 변경
     @Operation(summary = "닉네임 변경", description = "현재 로그인한 사용자의 닉네임을 변경합니다.")
