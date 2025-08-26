@@ -10,6 +10,8 @@ import lombok.*;
 @AllArgsConstructor
 @Builder
 public class SignUpRequest {
+
+
     private String email;
 
     private String password;
