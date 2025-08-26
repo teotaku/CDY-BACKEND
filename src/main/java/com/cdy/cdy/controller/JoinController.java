@@ -23,16 +23,15 @@ public class JoinController {
     private final AuthService authService;
 
     //회원가입
+    @Operation(summary = "회원가입", description = "이메일과 비밀번호로 회원가입을 진행합니다.")
 
-    @Operation(summary = "", description = "이메일과 비밀번호로 로그인하여 JWT 토큰 발급")
     @PostMapping("/join")
     public ResponseEntity<String> joinProcess(@RequestBody @Valid LoginRequest loginRequest) {
         return ResponseEntity.ok("회원가입 성공3");
     }
 
     //로그인
-
-    @Operation(summary = "", description = "이메일과 비밀번호로 로그인하여 JWT 토큰 발급")
+    @Operation(summary = "로그인", description = "이메일과 비밀번호로 로그인 후 JWT 토큰을 발급받습니다.")
     @PostMapping("/login")
     public ResponseEntity<LoginResponse> login(@RequestBody @Valid LoginRequest request) {
         LoginResponse token = authService.login(request);
