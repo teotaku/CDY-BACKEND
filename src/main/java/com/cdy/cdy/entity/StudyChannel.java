@@ -33,7 +33,7 @@ public class StudyChannel extends BaseEntity {
 
     // ✅ Builder 생성자
     @Builder
-    private StudyChannel(User owner, String category, String title, String content, String thumbnailUrl) {
+    private StudyChannel(User owner, String category,  String content, String thumbnailUrl) {
         this.owner = Objects.requireNonNull(owner);
         this.category = category;
         this.content = content;
