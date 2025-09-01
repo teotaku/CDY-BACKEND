@@ -25,10 +25,8 @@ public class StudyChannel extends BaseEntity {
 
 
     @Lob
-    // ↑ Large Object.
-    //   String + @Lob => CLOB/TEXT(매우 긴 본문 저장)
-    //   byte[] + @Lob => BLOB(바이너리)
-    private String content; // 본문
+    @Column(columnDefinition = "TEXT")
+    private String content;
 
     @Column(name = "thumbnail_url", length = 500)
     private String thumbnailUrl; // 썸네일 이미지 URL(S3 등 외부 저장)
@@ -39,14 +37,14 @@ public class StudyChannel extends BaseEntity {
         this.owner = Objects.requireNonNull(owner);
         this.category = category;
         this.content = content;
-        this.thumbnailUrl = thumbnailUrl;
+//        this.thumbnailUrl = thumbnailUrl;
     }
 
     // ✅ 요청 DTO -> 엔티티 변환
     public static StudyChannel from(User owner, CreateStudyChannelRequest req) {
         return StudyChannel.builder()
                 .owner(owner)
-                .category(req.getCategory())
+//                .category(req.getCategory())
                 .content(req.getContent())
                 .build();
     }
@@ -54,7 +52,7 @@ public class StudyChannel extends BaseEntity {
     // ✅ 수정 메서드
     public void update(CreateStudyChannelRequest req) {
         if (req.getContent() != null) this.content = req.getContent();
-        if (req.getCategory() != null) this.category = req.getCategory();
+//        if (req.getCategory() != null) this.category = req.getCategory();
     }
 }
 

@@ -25,7 +25,7 @@ public class StudyController {
     private final StudyService studyService;
 
     //스터디 생성
-    @PostMapping
+    @PostMapping("/create")
     public ResponseEntity<StudyChannelResponse> createStudy(
             @AuthenticationPrincipal CustomUserDetails user,
             @RequestBody CreateStudyChannelRequest request) {
@@ -39,13 +39,27 @@ public class StudyController {
     }
 
     // 전체 조회
-    @GetMapping
+    @GetMapping("/getAll")
     public ResponseEntity<Page<StudyChannelResponse>> getAllStudies
     (@PageableDefault(size = 10, sort = "createdAt", direction = Sort.Direction.DESC)
      Pageable pageable) {
 
         return ResponseEntity.ok(studyService.getAllStudies(pageable));
     }
+
+
+
+
+    //카테고리별 조회
+    @GetMapping("/category/{category}")
+    public ResponseEntity<Page<StudyChannelResponse>> findByCategory(
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @PathVariable("category") String category,
+            @PageableDefault(size=10, sort="createdAt", direction=Sort.Direction.DESC) Pageable pageable
+    ) {
+        return ResponseEntity.ok(studyService.findByCategory(userDetails.getId(), category, pageable));
+    }
+
 
     @DeleteMapping("/delete/{studyId}")
     public ResponseEntity<Void> deleteStudy(@PathVariable Long studyId,

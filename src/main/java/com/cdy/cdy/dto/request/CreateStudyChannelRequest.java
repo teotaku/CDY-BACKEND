@@ -5,6 +5,8 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import lombok.*;
 
+import java.util.ArrayList;
+import java.util.List;
 
 
 @Getter
@@ -12,10 +14,10 @@ import lombok.*;
 @AllArgsConstructor
 @Builder
 public class CreateStudyChannelRequest {
-    @NotNull @Positive
-    private Long Id;
 
-    private String Category;
+
+   @Builder.Default
+     private List<CreateStudyImageDto> images = new ArrayList<>();
 
     @NotBlank
     private String content;

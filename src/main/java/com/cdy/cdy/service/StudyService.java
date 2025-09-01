@@ -1,11 +1,14 @@
 package com.cdy.cdy.service;
 
 import com.cdy.cdy.dto.request.CreateStudyChannelRequest;
+import com.cdy.cdy.dto.request.CreateStudyImageDto;
 import com.cdy.cdy.dto.response.CustomUserDetails;
 import com.cdy.cdy.dto.response.StudyChannelResponse;
 import com.cdy.cdy.entity.StudyChannel;
+import com.cdy.cdy.entity.StudyImage;
 import com.cdy.cdy.entity.User;
 import com.cdy.cdy.repository.StudyChannelRepository;
+import com.cdy.cdy.repository.StudyImageRepository;
 import com.cdy.cdy.repository.UserRepository;
 import jakarta.persistence.Id;
 import lombok.RequiredArgsConstructor;
@@ -25,23 +28,30 @@ public class StudyService {
 
     private final StudyChannelRepository studyChannelRepository;
     private final UserRepository userRepository;
+    private final StudyImageRepository studyImageRepository;
 
-    public StudyChannelResponse createStudy(Long userID ,
-                                             CreateStudyChannelRequest request) {
+    public StudyChannelResponse createStudy(Long userId, CreateStudyChannelRequest req) {
+        User owner = userRepository.getReferenceById(userId);
 
+        // 1) 스터디 글 저장
+        StudyChannel study = StudyChannel.from(owner, req); // 기존 로직 그대로
+        studyChannelRepository.save(study);
 
-        User user = userRepository.findById(userID)
-                .orElseThrow(() -> new IllegalArgumentException("유저를 찾을수 없습니다."));
+        // 2) 이미지 저장 (키만 저장)
+        if (req.getImages() != null) {
+            for (CreateStudyImageDto img : req.getImages()) {
+                StudyImage si = StudyImage.builder()
+                        .study(study)
+                        .key(img.getKey())
+                        .sortOrder(img.getSortOrder())
+                        .alt(img.getAlt())
+                        .build();
+                studyImageRepository.save(si);
+            }
+        }
 
-
-        StudyChannel studyChannel = StudyChannel.from(user, request);
-
-        return StudyChannelResponse.builder()
-                .id(studyChannel.getId())
-                .content(request.getContent())
-                .createdAt(LocalDateTime.now())
-                .build();
-
+        // 3) 응답 조립 (간단 버전)
+        return StudyChannelResponse.from(study /*, 필요하면 이미지 리스트 포함해서 */);
     }
 
     //스터디 수정
@@ -90,6 +100,10 @@ public class StudyService {
                 .map(StudyChannelResponse::from);
     }
 
+    public Page<StudyChannelResponse> findByCategory(Long id, String category, Pageable pageable) {
+
+        return null;
+    }
 }
 
 
