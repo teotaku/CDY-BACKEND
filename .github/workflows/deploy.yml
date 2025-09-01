@@ -61,6 +61,11 @@ jobs:
             mkdir -p /home/ubuntu/BE/current
             mv /home/ubuntu/BE/tobe/project.jar /home/ubuntu/BE/current/project.jar
             cd /home/ubuntu/BE/current
+            
+              cat > application.yml << 'EOF'
+              ${{ secrets.APPLICATION_YML }}
+              EOF
+            
             sudo fuser -k -n tcp 8080 || true
             nohup java -jar project.jar > ./output.log 2>&1 &
             rm -rf /home/ubuntu/BE/tobe
