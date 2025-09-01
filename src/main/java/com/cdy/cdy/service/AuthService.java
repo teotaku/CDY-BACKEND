@@ -22,7 +22,7 @@ public class AuthService {
     private final PasswordEncoder passwordEncoder;
     private final JWTUtil jwtUtil;
 
-    @Value("${spring.jwt.expiration}")
+    @Value("${jwt.expiration}")
     private long accessExpireMs;
 
     @Transactional
