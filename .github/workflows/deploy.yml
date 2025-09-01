@@ -62,7 +62,7 @@ jobs:
             mv /home/ubuntu/BE/tobe/project.jar /home/ubuntu/BE/current/project.jar
             cd /home/ubuntu/BE/current
             
-            cat > application.yml << 'EOF'
+            cat <<EOF > application.yml
             ${{ secrets.APPLICATION_YML }}
             EOF
             
