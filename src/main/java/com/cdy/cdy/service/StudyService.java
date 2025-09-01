@@ -4,6 +4,7 @@ import com.cdy.cdy.dto.request.CreateStudyChannelRequest;
 import com.cdy.cdy.dto.request.CreateStudyImageDto;
 import com.cdy.cdy.dto.response.CustomUserDetails;
 import com.cdy.cdy.dto.response.StudyChannelResponse;
+import com.cdy.cdy.dto.response.StudyImageResponse;
 import com.cdy.cdy.entity.StudyChannel;
 import com.cdy.cdy.entity.StudyImage;
 import com.cdy.cdy.entity.User;
@@ -29,6 +30,7 @@ public class StudyService {
     private final StudyChannelRepository studyChannelRepository;
     private final UserRepository userRepository;
     private final StudyImageRepository studyImageRepository;
+    private final R2StorageService r2StorageService;
 
     public StudyChannelResponse createStudy(Long userId, CreateStudyChannelRequest req) {
         User owner = userRepository.getReferenceById(userId);
@@ -44,14 +46,14 @@ public class StudyService {
                         .study(study)
                         .key(img.getKey())
                         .sortOrder(img.getSortOrder())
-                        .alt(img.getAlt())
+//                        .alt(img.getAlt())
                         .build();
                 studyImageRepository.save(si);
             }
         }
 
         // 3) 응답 조립 (간단 버전)
-        return StudyChannelResponse.from(study /*, 필요하면 이미지 리스트 포함해서 */);
+        return StudyChannelResponse.from(study);
     }
 
     //스터디 수정
@@ -90,15 +92,36 @@ public class StudyService {
         StudyChannel studyChannel = studyChannelRepository.findById(studyId)
                 .orElseThrow(() -> new IllegalArgumentException("해당 스터디 채널을 찾을 수 없습니다."));
 
-        return StudyChannelResponse.from(studyChannel);
+        // 이미지 조회
+        List<StudyImage> images = studyImageRepository.findByStudyId(studyId);
+
+        // key → url 변환 (퍼블릭이면 publicUrl, 프라이빗이면 presignGet)
+        List<StudyImageResponse> imageResponses = images.stream()
+                .map(img -> StudyImageResponse.from(
+                        img,
+                        r2StorageService.publicUrl(img.getKey()) // presignGet(img.getKey(), 300)도 가능
+                ))
+                .toList();
+
+        return StudyChannelResponse.from(studyChannel, imageResponses);
     }
 
     // 3. 전체 조회
     public Page<StudyChannelResponse> getAllStudies(Pageable pageable) {
 
         return studyChannelRepository.findAll(pageable)
-                .map(StudyChannelResponse::from);
+                .map(study -> {
+                    List<StudyImage> images = studyImageRepository.findByStudyId(study.getId());
+                    List<StudyImageResponse> imageResponses = images.stream()
+                            .map(img -> StudyImageResponse.from(
+                                    img,
+                                    r2StorageService.publicUrl(img.getKey())
+                            ))
+                            .toList();
+                    return StudyChannelResponse.from(study, imageResponses);
+                });
     }
+
 
     public Page<StudyChannelResponse> findByCategory(Long id, String category, Pageable pageable) {
 

@@ -5,5 +5,9 @@ import com.cdy.cdy.entity.StudyImage;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
+
 @Repository
-public interface StudyImageRepository extends JpaRepository<StudyImage, Long> {}
+public interface StudyImageRepository extends JpaRepository<StudyImage, Long> {
+    List<StudyImage> findByStudyId(Long studyId);
+}
