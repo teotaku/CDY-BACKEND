@@ -29,7 +29,7 @@ public class JWTUtil {
         return Jwts.parser().verifyWith(secretKey)
                 .build()
                 .parseSignedClaims(token).getPayload()
-                .get("username", String.class);
+                .get("email", String.class);
 
     }
 
