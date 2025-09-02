@@ -6,9 +6,8 @@ import lombok.*;
 
 @Getter @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity
-@Table(name = "study_images", indexes = {
-        @Index(name="idx_study_images_study_id", columnList="study_id")
-})
+@Table(name = "study_images")
+
 public class StudyImage {
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
