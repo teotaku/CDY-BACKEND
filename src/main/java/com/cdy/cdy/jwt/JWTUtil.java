@@ -49,10 +49,11 @@ public class JWTUtil {
                 .before(new Date());
     }
 
-    public String createJwt(String userEmail, String role, long expireMs) {
+    public String createJwt(Long userId,String userEmail, String role, long expireMs) {
             long now = System.currentTimeMillis();
 
             var builder = Jwts.builder()
+                    .claim("userId",userId)
                     .claim("email", userEmail)    // 필요한 최소 정보
                     .issuedAt(new Date(now))
                     .expiration(new Date(now + expireMs));

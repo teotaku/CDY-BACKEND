@@ -56,7 +56,7 @@ public class AuthService {
 
 
 
-        String access = jwtUtil.createJwt(user.getEmail(), null,accessExpireMs);
+        String access = jwtUtil.createJwt(user.getId(),user.getEmail(), null,accessExpireMs);
 //        String refresh = jwtUtil.createRefreshToken(user.getId(), user.getRole().toString());
 
 
