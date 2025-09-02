@@ -52,11 +52,12 @@ public class AuthService {
             throw new IllegalArgumentException("잘못된 이메일 또는 비밀번호");
         }
 
-        String role = (user.getRole() == null) ? null : user.getRole().name();
+        String role = (user.getRole() == null) ? UserRole.USER.name() : user.getRole().name();
 
 
 
-        String access = jwtUtil.createJwt(user.getId(),user.getEmail(), null,accessExpireMs);
+
+        String access = jwtUtil.createJwt(user.getId(),user.getEmail(), role,accessExpireMs);
 //        String refresh = jwtUtil.createRefreshToken(user.getId(), user.getRole().toString());
 
 

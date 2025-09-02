@@ -48,14 +48,14 @@ public class StudyController {
     }
 
     //카테고리별 조회
-    @GetMapping("/Category/{category}")
+    @GetMapping("/category/{category}")
     public ResponseEntity<Page<StudyChannelResponse>> findByCategory(
             @AuthenticationPrincipal CustomUserDetails userDetails,
-            @RequestParam String Category,
+            @PathVariable String category,
             @PageableDefault(size = 10, sort = "createdAt", direction = Sort.Direction.DESC)
             Pageable pageable
     ) {
-        return ResponseEntity.ok(studyService.findByCategory(userDetails.getId(),Category,pageable));
+        return ResponseEntity.ok(studyService.findByCategory(userDetails.getId(),category,pageable));
     }
 
 
