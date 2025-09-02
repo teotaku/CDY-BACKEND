@@ -48,7 +48,7 @@ public class StudyController {
     }
 
     //카테고리별 조회
-    @GetMapping("/{category}")
+    @GetMapping("/Category/{category}")
     public ResponseEntity<Page<StudyChannelResponse>> findByCategory(
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @RequestParam String Category,
