@@ -59,6 +59,7 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
 
         CustomUserDetails customUserDetails = (CustomUserDetails) authentication.getPrincipal();
         String username = customUserDetails.getUsername();
+        Long id = customUserDetails.getId();
 
         Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
         Iterator<? extends GrantedAuthority> iterator = authorities.iterator();
@@ -69,7 +70,7 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
 
         //로그인 비밀번호,아이디 확인하고 userdetailsservice를 통한 검증 끝났으면 그걸 userdetails에  담고
         // userdetails에 뽑아온 위 정보 토대로  jwt 토큰 생성
-        String token = jwtUtil.createJwt(username,role,60 * 60 * 10L);
+        String token = jwtUtil.createJwt(id,username,role,60 * 60 * 10L);
 
         //jwt 토큰을 header에 담아서 클라이언트에게 전달
         response.addHeader("Authorization","Bearer " + token);
