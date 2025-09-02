@@ -16,7 +16,7 @@ public class StudyImage {
     @ManyToOne(fetch=FetchType.LAZY) @JoinColumn(name="study_id", nullable=false)
     private StudyChannel study;
 
-    @Column(nullable=false, length=400)
+    @Column(name = "object_key", nullable = false, length = 400)
     private String key;               // R2 객체 키 (예: uploads/uuid.jpg)
 
     @Column(nullable=false)
