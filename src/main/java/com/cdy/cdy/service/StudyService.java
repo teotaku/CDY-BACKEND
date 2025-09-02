@@ -33,7 +33,8 @@ public class StudyService {
     private final R2StorageService r2StorageService;
 
     public StudyChannelResponse createStudy(Long userId, CreateStudyChannelRequest req) {
-        User owner = userRepository.getReferenceById(userId);
+        User owner = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("user not found"));
 
         // 1) 스터디 글 저장
         StudyChannel study = StudyChannel.from(owner, req); // 기존 로직 그대로

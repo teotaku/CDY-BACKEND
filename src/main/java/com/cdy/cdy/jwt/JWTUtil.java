@@ -78,5 +78,13 @@ public class JWTUtil {
                 .signWith(secretKey, SignatureAlgorithm.HS256)
                 .compact();
     }
+    public Long getUserId(String token) {
+        return Jwts.parser()
+                .verifyWith(secretKey)
+                .build()
+                .parseSignedClaims(token)
+                .getPayload()
+                .get("userId", Long.class);
+    }
 
 }
