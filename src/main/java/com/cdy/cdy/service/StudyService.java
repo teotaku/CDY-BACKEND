@@ -31,6 +31,7 @@ public class StudyService {
     private final UserRepository userRepository;
     private final StudyImageRepository studyImageRepository;
     private final R2StorageService r2StorageService;
+    private final AttendanceService attendanceService;
 
     public StudyChannelResponse createStudy(Long userId, CreateStudyChannelRequest req) {
         User owner = userRepository.findById(userId)
@@ -52,9 +53,10 @@ public class StudyService {
                 studyImageRepository.save(si);
             }
         }
-
+        attendanceService.checkToday(userId);
         // 3) 응답 조립 (간단 버전)
         return StudyChannelResponse.from(study);
+
     }
 
     //스터디 수정
