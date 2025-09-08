@@ -27,6 +27,8 @@ public class Project  {
     @Lob
     private String description;
 
+    private List<String> techs;
+
     private Integer capacity;
 
     @OneToMany(mappedBy = "project", cascade = CascadeType.ALL, orphanRemoval = true)
@@ -38,13 +40,16 @@ public class Project  {
 
     private String logoImageUrl; // null 허용 (이미지 나중에 붙일 수 있음)
 
+    private String kakaoLink;
+
     @Builder
-    private Project(String title, String description, Integer capacity, User manager, String logoImageUrl) {
+    private Project(String title, String description, Integer capacity, User manager, String logoImageUrl,String kakaoLink) {
         this.title = Objects.requireNonNull(title);
         this.description = description;
         this.capacity = capacity;
         this.manager = Objects.requireNonNull(manager);
         this.logoImageUrl = logoImageUrl;
+        this.kakaoLink = kakaoLink;
     }
 
     // 👉 DTO에서 바로 변환할 수 있게 팩토리 메서드
@@ -55,6 +60,7 @@ public class Project  {
                 .capacity(req.getCapacity())
                 .manager(leader)
                 .logoImageUrl(null) // null 가능
+                .kakaoLink(req.getKakaoLink())
                 .build();
     }
 

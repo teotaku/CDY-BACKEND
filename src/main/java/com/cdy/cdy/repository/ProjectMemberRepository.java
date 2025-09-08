@@ -3,6 +3,8 @@ package com.cdy.cdy.repository;
 import com.cdy.cdy.entity.ProjectMember;
 import com.cdy.cdy.entity.ProjectMemberStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.Collection;
@@ -12,6 +14,19 @@ import java.util.Optional;
 @Repository
 public interface ProjectMemberRepository extends JpaRepository<ProjectMember,Long> {
     List<ProjectMember> findByUserId(Long userId);
+
+
+
+    @Query("""
+       SELECT pm 
+       FROM ProjectMember pm
+       JOIN FETCH pm.user u
+       WHERE pm.project.id = :projectId
+         AND pm.status = ProjectMemberStatus.APPROVED
+       ORDER BY pm.joinedAt DESC
+    """)
+    List<ProjectMember> findApprovedMembersWithUserByProjectId(@Param("projectId") Long projectId);
+
 
 
     //최근 참가 이력 1건
@@ -36,5 +51,8 @@ public interface ProjectMemberRepository extends JpaRepository<ProjectMember,Lon
 
     // 승인/신청 레코드 직접 찾고 싶을 때
     Optional<ProjectMember> findByUser_IdAndProject_Id(Long userId, Long projectId);
+
+    boolean existsByUser_IdAndStatusIn(Long userId, List<ProjectMemberStatus> applied);
+
 }
 

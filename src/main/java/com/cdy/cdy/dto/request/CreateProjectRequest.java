@@ -15,14 +15,12 @@ import java.util.List;
 @Builder
 public class CreateProjectRequest {
 
-    @NotBlank
-    @Size(max = 255)
     private String title;          // 프로젝트명
 
-    @NotBlank
     private String description;    // 프로젝트 설명
 
-    @NotNull
+    private String imageKey;
+
     @Positive
     private Integer capacity;      // 참여 인원
 
@@ -31,4 +29,6 @@ public class CreateProjectRequest {
     private List<String> techs;     // 기술 ["Spring", "React"]
 
     private List<String> questions; // 질문 ["자기소개", "가능 요일"]
+
+    private String kakaoLink;
 }

@@ -1,6 +1,7 @@
 package com.cdy.cdy.controller;
 
 
+import com.cdy.cdy.dto.request.CreateProjectRequest;
 import com.cdy.cdy.dto.request.CreateStudyChannelRequest;
 import com.cdy.cdy.dto.response.CustomUserDetails;
 import com.cdy.cdy.dto.response.StudyChannelResponse;
@@ -58,7 +59,7 @@ public class StudyController {
         return ResponseEntity.ok(studyService.findByCategory(userDetails.getId(),category,pageable));
     }
 
-
+    //스터디 삭제
     @DeleteMapping("/delete/{studyId}")
     public ResponseEntity<Void> deleteStudy(@PathVariable Long studyId,
                                             @AuthenticationPrincipal CustomUserDetails userDetails) {
@@ -66,6 +67,14 @@ public class StudyController {
         return ResponseEntity.ok().build();
 
     }
+    //스터디 수정
+    @PutMapping
+    public ResponseEntity<Void> updateStudy(@PathVariable Long studyId,
+                                            @AuthenticationPrincipal CustomUserDetails userDetails,
+                                            @RequestBody CreateProjectRequest rq) {
+        return ResponseEntity.ok().build();
+    }
+
 }
 
 

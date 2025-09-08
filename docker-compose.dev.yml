@@ -1,25 +1,36 @@
-version: '3.8'
-
 services:
   app:
     build:
       context: .
       dockerfile: Dockerfile
     ports:
-      - "8080:8080"
+      - 8080:8080
     env_file:
-      - .env.dev
-    depends_on:
-      - db
+      - ./.env
+    environment:
+      SPRING_PROFILES_ACTIVE: dev
+      # @Value("${AWS_REGION}")은 JVM이 직접 읽어야 하므로 여기도 명시
 
+    depends_on:
+      db:
+        condition: service_healthy
 
   db:
-    image: mysql:8.0
-    container_name: mysql
+    image: mysql:8
+    container_name: cdy_mysql
     ports:
-      - "3306:3306"        # 🔥 로컬에서 3306 → 컨테이너의 3306
-    environment:
-      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
-      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      - 3307:3306 # 로컬 호스트의 3307을 컨테이너 3306에 연결
 
+    env_file:
+      - ./.env
+
+    volumes:
+      - mysql_data:/var/lib/mysql
+
+    healthcheck:
+      test: [ "CMD", "mysqladmin", "ping" ]
+      interval: 5s
+      retries: 10
+volumes:
+  mysql_data:
 

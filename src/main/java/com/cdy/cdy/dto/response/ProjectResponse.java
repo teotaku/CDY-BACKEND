@@ -1,6 +1,7 @@
 package com.cdy.cdy.dto.response;
 
 import com.cdy.cdy.entity.Project;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -9,6 +10,7 @@ import java.util.List;
 
 @Getter
 @Builder
+@AllArgsConstructor
 public class ProjectResponse {
 
     private Long id;
@@ -19,32 +21,15 @@ public class ProjectResponse {
     private LocalDateTime createdAt;
     private String imageUrl;
 
+    private List<MemberBrief> memberBriefs;
 
     private long memberCount;     // 참여 인원 수
-    private String contact;      // 연락처
+    private String kakakoLink;      // 연락처
 
     private Long leaderId;
     private List<String> positions;
     private List<String> techs;
     private List<String> questions;
 
-    public static ProjectResponse of(Project p,
-                                     Long leaderId,
-                                     List<String> positions,
-                                     List<String> techs,
-                                     List<String> questions, long memberCount,String phoneNumber) {
-        return ProjectResponse.builder()
-                .id(p.getId())
-                .title(p.getTitle())
-                .description(p.getDescription())
-                .imageUrl(p.getLogoImageUrl()) // 지금은 null이어도 OK
-                .leaderId(leaderId)
-                .positions(positions)
-                .techs(techs)
-                .questions(questions)
-                .contact(phoneNumber)
-                .memberCount(memberCount)
-                .build();
 
     }
-}

@@ -1,11 +1,13 @@
 package com.cdy.cdy.controller;
 
+import com.cdy.cdy.dto.request.CreateProjectQuestionRequest;
 import com.cdy.cdy.dto.request.CreateProjectRequest;
 import com.cdy.cdy.dto.response.CustomUserDetails;
 import com.cdy.cdy.dto.response.ProjectResponse;
 import com.cdy.cdy.entity.ProjectMemberRole;
 import com.cdy.cdy.service.ProjectService;
 import jakarta.validation.Valid;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -21,16 +23,17 @@ public class ProjectController {
 
     //프로젝트 생성
     @PostMapping("/create")
-    public ResponseEntity<ProjectResponse> createProject(
+    public ResponseEntity<String> createProject(
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @Valid @RequestBody CreateProjectRequest request
     ) {
         Long userId = userDetails.getId();
-        ProjectResponse res = projectService.createProject(userId, request);
-        return ResponseEntity.ok(res);
+         projectService.createProject(userId, request);
+        return ResponseEntity.ok("프로젝트가 생성되었습니다");
     }
 
     //신청중인 프로젝트 조회
+    @GetMapping("/find/applied")
     public ResponseEntity<ProjectResponse> getApplyProject
     (@AuthenticationPrincipal CustomUserDetails userDetails) {
        ProjectResponse projectResponse = projectService.getApplyProject(userDetails.getId());
@@ -38,6 +41,7 @@ public class ProjectController {
     }
 
     //진행중인 프로젝트 조회
+    @GetMapping("/find/progressing")
     public ResponseEntity<ProjectResponse> getProgressingProject(
             @AuthenticationPrincipal CustomUserDetails userDetails
     ) {
@@ -45,11 +49,14 @@ public class ProjectController {
         return ResponseEntity.ok(projectResponse);
     }
 
-    @PostMapping("/projects/apply{projectId}")
-    public ResponseEntity<Void> applyProject(@PathVariable Long projectId,
+    //프로젝트 신청하기
+    @PostMapping("/apply/{projectId}")
+    public ResponseEntity<String> applyProject(@PathVariable Long projectId,
                                              @AuthenticationPrincipal CustomUserDetails userDetails,
-                                             @RequestParam(required = false) ProjectMemberRole role) {
-        projectService.applyToProject(userDetails.getId(), projectId, role);
-        return ResponseEntity.ok().build(); // 또는 201/204
+                                             @RequestBody CreateProjectQuestionRequest ProjectQuestion
+    ) {
+        projectService.applyToProject(userDetails.getId(), projectId, ProjectQuestion);
+        return ResponseEntity.ok("프로젝트 신청 완료");
     }
+
 }

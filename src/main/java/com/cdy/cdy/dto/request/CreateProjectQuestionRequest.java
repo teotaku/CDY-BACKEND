@@ -5,14 +5,22 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import lombok.*;
 
+import java.util.List;
+
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 @Builder
 public class CreateProjectQuestionRequest {
-    @NotNull @Positive
+
+
     private Long projectId;
 
-    @NotBlank
-    private String content;
+    private String answer;
+
+    private String position;
+
+    private String techs;
+
+
 }

@@ -65,16 +65,18 @@ public class MyPageService {
         int size = p.getProjectMembers().size();
 
 
-
-        return ProjectResponse.of(
-                p,
-                p.getManager().getId(),
-                Collections.emptyList(),   // positions
-                Collections.emptyList(),   // techs
-                Collections.emptyList() ,   // questions
-                size,
-                phoneNumber
-        );
+        return ProjectResponse.builder()
+                .id(p.getId())
+                .title(p.getTitle())
+                .description(p.getDescription())
+                .imageUrl(p.getLogoImageUrl())
+                .leaderId(p.getManager().getId())
+                .positions(Collections.emptyList())
+                .techs(Collections.emptyList())
+                .questions(Collections.emptyList())
+                .memberCount(size)
+                .kakakoLink(phoneNumber)
+                .build();
     }
 
     // 2. 단건 조회

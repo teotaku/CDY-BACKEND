@@ -37,9 +37,13 @@ out/
 .vscode/
 
 ### env ###
+
 .env*
+.env
+!env.example
 
 
 ### application yml###
 src/main/resources/application.yml
 src/main/resources/application-dev.yml
+src/main/resources/application-*.yml
