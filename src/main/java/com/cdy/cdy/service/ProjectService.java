@@ -41,12 +41,31 @@ public class ProjectService {
     public void createProject(Long leaderUserId,
                               CreateProjectRequest req) {
 
+        boolean existsAny = projectMemberRepository.existsByUser_IdAndStatusIn(
+                leaderUserId,
+                List.of(ProjectMemberStatus.APPLIED, ProjectMemberStatus.APPROVED)
+        );
+        if (existsAny) {
+            throw new IllegalStateException("다른 프로젝트에 이미 신청/참여 중입니다.");
+        }
+
+
         // 1) 유저 조회
         User leader = userRepository.findById(leaderUserId)
-                .orElseThrow(() -> new EntityNotFoundException("user not found"));
+                .orElseThrow(() -> new EntityNotFoundException("유저를 찾을 수 없습니다."));
+
+
 
         // 2) 프로젝트 생성
-        Project project = Project.from(req, leader);
+        Project project = Project.builder()
+                .title(req.getTitle())
+                .description(req.getDescription())
+                .capacity(req.getCapacity())
+                .manager(leader)
+                .status(ProjectStatus.IN_PROGRESS)
+                .logoImageUrl(null) // null 가능
+                .kakaoLink(req.getKakaoLink())
+                .build();
         projectRepository.save(project);
 
         // 3) 리더 등록, 프로젝트 상태 진행중 초기화
@@ -57,6 +76,8 @@ public class ProjectService {
                 .status(ProjectMemberStatus.APPROVED)
                 .build();
         projectMemberRepository.save(leaderMember);
+
+
 
         for (String name : req.getTechs()) {
             if (name == null || name.isBlank()) continue;
@@ -85,8 +106,8 @@ public class ProjectService {
     //진행중 프로젝트
     public ProjectResponse getProgressingProject(Long userId) {
 
-        Project project = projectRepository.findApprovedProjectsByUserId(userId)
-                .orElseThrow(() -> new RuntimeException("진행중인 프로젝트가 없습니다."));
+        Project project = projectRepository.findProgressingProjectByUserId(userId)
+                .orElseThrow(() -> new EntityNotFoundException("진행중인 프로젝트가 없습니다."));
 
 //        ProjectMember pm = projectMemberRepository
 //                .findTopByUserIdAndStatusOrderByJoinedAtDesc(userId, ProjectMemberStatus.APPROVED)
@@ -122,7 +143,7 @@ public class ProjectService {
 
         ProjectMember pm = projectMemberRepository
                 .findTopByUserIdAndStatusOrderByJoinedAtDesc(userId, ProjectMemberStatus.APPLIED)
-                .orElseThrow(() -> new EntityNotFoundException("진행중인 프로젝트가 없습니다."));
+                .orElseThrow(() -> new EntityNotFoundException("신청중인 프로젝트가 없습니다."));
 
         Project p = pm.getProject();
         long memberCount = projectMemberRepository.countByProjectId(p.getId());

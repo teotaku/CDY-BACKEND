@@ -3,15 +3,13 @@ package com.cdy.cdy.entity;
 import com.cdy.cdy.dto.request.CreateProjectRequest;
 import com.cdy.cdy.entity.User;
 import jakarta.persistence.*;
-import lombok.AccessLevel;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-
+@Builder
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity
@@ -29,10 +27,12 @@ public class Project extends BaseEntity  {
 
     private List<String> techs;
 
+    @Builder.Default
     private Integer capacity = 0;
 
     private String slogan;
 
+    @Builder.Default
     @OneToMany(mappedBy = "project", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ProjectMember> projectMembers = new ArrayList<>();
 
@@ -44,15 +44,14 @@ public class Project extends BaseEntity  {
 
     private String kakaoLink;
 
-    @Builder
-    private Project(String title, String description, Integer capacity, User manager, String logoImageUrl,String kakaoLink) {
-        this.title = Objects.requireNonNull(title);
-        this.description = description;
-        this.capacity = capacity;
-        this.manager = Objects.requireNonNull(manager);
-        this.logoImageUrl = logoImageUrl;
-        this.kakaoLink = kakaoLink;
-    }
+
+    @Enumerated(EnumType.STRING)
+    @Builder.Default
+    @Column(nullable = false)
+    private ProjectStatus status = ProjectStatus.IN_PROGRESS;
+
+
+
 
     // 👉 DTO에서 바로 변환할 수 있게 팩토리 메서드
     public static Project from(CreateProjectRequest req, User leader) {

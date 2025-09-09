@@ -65,4 +65,12 @@ public class GlobalExceptionHandler {
                 .body(new ErrorResponse(500, "서버 오류가 발생했습니다."));
     }
 
+
+    // DB Unique 제약 조건 위반 (중복 이메일 등)
+    @ExceptionHandler(org.springframework.dao.DataIntegrityViolationException.class)
+    public ResponseEntity<ErrorResponse> handleDataIntegrity(org.springframework.dao.DataIntegrityViolationException e) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(new ErrorResponse(400, "이미 존재하는 값입니다."));
+    }
+
 }

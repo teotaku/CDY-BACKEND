@@ -3,6 +3,7 @@ package com.cdy.cdy.controller;
 
 import com.cdy.cdy.dto.request.CreateProjectRequest;
 import com.cdy.cdy.dto.request.CreateStudyChannelRequest;
+import com.cdy.cdy.dto.request.UpdateStudyChannelRequest;
 import com.cdy.cdy.dto.response.CustomUserDetails;
 import com.cdy.cdy.dto.response.StudyChannelResponse;
 import com.cdy.cdy.entity.StudyChannel;
@@ -71,11 +72,13 @@ public class StudyController {
     @PutMapping
     public ResponseEntity<String> updateStudy(@PathVariable Long studyId,
                                             @AuthenticationPrincipal CustomUserDetails userDetails,
-                                            @RequestBody CreateStudyChannelRequest rq) {
+                                            @RequestBody UpdateStudyChannelRequest rq) {
 
         studyService.updateStudy(studyId,userDetails.getId(),rq);
         return ResponseEntity.ok("스터디가 수정되었습니다.");
     }
+
+
 
 }
 

@@ -77,6 +77,7 @@ public class ProjectController {
                                              @AuthenticationPrincipal CustomUserDetails userDetails,
                                              @RequestBody CreateProjectQuestionRequest ProjectQuestion
     ) {
+
         projectService.applyToProject(userDetails.getId(), projectId, ProjectQuestion);
         return ResponseEntity.ok("프로젝트 신청 완료");
     }

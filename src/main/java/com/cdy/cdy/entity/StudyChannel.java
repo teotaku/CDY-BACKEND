@@ -2,6 +2,7 @@
 package com.cdy.cdy.entity;
 
 import com.cdy.cdy.dto.request.CreateStudyChannelRequest;
+import com.cdy.cdy.dto.request.UpdateStudyChannelRequest;
 import jakarta.persistence.*;
 import lombok.*;
 import java.util.Objects;
@@ -50,7 +51,7 @@ public class StudyChannel extends BaseEntity {
     }
 
     // ✅ 수정 메서드
-    public void update(CreateStudyChannelRequest req) {
+    public void update(UpdateStudyChannelRequest req) {
         if (req.getContent() != null) this.content = req.getContent();
 //        if (req.getCategory() != null) this.category = req.getCategory();
     }

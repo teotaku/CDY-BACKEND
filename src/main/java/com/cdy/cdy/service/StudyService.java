@@ -2,6 +2,7 @@ package com.cdy.cdy.service;
 
 import com.cdy.cdy.dto.request.CreateStudyChannelRequest;
 import com.cdy.cdy.dto.request.CreateStudyImageDto;
+import com.cdy.cdy.dto.request.UpdateStudyChannelRequest;
 import com.cdy.cdy.dto.response.CustomUserDetails;
 import com.cdy.cdy.dto.response.StudyChannelResponse;
 import com.cdy.cdy.dto.response.StudyImageResponse;
@@ -63,9 +64,18 @@ public class StudyService {
 
     public void updateStudy(Long studyId,
                             Long userId,
-                            CreateStudyChannelRequest studyChannelRequest) {
+                            UpdateStudyChannelRequest studyChannelRequest) {
         StudyChannel studyChannel = studyChannelRepository.findById(studyId)
                 .orElseThrow(()-> new IllegalArgumentException("해당 스터디 채널을 찾을 수 없습니다."));
+
+
+        if (!studyChannel.getOwner().getId().equals(userId)) {
+            throw new IllegalStateException("스터디 수정 권한이 없습니다.");
+        }
+
+
+        List<StudyImage> current = studyImageRepository.findByStudyId(studyId);
+
 
 
         studyChannel.update(studyChannelRequest);
