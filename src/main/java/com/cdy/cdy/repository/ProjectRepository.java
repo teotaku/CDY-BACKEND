@@ -19,4 +19,21 @@ public interface ProjectRepository extends JpaRepository<Project,Long> {
             "WHERE pm.user.id = :userId " +
             "AND pm.status = ProjectMemberStatus.APPROVED")
     Optional<Project> findApprovedProjectsByUserId(@Param("userId") Long userId);
+
+
+
+    @Query("""
+        select distinct p
+        from Project p
+        join fetch p.manager m
+        left join fetch p.projectMembers pm
+        left join fetch pm.user u
+        where p.id = :projectId
+        """)
+    Optional<Project> findWithManagerAndMembers(@Param("projectId") Long projectId);
+
+    // 프로젝트의 팀장(userId)만 뽑아오기 (가볍게)
+    @Query("select p.manager.id from Project p where p.id = :projectId")
+    Optional<Long> findManagerId(@Param("projectId") Long projectId);
 }
+

@@ -16,6 +16,29 @@ public interface ProjectMemberRepository extends JpaRepository<ProjectMember,Lon
     List<ProjectMember> findByUserId(Long userId);
 
 
+    @Query("""
+        select pm
+        from ProjectMember pm
+        join fetch pm.user u
+        where pm.project.id = :projectId
+          and pm.status = com.cdy.cdy.entity.ProjectMemberStatus.APPLIED
+        """)
+    List<ProjectMember> findApplicants(@Param("projectId") Long projectId);
+
+
+    @Query("""
+        select pm
+        from ProjectMember pm
+        join fetch pm.user u
+        where pm.project.id = :projectId
+          and pm.user.id = :userId
+        """)
+    Optional<ProjectMember> findByProjectIdAndUserId(
+            @Param("projectId") Long projectId,
+            @Param("userId") Long userId
+    );
+
+
 
     @Query("""
        SELECT pm 

@@ -5,6 +5,7 @@ import com.cdy.cdy.jwt.JWTFilter;
 import com.cdy.cdy.jwt.JWTUtil;
 import com.cdy.cdy.jwt.LoginFilter;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -92,6 +93,27 @@ public class SecurityConfig {
                         .anyRequest().authenticated()
 
                 );
+
+        http.exceptionHandling(ex -> ex
+                .authenticationEntryPoint((req, res, e) -> {
+                    res.setStatus(HttpServletResponse.SC_UNAUTHORIZED); // 401
+                    res.setContentType("application/json;charset=UTF-8");
+                    res.getWriter().write("""
+                {"status":401,"code":"UNAUTHORIZED","message":"로그인이 필요합니다.","path":"%s"}
+                """.formatted(req.getRequestURI()));
+                })
+                .accessDeniedHandler((req, res, e) -> {
+                    res.setStatus(HttpServletResponse.SC_FORBIDDEN); // 403
+                    res.setContentType("application/json;charset=UTF-8");
+                    res.getWriter().write("""
+                {"status":403,"code":"ACCESS_DENIED","message":"권한이 없습니다.","path":"%s"}
+                """.formatted(req.getRequestURI()));
+                })
+        );
+
+
+
+
 
         http
                 .addFilterBefore(new JWTFilter(jwtUtil), UsernamePasswordAuthenticationFilter.class);

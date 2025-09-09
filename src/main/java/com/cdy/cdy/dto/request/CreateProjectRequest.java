@@ -21,7 +21,7 @@ public class CreateProjectRequest {
 
     private String imageKey;
 
-    @Positive
+
     private Integer capacity;      // 참여 인원
 
     private List<String> positions; // 포지션 ["FE", "BE"]

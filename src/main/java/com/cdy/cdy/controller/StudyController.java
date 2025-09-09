@@ -69,10 +69,12 @@ public class StudyController {
     }
     //스터디 수정
     @PutMapping
-    public ResponseEntity<Void> updateStudy(@PathVariable Long studyId,
+    public ResponseEntity<String> updateStudy(@PathVariable Long studyId,
                                             @AuthenticationPrincipal CustomUserDetails userDetails,
-                                            @RequestBody CreateProjectRequest rq) {
-        return ResponseEntity.ok().build();
+                                            @RequestBody CreateStudyChannelRequest rq) {
+
+        studyService.updateStudy(studyId,userDetails.getId(),rq);
+        return ResponseEntity.ok("스터디가 수정되었습니다.");
     }
 
 }

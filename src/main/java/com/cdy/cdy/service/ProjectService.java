@@ -9,7 +9,11 @@ import com.cdy.cdy.entity.*;
 import com.cdy.cdy.repository.*;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -30,56 +34,55 @@ public class ProjectService {
     private final ProjectMemberRepository projectMemberRepository;
     private final ProjectTechRepository projectTechRepository;
     private final ProjectAnswerRepository projectAnswerRepository;
+    private final TechTagRepository techTagRepository;
 
 
+    //프로젝트 생성
+    public void createProject(Long leaderUserId,
+                              CreateProjectRequest req) {
 
+        // 1) 유저 조회
+        User leader = userRepository.findById(leaderUserId)
+                .orElseThrow(() -> new EntityNotFoundException("user not found"));
 
-        //프로젝트 생성
-        public void createProject(Long leaderUserId,
-                CreateProjectRequest req) {
+        // 2) 프로젝트 생성
+        Project project = Project.from(req, leader);
+        projectRepository.save(project);
 
-            // 1) 유저 조회
-            User leader = userRepository.findById(leaderUserId)
-                    .orElseThrow(() -> new EntityNotFoundException("user not found"));
+        // 3) 리더 등록, 프로젝트 상태 진행중 초기화
+        ProjectMember leaderMember = ProjectMember.builder()
+                .project(project)
+                .user(leader)
+                .role(ProjectMemberRole.LEADER)
+                .status(ProjectMemberStatus.APPROVED)
+                .build();
+        projectMemberRepository.save(leaderMember);
 
-            // 2) 프로젝트 생성
-            Project project = Project.from(req, leader);
-            projectRepository.save(project);
+        for (String name : req.getTechs()) {
+            if (name == null || name.isBlank()) continue;
 
-            // 3) 리더 등록, 프로젝트 상태 진행중 초기화
-            ProjectMember leaderMember = ProjectMember.builder()
-                    .project(project)
-                    .user(leader)
-                    .role(ProjectMemberRole.LEADER)
-                    .status(ProjectMemberStatus.APPROVED)
-                    .build();
-            projectMemberRepository.save(leaderMember);
+            TechTag tag = techTagRepository.findByName(name)
+                    .orElseGet(() -> techTagRepository.save(TechTag.builder().name(name).build()));
 
-            // 4) 기술 저장 (문자열)
-            if (req.getTechs() != null) {
-                for (String tech : req.getTechs()) {
-                    projectTechRepository.save(ProjectTech.builder()
-                            .project(project)
-                            .techName(tech)
-                            .build());
-                }
-            }
-
-            // 5) 질문 저장
-            if (req.getQuestions() != null) {
-                for (String q : req.getQuestions()) {
-                    projectQuestionRepository.save(ProjectQuestion.builder()
-                            .project(project)
-                            .content(q)
-                            .build());
-                }
-            }
-
-            long memberCount = projectMemberRepository.countByProjectId(project.getId());
-            String phone = leader.getPhoneNumber(); // 또는 req.getContact()
+            projectTechRepository.save(ProjectTech.link(project, tag));
+            // 또는: ProjectTech.builder().project(project).techTag(tag).build()
         }
 
-        //진행중 프로젝트
+        // 5) 질문 저장
+        if (req.getQuestions() != null) {
+            for (String q : req.getQuestions()) {
+                projectQuestionRepository.save(ProjectQuestion.builder()
+                        .project(project)
+                        .content(q)
+                        .build());
+            }
+        }
+
+        long memberCount = projectMemberRepository.countByProjectId(project.getId());
+        String phone = leader.getPhoneNumber(); // 또는 req.getContact()
+    }
+
+    //진행중 프로젝트
     public ProjectResponse getProgressingProject(Long userId) {
 
         Project project = projectRepository.findApprovedProjectsByUserId(userId)
@@ -113,7 +116,8 @@ public class ProjectService {
                 .build();
 
     }
-        //신청중 프로젝트
+
+    //신청중 프로젝트
     public ProjectResponse getApplyProject(Long userId) {
 
         ProjectMember pm = projectMemberRepository
@@ -134,7 +138,7 @@ public class ProjectService {
 
 
     //프로젝트 신청
-    public void applyToProject(Long userId, Long projectId ,
+    public void applyToProject(Long userId, Long projectId,
                                CreateProjectQuestionRequest req) {
 
         // 1) 참조 로딩 (존재 검증)
@@ -188,8 +192,7 @@ public class ProjectService {
                 projectQuestionRepository.findAllByProject_IdOrderByIdAsc(projectId);
 
 
-
-       // 입력값을 질문 순서에 맞춰 배열로 (Q1=answer, Q2=position, Q3=techs)
+        // 입력값을 질문 순서에 맞춰 배열로 (Q1=answer, Q2=position, Q3=techs)
         List<String> inputs = asList(
                 req.getAnswer(),
                 req.getPosition(),
@@ -218,5 +221,44 @@ public class ProjectService {
             projectAnswerRepository.saveAll(toSave);
         }
 
-            }
+    }
+    //전체조회
+    @Transactional(readOnly = true)
+    public Page<ProjectResponse> findAll(Pageable pageable) {
+        return projectRepository.findAll(pageable)
+                .map(p -> ProjectResponse.builder()
+                        .id(p.getId())
+                        .title(p.getTitle())
+                        .imageUrl(p.getLogoImageUrl()) // 맞는 getter로 사용
+                        .build());
+    }
+
+    //아이디로 1개만 조회
+    public ProjectResponse findOneById(Long projectId) {
+
+        Project project = projectRepository.findWithManagerAndMembers(projectId)
+                .orElseThrow(() -> new EntityNotFoundException("프로젝트 없음"));
+
+        List<MemberBrief> members = project.getProjectMembers().stream()
+                .filter(pm -> pm.getStatus() == ProjectMemberStatus.APPROVED)
+                .map(pm -> MemberBrief.builder()
+                        .userId(pm.getUser().getId())
+                        .name(pm.getUser().getNickname())
+                        .profileUrl(pm.getUser().getProfileImageUrl())
+                        .build()
+                ).toList();
+
+        return ProjectResponse.builder()
+                .id(project.getId())
+                .title(project.getTitle())
+                .slogan(project.getSlogan())
+                .imageUrl(project.getLogoImageUrl())
+                .leaderImage(project.getManager().getProfileImageUrl())
+                .memberBriefs(members)
+                .memberCount(members.size())
+                .build();
+
+    }
+
+
 }

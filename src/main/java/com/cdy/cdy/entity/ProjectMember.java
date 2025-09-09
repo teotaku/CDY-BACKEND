@@ -37,7 +37,7 @@ public class ProjectMember {
     @Enumerated(EnumType.STRING) @Column(length = 30)
     private ProjectMemberRole role; // 역할(LEADER/DEV/...)
 
-    @Column(name = "joined_at", nullable = false)
+    @Column(name = "joined_at")
     private LocalDateTime joinedAt; // 합류 시각
 
     public static ProjectMember join(Project project, User user, ProjectMemberRole role,
@@ -62,5 +62,14 @@ public class ProjectMember {
         this.status = status;
     }
 
-    public void changeRole(ProjectMemberRole newRole) { this.role = Objects.requireNonNull(newRole); }
+    public void approve() {
+        this.status = ProjectMemberStatus.APPROVED;
+        this.joinedAt = LocalDateTime.now();
+    }
+
+
+    public void reject() {
+        this.status = ProjectMemberStatus.REJECTED;
+    }
+
 }

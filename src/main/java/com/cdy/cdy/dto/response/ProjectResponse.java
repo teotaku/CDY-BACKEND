@@ -21,6 +21,10 @@ public class ProjectResponse {
     private LocalDateTime createdAt;
     private String imageUrl;
 
+    private String leaderImage;
+
+    private String slogan ;
+
     private List<MemberBrief> memberBriefs;
 
     private long memberCount;     // 참여 인원 수

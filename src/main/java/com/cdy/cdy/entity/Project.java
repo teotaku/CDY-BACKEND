@@ -16,7 +16,7 @@ import java.util.Objects;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity
 @Table(name = "projects")
-public class Project  {
+public class Project extends BaseEntity  {
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -29,7 +29,9 @@ public class Project  {
 
     private List<String> techs;
 
-    private Integer capacity;
+    private Integer capacity = 0;
+
+    private String slogan;
 
     @OneToMany(mappedBy = "project", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ProjectMember> projectMembers = new ArrayList<>();

@@ -9,6 +9,10 @@ import com.cdy.cdy.service.ProjectService;
 import jakarta.validation.Valid;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -32,11 +36,29 @@ public class ProjectController {
         return ResponseEntity.ok("프로젝트가 생성되었습니다");
     }
 
+    //프로젝트 전체조회
+    @GetMapping("/findAll")
+    public ResponseEntity<Page<ProjectResponse>> getAllProjectes
+            (@PageableDefault(size = 10, sort = "createdAt", direction = Sort.Direction.DESC)
+             Pageable pageable
+             ) {
+
+        return ResponseEntity.ok(projectService.findAll(pageable));
+
+    }
+
+    //단일 프로젝트 조회
+    @GetMapping("/{projectId}")
+    public ResponseEntity<ProjectResponse> findOneById(@PathVariable Long projectId) {
+        return ResponseEntity.ok(projectService.findOneById(projectId));
+    }
+
     //신청중인 프로젝트 조회
     @GetMapping("/find/applied")
     public ResponseEntity<ProjectResponse> getApplyProject
     (@AuthenticationPrincipal CustomUserDetails userDetails) {
-       ProjectResponse projectResponse = projectService.getApplyProject(userDetails.getId());
+
+        ProjectResponse projectResponse = projectService.getApplyProject(userDetails.getId());
         return ResponseEntity.ok(projectResponse);
     }
 

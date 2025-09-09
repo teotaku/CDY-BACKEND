@@ -62,6 +62,7 @@ public class StudyService {
     //스터디 수정
 
     public void updateStudy(Long studyId,
+                            Long userId,
                             CreateStudyChannelRequest studyChannelRequest) {
         StudyChannel studyChannel = studyChannelRepository.findById(studyId)
                 .orElseThrow(()-> new IllegalArgumentException("해당 스터디 채널을 찾을 수 없습니다."));
