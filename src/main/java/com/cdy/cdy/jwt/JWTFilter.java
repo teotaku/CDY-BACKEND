@@ -27,6 +27,17 @@ public class JWTFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
 
+        String uri = request.getRequestURI();
+
+        // ✅ Swagger 요청은 필터 스킵
+        if (uri.startsWith("/v3/api-docs") ||
+                uri.startsWith("/swagger-ui") ||
+                uri.equals("/swagger-ui.html")) {
+            filterChain.doFilter(request, response);
+            return; // ✅ 추가
+        }
+
+
         //request에서 Authorization 헤더를 찾음.
         String authorization = request.getHeader("Authorization");
 
@@ -37,7 +48,14 @@ public class JWTFilter extends OncePerRequestFilter {
             return ;
             // null 이거나 bearer로 시작하지않으면 종료하면서 리턴해버리기
         }
-        String token = authorization.split(" ")[1];
+        // ✅ split 안전 처리
+        String[] parts = authorization.split(" ");
+        if (parts.length < 2) {
+            filterChain.doFilter(request, response);
+            return; // ✅ 추가
+        }
+
+        String token = parts[1]; // ✅ 기존 코드 수정
 
         Boolean expired = jwtUtil.isExpired(token);
         if (expired) {

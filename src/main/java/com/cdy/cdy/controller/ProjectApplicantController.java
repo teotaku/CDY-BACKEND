@@ -16,6 +16,7 @@ public class ProjectApplicantController {
 
     private final ProjectApplicantService projectApplicantService;
 
+    //신청자 확인
     @GetMapping("{projectId}/applicants")
     public ResponseEntity<List<ApplicantCardResponse>> getApplicants(
             @PathVariable Long projectId

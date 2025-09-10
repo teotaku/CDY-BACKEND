@@ -53,7 +53,8 @@ public class ProjectApplicantService {
                     .map(pa -> new ApplicantCardResponse.AnswerItem(
                             pa.getQuestion().getId(),
                             pa.getQuestion().getQuestionText(), // 질문 텍스트가 필요 없으면 제거
-                            pa.getAnswerText()
+                            pa.getQuestion().getQuestionText(),
+                            pa.getQuestion().getQuestionText()
                     ))
                     .toList();
 

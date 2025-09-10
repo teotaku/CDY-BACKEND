@@ -120,6 +120,8 @@ public class ProjectService {
         List<ProjectMember> members = projectMemberRepository
                 .findApprovedMembersWithUserByProjectId(project.getId());
 
+
+
         List<MemberBrief> memberBriefs = members.stream()
                 .map(pm -> MemberBrief.builder()
                         .userId(pm.getUser().getId())

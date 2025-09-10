@@ -22,6 +22,7 @@ public class ApplicantCardResponse {
     public static class AnswerItem {
         private Long questionId;
         private String question;   // 질문 텍스트(불필요하면 필드/매핑 제거)
-        private String answerText; // 지원자 답
+        private String positons;
+        private String techs;
     }
 }
