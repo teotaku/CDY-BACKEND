@@ -21,6 +21,7 @@ public class CreateProjectRequest {
 
     private String imageKey;
 
+    private String slogan;
 
     private Integer capacity;      // 참여 인원
 

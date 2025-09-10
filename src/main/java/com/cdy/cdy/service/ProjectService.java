@@ -62,8 +62,9 @@ public class ProjectService {
                 .description(req.getDescription())
                 .capacity(req.getCapacity())
                 .manager(leader)
+                .slogan(req.getSlogan())
                 .status(ProjectStatus.IN_PROGRESS)
-                .logoImageUrl(null) // null 가능
+                .logoImageUrl(req.getImageKey()) // null 가능
                 .kakaoLink(req.getKakaoLink())
                 .build();
         projectRepository.save(project);
@@ -131,9 +132,12 @@ public class ProjectService {
                 .title(project.getTitle())
                 .memberCount(memberCount)
                 .techs(project.getTechs())
+                .description(project.getDescription())
+                .createdAt(project.getCreatedAt())
                 .imageUrl(project.getLogoImageUrl())
-                .kakakoLink(project.getKakaoLink())
+                .kakaoLink(project.getKakaoLink())
                 .memberBriefs(memberBriefs)
+                .slogan(project.getSlogan())
                 .build();
 
     }
@@ -148,12 +152,30 @@ public class ProjectService {
         Project p = pm.getProject();
         long memberCount = projectMemberRepository.countByProjectId(p.getId());
 
+
+        List<ProjectMember> members = projectMemberRepository
+                .findApprovedMembersWithUserByProjectId(p.getId());
+
+        List<MemberBrief> memberBriefs = members.stream()
+                .map(pmb -> MemberBrief.builder()
+                        .userId(pmb.getUser().getId())
+                        .name(pmb.getUser().getNickname())
+                        .profileUrl(pmb.getUser().getProfileImageUrl())
+                        .build()).toList();
+
+
+
+
         return ProjectResponse.builder()
                 .title(p.getTitle())
                 .memberCount(memberCount)
                 .techs(p.getTechs())
+                .description(p.getDescription())
+                .createdAt(p.getCreatedAt())
                 .imageUrl(p.getLogoImageUrl())
-                .kakakoLink(p.getKakaoLink())
+                .kakaoLink(p.getKakaoLink())
+                .memberBriefs(memberBriefs)
+                .slogan(p.getSlogan())
                 .build();
     }
 

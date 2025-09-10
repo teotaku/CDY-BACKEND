@@ -28,7 +28,7 @@ public class ProjectResponse {
     private List<MemberBrief> memberBriefs;
 
     private long memberCount;     // 참여 인원 수
-    private String kakakoLink;      // 연락처
+    private String kakaoLink;      // 연락처
 
     private Long leaderId;
     private List<String> positions;

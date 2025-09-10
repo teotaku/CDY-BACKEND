@@ -75,7 +75,7 @@ public class MyPageService {
                 .techs(Collections.emptyList())
                 .questions(Collections.emptyList())
                 .memberCount(size)
-                .kakakoLink(phoneNumber)
+                .kakaoLink(phoneNumber)
                 .build();
     }
 
