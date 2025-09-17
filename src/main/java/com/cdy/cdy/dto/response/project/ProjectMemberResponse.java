@@ -1,5 +1,4 @@
-package com.cdy.cdy.dto.response;
-
+package com.cdy.cdy.dto.response.project;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.*;
@@ -11,12 +10,11 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @Builder
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class ProjectApplicationResponse {
+public class ProjectMemberResponse {
     private Long id;
     private Long projectId;
-    private Long applicantId;
-    private String status;
-    private LocalDateTime createdAt;
-    private LocalDateTime reviewedAt;
-    private Long reviewerId;
+    private Long userId;
+    private Long roleId;
+    private LocalDateTime joinedAt;
+    private LocalDateTime leftAt;
 }

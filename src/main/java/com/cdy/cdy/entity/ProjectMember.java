@@ -6,6 +6,8 @@ import lombok.*;
 import java.time.LocalDateTime;
 import java.util.Objects;
 
+@Builder
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity
@@ -33,6 +35,10 @@ public class ProjectMember {
     @Column(length = 20, nullable = false)
     private ProjectMemberStatus status;
 
+    private String techs;
+
+    private String position;
+
 
     @Enumerated(EnumType.STRING) @Column(length = 30)
     private ProjectMemberRole role; // 역할(LEADER/DEV/...)
@@ -40,27 +46,25 @@ public class ProjectMember {
     @Column(name = "joined_at")
     private LocalDateTime joinedAt; // 합류 시각
 
-    public static ProjectMember join(Project project, User user, ProjectMemberRole role,
-                                     LocalDateTime joinedAt) {
-        Objects.requireNonNull(project); Objects.requireNonNull(user);
-        var pm = new ProjectMember();
-        pm.project = project; // ← 공개 세터 대신 생성 루트에서 필수값 주입
-        pm.user = user;
-        pm.role = (role == null ? ProjectMemberRole.MEMBER : role);
-        pm.joinedAt = (joinedAt == null ? LocalDateTime.now() : joinedAt);
-        return pm;
+
+
+    public void updatePosition(String position) {
+        if (position == null || position.isBlank()) {
+            this.position = "포지션없음";
+        } else {
+            this.position = position;
+        }
     }
 
-    @Builder
-    public ProjectMember(Project project, User user, ProjectMemberRole role,
-                         ProjectMemberStatus status, LocalDateTime joinedAt) {
-
-        this.project = project;
-        this.user = user;
-        this.role = role;
-        this.joinedAt = joinedAt;
-        this.status = status;
+    public void updateTechs(String techs) {
+        if (techs == null || techs.isBlank()) {
+            this.techs = "기술없음";
+        } else {
+            this.techs = techs;
+        }
     }
+
+
 
     public void approve() {
         this.status = ProjectMemberStatus.APPROVED;

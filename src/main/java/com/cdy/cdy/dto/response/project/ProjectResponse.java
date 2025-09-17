@@ -1,6 +1,6 @@
-package com.cdy.cdy.dto.response;
+package com.cdy.cdy.dto.response.project;
 
-import com.cdy.cdy.entity.Project;
+import com.cdy.cdy.dto.response.MemberBrief;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;

@@ -25,7 +25,18 @@ public class Project extends BaseEntity  {
     @Lob
     private String description;
 
+
+    @ElementCollection
+    @CollectionTable(name = "project_tech_names",
+            joinColumns = @JoinColumn(name = "project_id"))
+    @Column(name = "tech_name")
     private List<String> techs;
+
+    @ElementCollection
+    @CollectionTable(name = "project_positions",
+            joinColumns = @JoinColumn(name = "project_id"))
+    @Column(name = "position")
+    private List<String> positions;
 
     @Builder.Default
     private Integer capacity = 0;
@@ -40,7 +51,7 @@ public class Project extends BaseEntity  {
     @JoinColumn(name = "manager_id", nullable = false)
     private User manager;
 
-    private String logoImageUrl; // null 허용 (이미지 나중에 붙일 수 있음)
+    private String logoImageKey; // null 허용 (이미지 나중에 붙일 수 있음)
 
     private String kakaoLink;
 
@@ -60,7 +71,7 @@ public class Project extends BaseEntity  {
                 .description(req.getDescription())
                 .capacity(req.getCapacity())
                 .manager(leader)
-                .logoImageUrl(null) // null 가능
+                .logoImageKey(null) // null 가능
                 .kakaoLink(req.getKakaoLink())
                 .build();
     }

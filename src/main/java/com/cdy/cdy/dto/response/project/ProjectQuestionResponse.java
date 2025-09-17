@@ -1,4 +1,4 @@
-package com.cdy.cdy.dto.response;
+package com.cdy.cdy.dto.response.project;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.*;

@@ -40,6 +40,7 @@ public interface ProjectMemberRepository extends JpaRepository<ProjectMember,Lon
 
 
 
+
     @Query("""
        SELECT pm 
        FROM ProjectMember pm
@@ -53,6 +54,16 @@ public interface ProjectMemberRepository extends JpaRepository<ProjectMember,Lon
 
 
     //최근 참가 이력 1건
+    // ✅ findFirstByUser_IdOrderByJoinedAtDesc
+    /*
+    @Query("""
+        select pm
+        from ProjectMember pm
+        where pm.user.id = :userId
+        order by pm.joinedAt desc
+    """)
+    Optional<ProjectMember> findLatestByUserId(@Param("userId") Long userId);
+    */
     Optional<ProjectMember> findFirstByUser_IdOrderByJoinedAtDesc(Long userId);
 
 
@@ -66,16 +77,70 @@ public interface ProjectMemberRepository extends JpaRepository<ProjectMember,Lon
 
 
     // 유저가 해당 프로젝트에 이미 신청/참여 중인지(중복 신청 방지)
+    // ✅ existsByUser_IdAndProject_IdAndStatusIn
+    /*
+    @Query("""
+        select case when count(pm) > 0 then true else false end
+        from ProjectMember pm
+        where pm.user.id = :userId
+          and pm.project.id = :projectId
+          and pm.status in :statuses
+    """)
+    boolean existsUserInProjectWithStatuses(
+        @Param("userId") Long userId,
+        @Param("projectId") Long projectId,
+        @Param("statuses") Collection<ProjectMemberStatus> statuses
+    );
+    */
     boolean existsByUser_IdAndProject_IdAndStatusIn(Long userId, Long projectId,
                                                     Collection<ProjectMemberStatus> statuses);
 
     // 현재 승인된(진행중) 인원 수 (정원 체크용)
+
+    // ✅ countByProject_IdAndStatus
+    /*
+    @Query("""
+        select count(pm)
+        from ProjectMember pm
+        where pm.project.id = :projectId
+          and pm.status = :status
+    """)
+    long countByProjectAndStatus(
+        @Param("projectId") Long projectId,
+        @Param("status") ProjectMemberStatus status
+    );
+    */
     long countByProject_IdAndStatus(Long projectId, ProjectMemberStatus status);
 
     // 승인/신청 레코드 직접 찾고 싶을 때
     Optional<ProjectMember> findByUser_IdAndProject_Id(Long userId, Long projectId);
 
+
+    // ✅ existsByUser_IdAndStatusIn
+    /*
+    @Query("""
+        select case when count(pm) > 0 then true else false end
+        from ProjectMember pm
+        where pm.user.id = :userId
+          and pm.status in :statuses
+    """)
+    boolean existsUserWithStatuses(
+        @Param("userId") Long userId,
+        @Param("statuses") Collection<ProjectMemberStatus> statuses
+    );
+    */
     boolean existsByUser_IdAndStatusIn(Long userId, List<ProjectMemberStatus> applied);
+
+
+    @Query("""
+       select pm
+       from ProjectMember pm
+       join fetch pm.user u
+       where pm.project.id = :projectId
+         and pm.status = 'APPLIED'
+       order by pm.joinedAt asc
+       """)
+    List<ProjectMember> findAllApplicantsWithUser(@Param("projectId") Long projectId);
 
 }
 

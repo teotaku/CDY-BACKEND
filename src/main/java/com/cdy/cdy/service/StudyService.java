@@ -68,15 +68,11 @@ public class StudyService {
         StudyChannel studyChannel = studyChannelRepository.findById(studyId)
                 .orElseThrow(()-> new IllegalArgumentException("해당 스터디 채널을 찾을 수 없습니다."));
 
-
         if (!studyChannel.getOwner().getId().equals(userId)) {
             throw new IllegalStateException("스터디 수정 권한이 없습니다.");
         }
 
-
         List<StudyImage> current = studyImageRepository.findByStudyId(studyId);
-
-
 
         studyChannel.update(studyChannelRequest);
             }

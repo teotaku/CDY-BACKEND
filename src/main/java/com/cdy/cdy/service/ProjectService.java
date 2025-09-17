@@ -1,28 +1,26 @@
 package com.cdy.cdy.service;
 
 
-import com.cdy.cdy.dto.request.CreateProjectQuestionRequest;
+import com.cdy.cdy.dto.request.ApplyProjectRequest;
 import com.cdy.cdy.dto.request.CreateProjectRequest;
 import com.cdy.cdy.dto.response.MemberBrief;
-import com.cdy.cdy.dto.response.ProjectResponse;
+import com.cdy.cdy.dto.response.project.*;
 import com.cdy.cdy.entity.*;
 import com.cdy.cdy.repository.*;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
-import java.util.stream.Stream;
+import java.util.Map;
+import java.util.stream.Collectors;
 
-import static java.util.Arrays.asList;
-
+@Slf4j
 @RequiredArgsConstructor
 @Service
 public class ProjectService {
@@ -55,16 +53,16 @@ public class ProjectService {
                 .orElseThrow(() -> new EntityNotFoundException("유저를 찾을 수 없습니다."));
 
 
-
         // 2) 프로젝트 생성
         Project project = Project.builder()
                 .title(req.getTitle())
                 .description(req.getDescription())
                 .capacity(req.getCapacity())
                 .manager(leader)
+                .positions(req.getPositions())
                 .slogan(req.getSlogan())
                 .status(ProjectStatus.IN_PROGRESS)
-                .logoImageUrl(req.getImageKey()) // null 가능
+                .logoImageKey(req.getImageKey()) // null 가능
                 .kakaoLink(req.getKakaoLink())
                 .build();
         projectRepository.save(project);
@@ -79,7 +77,6 @@ public class ProjectService {
         projectMemberRepository.save(leaderMember);
 
 
-
         for (String name : req.getTechs()) {
             if (name == null || name.isBlank()) continue;
 
@@ -89,15 +86,16 @@ public class ProjectService {
             projectTechRepository.save(ProjectTech.link(project, tag));
             // 또는: ProjectTech.builder().project(project).techTag(tag).build()
         }
-
-        // 5) 질문 저장
-        if (req.getQuestions() != null) {
-            for (String q : req.getQuestions()) {
-                projectQuestionRepository.save(ProjectQuestion.builder()
-                        .project(project)
-                        .content(q)
-                        .build());
-            }
+        // 2. 질문 저장 (List<String> → ProjectQuestion 엔티티)
+        List<String> questions = req.getQuestions(); // ["자기소개", "가능 요일", "기술"]
+        for (int i = 0; i < questions.size(); i++) {
+            projectQuestionRepository.save(
+                    ProjectQuestion.builder()
+                            .project(project)
+                            .questionText(questions.get(i)) // 질문 내용
+                            .displayOrder(i + 1)            // 순서 보장
+                            .build()
+            );
         }
 
         long memberCount = projectMemberRepository.countByProjectId(project.getId());
@@ -105,7 +103,7 @@ public class ProjectService {
     }
 
     //진행중 프로젝트
-    public ProjectResponse getProgressingProject(Long userId) {
+    public ProgressingProjectResponse getProgressingProject(Long userId) {
 
         Project project = projectRepository.findProgressingProjectByUserId(userId)
                 .orElseThrow(() -> new EntityNotFoundException("진행중인 프로젝트가 없습니다."));
@@ -121,7 +119,6 @@ public class ProjectService {
                 .findApprovedMembersWithUserByProjectId(project.getId());
 
 
-
         List<MemberBrief> memberBriefs = members.stream()
                 .map(pm -> MemberBrief.builder()
                         .userId(pm.getUser().getId())
@@ -130,33 +127,33 @@ public class ProjectService {
                         .build()).toList();
 
 
-        return ProjectResponse.builder()
+        return ProgressingProjectResponse.builder()
+                .id(project.getId())
                 .title(project.getTitle())
+                .capacity(project.getCapacity())
                 .memberCount(memberCount)
-                .techs(project.getTechs())
-                .description(project.getDescription())
-                .createdAt(project.getCreatedAt())
-                .imageUrl(project.getLogoImageUrl())
-                .kakaoLink(project.getKakaoLink())
                 .memberBriefs(memberBriefs)
-                .slogan(project.getSlogan())
+                .position(project.getPositions())
+                .kakaoLink(project.getKakaoLink())
+                .imageKey(project.getLogoImageKey())
                 .build();
+
 
     }
 
     //신청중 프로젝트
-    public ProjectResponse getApplyProject(Long userId) {
+    public ApplyingProjectResponse getApplyProject(Long userId) {
 
         ProjectMember pm = projectMemberRepository
                 .findTopByUserIdAndStatusOrderByJoinedAtDesc(userId, ProjectMemberStatus.APPLIED)
                 .orElseThrow(() -> new EntityNotFoundException("신청중인 프로젝트가 없습니다."));
 
-        Project p = pm.getProject();
-        long memberCount = projectMemberRepository.countByProjectId(p.getId());
+        Project project = pm.getProject();
+        long memberCount = projectMemberRepository.countByProjectId(project.getId());
 
 
         List<ProjectMember> members = projectMemberRepository
-                .findApprovedMembersWithUserByProjectId(p.getId());
+                .findApprovedMembersWithUserByProjectId(project.getId());
 
         List<MemberBrief> memberBriefs = members.stream()
                 .map(pmb -> MemberBrief.builder()
@@ -166,25 +163,22 @@ public class ProjectService {
                         .build()).toList();
 
 
-
-
-        return ProjectResponse.builder()
-                .title(p.getTitle())
-                .memberCount(memberCount)
-                .techs(p.getTechs())
-                .description(p.getDescription())
-                .createdAt(p.getCreatedAt())
-                .imageUrl(p.getLogoImageUrl())
-                .kakaoLink(p.getKakaoLink())
+        return ApplyingProjectResponse.builder()
+                .id(project.getId())
+                .title(project.getTitle())
                 .memberBriefs(memberBriefs)
-                .slogan(p.getSlogan())
+                .position(project.getPositions())
+                .memberCount(memberCount)
+                .imageKey(project.getLogoImageKey())
+                .techs(project.getTechs())
                 .build();
     }
 
 
     //프로젝트 신청
+    @Transactional
     public void applyToProject(Long userId, Long projectId,
-                               CreateProjectQuestionRequest req) {
+                               ApplyProjectRequest req) {
 
         // 1) 참조 로딩 (존재 검증)
         User user = userRepository.getReferenceById(userId); // 존재 보장 시 getReferenceById OK
@@ -227,59 +221,103 @@ public class ProjectService {
                 .project(project)
                 .role(ProjectMemberRole.MEMBER) // 기본 포지션
                 .status(ProjectMemberStatus.APPLIED)
-                .joinedAt(LocalDateTime.now()) // 또는 @PrePersist 로 자동 세팅
+                .joinedAt(LocalDateTime.now())
                 .build();
 
 
         projectMemberRepository.save(pm);
 
-        List<ProjectQuestion> qs =
-                projectQuestionRepository.findAllByProject_IdOrderByIdAsc(projectId);
+        // 해당 프로젝트의 질문들 가져오기 (순서 포함)
+        List<ProjectQuestion> questions =
+                projectQuestionRepository.findAllByProjectIdOrderByDisplayOrder(projectId);
+
+
+        // 요청에서 들어온 답변들을 매핑
+        Map<Long, String> answerMap = req.getAnswers().stream()
+                .collect(Collectors.toMap(ApplyProjectRequest.AnswerDto::getQuestionId,
+                        ApplyProjectRequest.AnswerDto::getAnswer));
+
+
+        // 3. 질문 답변 저장
+        for (ProjectQuestion q : questions) {
+            String answerText = answerMap.get(q.getId());
+
+            // 1) 답변 누락 시 예외 발생
+            if (answerText == null || answerText.isBlank()) {
+                throw new IllegalStateException("질문 [" + q.getQuestionText() + "] 에 대한 답변이 누락되었습니다.");
+            }
+
+
+            // 2) 답변 저장
+            ProjectAnswer answer = ProjectAnswer.builder()
+                    .member(pm)
+                    .question(q)
+                    .answerText(answerText)
+                    .build();
+            projectAnswerRepository.save(answer);
+
+
+            // 3) 포지션/기술 답변은 ProjectMember에 동기화
+            if ("포지션".equals(q.getQuestionText())) {
+                pm.updatePosition(answerText);
+            }
+            if ("기술".equals(q.getQuestionText())) {
+                pm.updateTechs(answerText);
+            }
+        }
 
 
         // 입력값을 질문 순서에 맞춰 배열로 (Q1=answer, Q2=position, Q3=techs)
-        List<String> inputs = asList(
-                req.getAnswer(),
-                req.getPosition(),
-                req.getTechs()
-        );
-
-        List<ProjectAnswer> toSave = new ArrayList<>();
-
-        int limit = Math.min(qs.size(), inputs.size());
-
-
-        for (int i = 0; i < limit; i++) {
-            String val = inputs.get(i);
-            if (val == null || val.isBlank()) continue;  // 빈 값은 건너뜀
-
-            ProjectAnswer pa = ProjectAnswer.builder()
-                    .member(pm)
-                    .question(qs.get(i))
-                    .answerText(val)
-                    .build();
-
-            toSave.add(pa);
-        }
-
-        if (!toSave.isEmpty()) {
-            projectAnswerRepository.saveAll(toSave);
-        }
+//        List<String> inputs = asList(
+//                req.getAnswer(),
+//                req.getPosition(),
+//                req.getTechs()
+//        );
+//
+//        List<ProjectAnswer> toSave = new ArrayList<>();
+//
+//        int limit = Math.min(qs.size(), inputs.size());
+//
+//
+//        for (int i = 0; i < limit; i++) {
+//            String val = inputs.get(i);
+//            if (val == null || val.isBlank()) continue;  // 빈 값은 건너뜀
+//
+//            ProjectAnswer pa = ProjectAnswer.builder()
+//                    .member(pm)
+//                    .question(qs.get(i))
+//                    .answerText(val)
+//                    .build();
+//
+//            toSave.add(pa);
+//        }
+//
+//        if (!toSave.isEmpty()) {
+//            projectAnswerRepository.saveAll(toSave);
+//        }
 
     }
+
     //전체조회
     @Transactional(readOnly = true)
-    public Page<ProjectResponse> findAll(Pageable pageable) {
+    public Page<AllProjectResponse> findAll(Pageable pageable) {
         return projectRepository.findAll(pageable)
-                .map(p -> ProjectResponse.builder()
+                .map(p -> AllProjectResponse.builder()
                         .id(p.getId())
+                        .slogan(p.getSlogan())
+                        .createdAt(p.getCreatedAt())
                         .title(p.getTitle())
-                        .imageUrl(p.getLogoImageUrl()) // 맞는 getter로 사용
+                        .imageKey(p.getLogoImageKey())
                         .build());
+//                .map(p -> ProjectResponse.builder()
+//                        .id(p.getId())
+//                        .title(p.getTitle())
+//                        .imageUrl(p.getLogoImageKey()) // 맞는 getter로 사용
+//                        .build());
     }
 
     //아이디로 1개만 조회
-    public ProjectResponse findOneById(Long projectId) {
+    public OneProjectResponse findOneById(Long projectId) {
 
         Project project = projectRepository.findWithManagerAndMembers(projectId)
                 .orElseThrow(() -> new EntityNotFoundException("프로젝트 없음"));
@@ -293,17 +331,71 @@ public class ProjectService {
                         .build()
                 ).toList();
 
-        return ProjectResponse.builder()
-                .id(project.getId())
+        String profileImageUrl = project.getManager().getProfileImageUrl();
+
+        return OneProjectResponse.builder()
+                .id(projectId)
+                .content(project.getDescription())
+                .leaderImage(profileImageUrl)
                 .title(project.getTitle())
-                .slogan(project.getSlogan())
-                .imageUrl(project.getLogoImageUrl())
-                .leaderImage(project.getManager().getProfileImageUrl())
                 .memberBriefs(members)
-                .memberCount(members.size())
+                .techs(project.getTechs())
+                .slogan(project.getSlogan())
                 .build();
 
+
     }
+    @Transactional(readOnly = true)
+    public List<ProjectApplicationResponse> getApplication(Long userId, Long projectId) {
+        // 1) 팀장 검증
+        Long managerId = projectRepository.findManagerId(projectId)
+                .orElseThrow(() -> new EntityNotFoundException("프로젝트 없음"));
+        if (!managerId.equals(userId)) {
+            throw new IllegalStateException("해당 프로젝트의 팀장이 아닙니다.");
+        }
+
+        // 2) 신청자 + 유저정보 로딩 (N+1 방지)
+        List<ProjectMember> applicants =
+                projectMemberRepository.findAllApplicantsWithUser(projectId);
+
+        if (applicants.isEmpty()) return List.of();
+
+        // 3) 신청자 PM id 목록
+        List<Long> memberIds = applicants.stream()
+                .map(ProjectMember::getId)
+                .toList();
+
+        // 4) 모든 답변 한 번에 로딩 (질문 displayOrder로 정렬)
+        List<ProjectAnswer> allAnswers =
+                projectAnswerRepository.findAllByMemberIdInOrderByMemberAndQuestion(memberIds);
+
+        // 5) 신청자별로 답변 그룹핑 → DTO 변환
+        Map<Long, List<ProjectApplicationResponse.AnswerResponseDTO>> answersByMember =
+                allAnswers.stream()
+                        .collect(Collectors.groupingBy(
+                                pa -> pa.getMember().getId(),
+                                Collectors.mapping(pa -> ProjectApplicationResponse.AnswerResponseDTO.builder()
+                                                .questionId(pa.getQuestion().getId())
+                                                .questions(pa.getQuestion().getQuestionText())
+                                                .answer(pa.getAnswerText())
+                                                .build(),
+                                        Collectors.toList()
+                                )
+                        ));
+
+        // 6) 최종 응답
+        return applicants.stream()
+                .map(pm -> ProjectApplicationResponse.builder()
+                        .id(pm.getId())
+                        .projectId(projectId)
+                        .userId(pm.getUser().getId())
+                        .nickName(pm.getUser().getNickname())
+                        .profileImage(pm.getUser().getProfileImageUrl())
+                        .answers(answersByMember.getOrDefault(pm.getId(), List.of()))
+                        .build())
+                .toList();
+    }
+
 
 
 }

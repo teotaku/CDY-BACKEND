@@ -1,6 +1,6 @@
 package com.cdy.cdy.service;
 
-import com.cdy.cdy.dto.response.ProjectResponse;
+import com.cdy.cdy.dto.response.project.ProjectResponse;
 import com.cdy.cdy.dto.response.StudyChannelResponse;
 import com.cdy.cdy.entity.Project;
 import com.cdy.cdy.entity.ProjectMember;
@@ -69,7 +69,7 @@ public class MyPageService {
                 .id(p.getId())
                 .title(p.getTitle())
                 .description(p.getDescription())
-                .imageUrl(p.getLogoImageUrl())
+                .imageUrl(p.getLogoImageKey())
                 .leaderId(p.getManager().getId())
                 .positions(Collections.emptyList())
                 .techs(Collections.emptyList())

@@ -1,6 +1,5 @@
 package com.cdy.cdy.controller;
 
-import com.cdy.cdy.dto.response.ApplicantCardResponse;
 import com.cdy.cdy.service.ProjectApplicantService;
 import jakarta.validation.constraints.PositiveOrZero;
 import lombok.RequiredArgsConstructor;
@@ -16,13 +15,7 @@ public class ProjectApplicantController {
 
     private final ProjectApplicantService projectApplicantService;
 
-    //신청자 확인
-    @GetMapping("{projectId}/applicants")
-    public ResponseEntity<List<ApplicantCardResponse>> getApplicants(
-            @PathVariable Long projectId
-    ) {
-        return ResponseEntity.ok(projectApplicantService.getApplicants(projectId));
-    }
+
 
     // 신청자 승인
     @PostMapping("{projectId}/applicants/{userId}/approve")

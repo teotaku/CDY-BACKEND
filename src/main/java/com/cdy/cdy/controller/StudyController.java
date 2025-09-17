@@ -69,7 +69,7 @@ public class StudyController {
 
     }
     //스터디 수정
-    @PutMapping
+    @PutMapping("/update/study")
     public ResponseEntity<String> updateStudy(@PathVariable Long studyId,
                                             @AuthenticationPrincipal CustomUserDetails userDetails,
                                             @RequestBody UpdateStudyChannelRequest rq) {

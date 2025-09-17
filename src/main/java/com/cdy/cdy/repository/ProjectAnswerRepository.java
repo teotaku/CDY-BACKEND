@@ -22,8 +22,22 @@ public interface ProjectAnswerRepository extends JpaRepository<ProjectAnswer, Lo
         from ProjectAnswer pa
         join fetch pa.question q
         where pa.member.id in :memberIds
-        order by q.id asc
+        order by q.displayOrder asc
         """)
-    List<ProjectAnswer> findAllByMemberIdInOrderByQuestionId(
+    List<ProjectAnswer> findAllByMemberIdInOrderByDisplayOrder(
             @Param("memberIds") List<Long> memberIds);
+
+
+
+    @Query("""
+       select pa
+       from ProjectAnswer pa
+       join fetch pa.question q
+       join pa.member m
+       where m.id in :memberIds
+       order by m.id asc, q.displayOrder asc
+       """)
+    List<ProjectAnswer> findAllByMemberIdInOrderByMemberAndQuestion(@Param("memberIds") List<Long> memberIds);
+
+
 }

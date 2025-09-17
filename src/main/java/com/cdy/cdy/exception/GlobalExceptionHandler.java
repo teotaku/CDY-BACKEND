@@ -1,6 +1,8 @@
 package com.cdy.cdy.exception;
 
+import io.swagger.v3.oas.annotations.Hidden;
 import jakarta.persistence.EntityNotFoundException;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -12,7 +14,10 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 @Slf4j
 @RestControllerAdvice(basePackages = "com.cdy.cdy.controller")
+@Hidden
 public class GlobalExceptionHandler {
+
+
 
 
     @ExceptionHandler(EntityNotFoundException.class)
@@ -58,12 +63,6 @@ public class GlobalExceptionHandler {
     }
 
 
-    // 마지막 안전망
-    @ExceptionHandler(Exception.class)
-    public ResponseEntity<ErrorResponse> handleEtc(Exception e) {
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(new ErrorResponse(500, "서버 오류가 발생했습니다."));
-    }
 
 
     // DB Unique 제약 조건 위반 (중복 이메일 등)
@@ -73,4 +72,20 @@ public class GlobalExceptionHandler {
                 .body(new ErrorResponse(400, "이미 존재하는 값입니다."));
     }
 
+
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<ErrorResponse> handleEtc(Exception e, HttpServletRequest request) {
+
+        String path = request.getRequestURI();
+
+        // Swagger/OpenAPI 요청은 기본 예외 처리에 맡김
+        if (path.startsWith("/v3/api-docs") || path.startsWith("/swagger-ui")) {
+            return null; // springdoc이 정상 응답하도록 통과
+        }
+
+        log.error("Unhandled exception at {}: {}", path, e.getMessage(), e);
+
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(new ErrorResponse(500, "서버 오류가 발생했습니다."));
+    }
 }
