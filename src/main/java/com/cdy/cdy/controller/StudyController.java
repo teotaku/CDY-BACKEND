@@ -100,6 +100,10 @@ public class StudyController {
     }
 
     //스터디 삭제
+    @Operation(
+            summary = "스터디 삭제",
+            description = "studyId를 받고 해당 스터디 삭제 해당 유저만 삭제가능"
+    )
     @DeleteMapping("/delete/{studyId}")
     public ResponseEntity<Void> deleteStudy(@PathVariable Long studyId,
                                             @AuthenticationPrincipal CustomUserDetails userDetails) {
@@ -108,6 +112,10 @@ public class StudyController {
 
     }
     //스터디 수정
+    @Operation
+            (summary = "스터디 수정",
+            description = "studyId와 updateStudyChannelRequest(내용,이미지)를 받고 이미지수정" +
+                    "해당 유저만 수정가능")
     @PutMapping("/update/study")
     public ResponseEntity<String> updateStudy(@PathVariable Long studyId,
                                             @AuthenticationPrincipal CustomUserDetails userDetails,
