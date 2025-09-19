@@ -1,5 +1,5 @@
 // dto/mypage/UpdateNicknameRequest.java
-package com.cdy.cdy.dto.request;
+package com.cdy.cdy.dto.request.mypage;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;

@@ -76,4 +76,15 @@ public class ProjectMember {
         this.status = ProjectMemberStatus.REJECTED;
     }
 
+    public void cancel() {
+        this.status = ProjectMemberStatus.CANCEL;
+    }
+
+    public void complete() {
+        this.status = ProjectMemberStatus.COMPLICATED;
+    }
+
+    public boolean isCompleted() {
+        return this.status == ProjectMemberStatus.COMPLICATED;
+    }
 }

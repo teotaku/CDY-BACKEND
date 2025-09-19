@@ -1,6 +1,7 @@
 package com.cdy.cdy.controller;
 
 import com.cdy.cdy.dto.response.CustomUserDetails;
+import com.cdy.cdy.dto.response.project.ProjectQuestionResponse;
 import com.cdy.cdy.service.ProjectApplicantService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -38,7 +39,7 @@ public class ProjectApplicantController {
             @AuthenticationPrincipal CustomUserDetails userDetails
     ) {
 
-        projectApplicantService.approve(projectId, userId,userDetails.getId());
+        projectApplicantService.approve(projectId, userId, userDetails.getId());
         return ResponseEntity.ok().build();
     }
 
@@ -58,7 +59,40 @@ public class ProjectApplicantController {
             @PathVariable Long userId,
             @AuthenticationPrincipal CustomUserDetails userDetails
     ) {
-        projectApplicantService.reject(projectId, userId,userDetails.getId());
+        projectApplicantService.reject(projectId, userId, userDetails.getId());
         return ResponseEntity.ok().build();
+    }
+
+    //프로젝트 질문가져오기
+    @Operation(
+            summary = "프로젝트 질문 조회",
+            description = "특정 프로젝트에 등록된 질문 리스트를 조회합니다. (지원 시 표시할 질문)"
+    )
+    @GetMapping("/questions/{projectId}")
+    public ResponseEntity<List<ProjectQuestionResponse>> getQuestions(@PathVariable Long projectId) {
+        List<ProjectQuestionResponse> questions = projectApplicantService.getQuestions(projectId);
+        return ResponseEntity.ok(questions);
+    }
+
+    @Operation
+            (summary = "프로젝트 취소하기",
+                    description = "프로젝트 id 넘기고 로그인된 유저가 해당 프로젝트 신청중이면 취소")
+    //프로젝트 취소하기
+    @PostMapping("/cancel/{projectId}")
+    public ResponseEntity<String> cancel(@PathVariable Long projectId,
+                                         @AuthenticationPrincipal CustomUserDetails userDetails) {
+        projectApplicantService.cancel(projectId, userDetails.getId());
+        return ResponseEntity.ok("프로젝트 신청이 취소되었습니다.");
+
+    }
+    @Operation
+            (summary = "프로젝트 완료하기",
+                    description = "프로젝트 id 넘기고 로그인된 유저가 해당 프로젝트 진행중이면 완료")
+    @PostMapping("/complete/{projectId}")
+    public ResponseEntity<String> complete(@PathVariable Long projectId,
+                                         @AuthenticationPrincipal CustomUserDetails userDetails) {
+        projectApplicantService.complete(projectId, userDetails.getId());
+        return ResponseEntity.ok("프로젝트 완료");
+
     }
 }

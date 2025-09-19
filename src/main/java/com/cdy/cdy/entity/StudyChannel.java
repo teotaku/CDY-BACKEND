@@ -5,6 +5,9 @@ import com.cdy.cdy.dto.request.CreateStudyChannelRequest;
 import com.cdy.cdy.dto.request.UpdateStudyChannelRequest;
 import jakarta.persistence.*;
 import lombok.*;
+
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 @Getter
@@ -20,10 +23,10 @@ public class StudyChannel extends BaseEntity {
     @JoinColumn(name = "owner_id", nullable = false)
     private User owner; // 작성자
 
-    @Column
-    private String category; // 카테고리
 
-
+    @OneToMany(mappedBy = "study", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OrderBy("sortOrder ASC")
+    private List<StudyImage> images = new ArrayList<>();
 
     @Lob
     @Column(columnDefinition = "TEXT")
@@ -36,7 +39,6 @@ public class StudyChannel extends BaseEntity {
     @Builder
     private StudyChannel(User owner, String category,  String content, String thumbnailUrl) {
         this.owner = Objects.requireNonNull(owner);
-        this.category = category;
         this.content = content;
 //        this.thumbnailUrl = thumbnailUrl;
     }
@@ -54,6 +56,11 @@ public class StudyChannel extends BaseEntity {
     public void update(UpdateStudyChannelRequest req) {
         if (req.getContent() != null) this.content = req.getContent();
 //        if (req.getCategory() != null) this.category = req.getCategory();
+    }
+
+    public void replaceImages(List<StudyImage> newImages) {
+        this.images.clear();          // 기존 전부 제거 (DB에서도 orphanRemoval로 삭제)
+        this.images.addAll(newImages);
     }
 }
 

@@ -42,6 +42,9 @@ public class User extends BaseEntity {
     @Column(length = 20)
     private UserRole role;
 
+    @Enumerated(EnumType.STRING)
+    private UserCategory category;
+
 
     @Column
     private String profileImageUrl;

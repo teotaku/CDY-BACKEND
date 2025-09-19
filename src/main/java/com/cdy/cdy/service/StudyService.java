@@ -3,12 +3,16 @@ package com.cdy.cdy.service;
 import com.cdy.cdy.dto.request.CreateStudyChannelRequest;
 import com.cdy.cdy.dto.request.CreateStudyImageDto;
 import com.cdy.cdy.dto.request.UpdateStudyChannelRequest;
+import com.cdy.cdy.dto.request.UpdateStudyImageDto;
 import com.cdy.cdy.dto.response.CustomUserDetails;
 import com.cdy.cdy.dto.response.StudyChannelResponse;
 import com.cdy.cdy.dto.response.StudyImageResponse;
+import com.cdy.cdy.dto.response.study.GroupedStudiesResponse;
+import com.cdy.cdy.dto.response.study.SimpleStudyDto;
 import com.cdy.cdy.entity.StudyChannel;
 import com.cdy.cdy.entity.StudyImage;
 import com.cdy.cdy.entity.User;
+import com.cdy.cdy.entity.UserCategory;
 import com.cdy.cdy.repository.StudyChannelRepository;
 import com.cdy.cdy.repository.StudyImageRepository;
 import com.cdy.cdy.repository.UserRepository;
@@ -22,6 +26,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.RequestBody;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -55,9 +60,25 @@ public class StudyService {
             }
         }
         attendanceService.checkToday(userId);
-        // 3) 응답 조립 (간단 버전)
-        return StudyChannelResponse.from(study);
 
+        // 3) 이미지 다시 조회해서 응답 DTO 조립 (⭐ from 제거 → builder로 직접 생성)
+        List<StudyImage> images = studyImageRepository.findByStudyId(study.getId());
+
+        List<StudyImageResponse> imageResponses = images.stream()
+                .map(img -> StudyImageResponse.builder()      // 🔥 변경: from → builder
+                        .key(img.getKey())
+                        .url(r2StorageService.presignGet(img.getKey(), 3600).toString())  // presign url 생성 함수 필요
+                        .sortOrder(img.getSortOrder())
+                        .build()
+                )
+                .toList();
+
+        return StudyChannelResponse.builder()                 // 🔥 변경: from → builder
+                .id(study.getId())
+                .content(study.getContent())
+                .createdAt(study.getCreatedAt())
+                .images(imageResponses)
+                .build();
     }
 
     //스터디 수정
@@ -66,7 +87,7 @@ public class StudyService {
                             Long userId,
                             UpdateStudyChannelRequest studyChannelRequest) {
         StudyChannel studyChannel = studyChannelRepository.findById(studyId)
-                .orElseThrow(()-> new IllegalArgumentException("해당 스터디 채널을 찾을 수 없습니다."));
+                .orElseThrow(() -> new IllegalArgumentException("해당 스터디 채널을 찾을 수 없습니다."));
 
         if (!studyChannel.getOwner().getId().equals(userId)) {
             throw new IllegalStateException("스터디 수정 권한이 없습니다.");
@@ -75,9 +96,24 @@ public class StudyService {
         List<StudyImage> current = studyImageRepository.findByStudyId(studyId);
 
         studyChannel.update(studyChannelRequest);
-            }
 
-      //스터디 삭제
+        if (studyChannelRequest.getImages() != null) {
+            List<StudyImage> newImages = new ArrayList<>();
+            int order = 1;
+            for (UpdateStudyImageDto dto : studyChannelRequest.getImages()) {
+                StudyImage img = StudyImage.builder()
+                        .study(studyChannel)
+                        .key(dto.getKey())
+                        .sortOrder(order++)
+                        .build();
+                newImages.add(img);
+            }
+            studyChannel.replaceImages(newImages);
+        }
+
+    }
+
+    //스터디 삭제
 
     public void deleteStudy(
             Long studyId, Long userId) {
@@ -92,7 +128,6 @@ public class StudyService {
             throw new IllegalArgumentException("스터디 삭제 권한이 없습니다.");
         }
         studyChannelRepository.delete(studyChannel);
-
 
 
     }
@@ -133,11 +168,25 @@ public class StudyService {
     }
 
 
-    public Page<StudyChannelResponse> findByCategory(Long id, String category, Pageable pageable) {
+    public GroupedStudiesResponse getStudiesGrouped(Pageable codingPageable,
+                                                    Pageable designPageable,
+                                                    Pageable videoPageable) {
 
-        return null;
+        Page<SimpleStudyDto> coding = studyChannelRepository
+                .findByUserCategorySimple(UserCategory.CODING, codingPageable);
+
+        Page<SimpleStudyDto> design = studyChannelRepository
+                .findByUserCategorySimple(UserCategory.DESIGN, designPageable);
+
+        Page<SimpleStudyDto> video = studyChannelRepository
+                .findByUserCategorySimple(UserCategory.VIDEO_EDITING, videoPageable);
+
+        return GroupedStudiesResponse.builder()
+                .coding(coding)
+                .design(design)
+                .video(video)
+                .build();
     }
+
 }
-
-
 

@@ -85,4 +85,11 @@ public class Project extends BaseEntity  {
     public String getContact() {
         return manager.getPhoneNumber(); // User 엔티티에 phone 필드 필요
     }
+
+    public void complete() {
+        if (this.status == ProjectStatus.COMPLETED) {
+            throw new IllegalStateException("이미 완료된 프로젝트입니다.");
+        }
+        this.status = ProjectStatus.COMPLETED;
+    }
 }

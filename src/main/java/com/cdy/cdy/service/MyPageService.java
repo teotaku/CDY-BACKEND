@@ -1,5 +1,6 @@
 package com.cdy.cdy.service;
 
+import com.cdy.cdy.dto.request.UpdateMyImage;
 import com.cdy.cdy.dto.response.project.ProjectResponse;
 import com.cdy.cdy.dto.response.StudyChannelResponse;
 import com.cdy.cdy.entity.Project;
@@ -9,6 +10,7 @@ import com.cdy.cdy.entity.User;
 import com.cdy.cdy.repository.ProjectMemberRepository;
 import com.cdy.cdy.repository.StudyChannelRepository;
 import com.cdy.cdy.repository.UserRepository;
+import io.swagger.v3.oas.annotations.Operation;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -24,6 +26,22 @@ public class MyPageService {
     private final PasswordEncoder passwordEncoder; // 이미 SecurityConfig에 Bean 등록돼 있죠
     private final ProjectMemberRepository projectMemberRepository;
     private final StudyChannelRepository studyChannelRepository;
+
+    @Operation(
+            summary = "내 프로필 이미지 변경",
+            description = """
+    1) `/storage/presign` API로 presigned URL 발급 → 프론트에서 업로드 완료
+    2) 업로드 후 반환된 `imageKey`를 이 API에 전달하면, 로그인된 유저의 아바타가 교체됩니다.
+    """
+    )
+    @Transactional
+    public void changeImage(Long userId, UpdateMyImage updateMyImage) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("유저 없음"));
+        user.changeAvatar(updateMyImage.getImageKey());
+        userRepository.save(user);
+
+    }
 
 
     @Transactional

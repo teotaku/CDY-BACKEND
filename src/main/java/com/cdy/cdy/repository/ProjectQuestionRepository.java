@@ -16,6 +16,7 @@ public interface ProjectQuestionRepository extends JpaRepository<ProjectQuestion
     @Query("""
     select q
     from ProjectQuestion q
+    join fetch q.project
     where q.project.id = :projectId
     order by q.displayOrder asc
 """)

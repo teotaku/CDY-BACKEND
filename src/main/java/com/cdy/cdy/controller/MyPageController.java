@@ -1,8 +1,9 @@
 package com.cdy.cdy.controller;
 
-import com.cdy.cdy.dto.request.UpdateEmailRequest;
-import com.cdy.cdy.dto.request.UpdateNicknameRequest;
-import com.cdy.cdy.dto.request.UpdatePasswordRequest;
+import com.cdy.cdy.dto.request.UpdateMyImage;
+import com.cdy.cdy.dto.request.mypage.UpdateEmailRequest;
+import com.cdy.cdy.dto.request.mypage.UpdateNicknameRequest;
+import com.cdy.cdy.dto.request.mypage.UpdatePasswordRequest;
 import com.cdy.cdy.dto.response.CustomUserDetails;
 import com.cdy.cdy.dto.response.MypageResponse;
 import com.cdy.cdy.entity.User;
@@ -23,14 +24,13 @@ public class MyPageController {
     private final UserRepository userRepository;
 
 
-
     //마이 페이지 조회
     @GetMapping
     public ResponseEntity<MypageResponse> getMyPage(@AuthenticationPrincipal CustomUserDetails userDetails) {
         String email = userDetails.getEmail();
         Long id = userDetails.getId();
         User user = userRepository.findById(id)
-                .orElseThrow(()-> new IllegalArgumentException("아이디를 찾을수없습니다."));
+                .orElseThrow(() -> new IllegalArgumentException("아이디를 찾을수없습니다."));
 
         String nickname = user.getNickname();
 
@@ -73,5 +73,14 @@ public class MyPageController {
             @RequestBody UpdatePasswordRequest req) {
         myPageService.changePassword(principal.getId(), req.currentPassword(), req.newPassword());
         return ResponseEntity.ok("비밀번호 변경 완료. 다시 로그인 해주세요.");
+    }
+
+    //이미지 변경
+    @PatchMapping("/image")
+    @Operation(summary = "이미지 변경", description = "로그인한 사용자의 이미지변경")
+    public ResponseEntity<String> changeImage(@AuthenticationPrincipal CustomUserDetails userDetails,
+                                              @RequestBody UpdateMyImage updateMyImage) {
+        myPageService.changeImage(userDetails.getId(), updateMyImage);
+     return ResponseEntity.ok("이미지가 변경되었습니다.");
     }
 }

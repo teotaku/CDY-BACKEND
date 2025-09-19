@@ -6,10 +6,17 @@ import com.cdy.cdy.dto.request.CreateStudyChannelRequest;
 import com.cdy.cdy.dto.request.UpdateStudyChannelRequest;
 import com.cdy.cdy.dto.response.CustomUserDetails;
 import com.cdy.cdy.dto.response.StudyChannelResponse;
+import com.cdy.cdy.dto.response.study.GroupedStudiesResponse;
 import com.cdy.cdy.entity.StudyChannel;
 import com.cdy.cdy.service.StudyService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
@@ -26,6 +33,15 @@ public class StudyController {
 
     private final StudyService studyService;
 
+
+    @Operation(
+            summary = "스터디 채널 생성",
+            description = """
+    1) 먼저 `/storage/presign` API를 호출해 presigned URL을 발급받습니다.
+    2) 발급받은 URL로 이미지를 직접 업로드합니다.
+    3) 업로드가 끝나면, 응답으로 받은 이미지 `key` 값을 `CreateStudyChannelRequest`에 포함해 요청하세요.
+    """
+    )
     //스터디 생성
     @PostMapping("/create")
     public ResponseEntity<StudyChannelResponse> createStudy(
@@ -49,15 +65,38 @@ public class StudyController {
         return ResponseEntity.ok(studyService.getAllStudies(pageable));
     }
 
-    //카테고리별 조회
-    @GetMapping("/category/{category}")
-    public ResponseEntity<Page<StudyChannelResponse>> findByCategory(
-            @AuthenticationPrincipal CustomUserDetails userDetails,
-            @PathVariable String category,
-            @PageableDefault(size = 10, sort = "createdAt", direction = Sort.Direction.DESC)
-            Pageable pageable
+    @Operation(
+            summary = "카테고리별 스터디 채널 그룹 조회",
+            description = """
+    코딩 / 디자인 / 영상편집 3가지 카테고리를 한 번에 조회합니다.
+    각 카테고리는 독립적으로 페이징 처리됩니다.
+    
+    - 요청 파라미터: codingPage, codingSize, designPage, designSize, videoPage, videoSize
+    - 정렬 기준: createdAt DESC
+    - 응답: GroupedStudiesResponse (카테고리별 Page<SimpleStudyDto>)
+    """
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "정상 조회 성공",
+                    content = @Content(schema = @Schema(implementation = GroupedStudiesResponse.class)))
+    })
+    @GetMapping("/category/grouped")
+    public ResponseEntity<GroupedStudiesResponse> getGrouped(
+            @RequestParam(defaultValue = "0") int codingPage,
+            @RequestParam(defaultValue = "10") int codingSize,
+            @RequestParam(defaultValue = "0") int designPage,
+            @RequestParam(defaultValue = "10") int designSize,
+            @RequestParam(defaultValue = "0") int videoPage,
+            @RequestParam(defaultValue = "10") int videoSize
     ) {
-        return ResponseEntity.ok(studyService.findByCategory(userDetails.getId(),category,pageable));
+        Sort sort   = Sort.by(Sort.Direction.DESC, "createdAt");
+        Pageable coding = PageRequest.of(codingPage, codingSize, sort);
+        Pageable design = PageRequest.of(designPage, designSize, sort);
+        Pageable video  = PageRequest.of(videoPage,  videoSize,  sort);
+
+        return ResponseEntity.ok(
+                studyService.getStudiesGrouped(coding, design, video)
+        );
     }
 
     //스터디 삭제
