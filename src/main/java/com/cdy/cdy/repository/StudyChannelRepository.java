@@ -14,7 +14,7 @@ import org.springframework.stereotype.Repository;
 public interface StudyChannelRepository extends JpaRepository<StudyChannel,Long> {
 
     @Query(value = """
-        select new com.cdy.cdy.dto.response.SimpleStudyDto(
+        select new com.cdy.cdy.dto.response.study.SimpleStudyDto(
             sc.id, u.id, u.profileImageUrl, u.category
         )
         from StudyChannel sc
