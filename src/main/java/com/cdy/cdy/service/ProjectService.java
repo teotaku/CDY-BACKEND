@@ -6,7 +6,7 @@ import com.cdy.cdy.dto.request.CreateProjectRequest;
 import com.cdy.cdy.dto.response.MemberBrief;
 import com.cdy.cdy.dto.response.project.*;
 import com.cdy.cdy.entity.*;
-import com.cdy.cdy.entity.proejct.*;
+import com.cdy.cdy.entity.project.*;
 import com.cdy.cdy.repository.*;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;

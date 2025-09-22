@@ -1,10 +1,10 @@
 package com.cdy.cdy.service;
 
 import com.cdy.cdy.dto.response.project.ProjectQuestionResponse;
-import com.cdy.cdy.entity.proejct.Project;
-import com.cdy.cdy.entity.proejct.ProjectMember;
-import com.cdy.cdy.entity.proejct.ProjectMemberStatus;
-import com.cdy.cdy.entity.proejct.ProjectQuestion;
+import com.cdy.cdy.entity.project.Project;
+import com.cdy.cdy.entity.project.ProjectMember;
+import com.cdy.cdy.entity.project.ProjectMemberStatus;
+import com.cdy.cdy.entity.project.ProjectQuestion;
 import com.cdy.cdy.repository.ProjectMemberRepository;
 import com.cdy.cdy.repository.ProjectQuestionRepository;
 import com.cdy.cdy.repository.ProjectRepository;

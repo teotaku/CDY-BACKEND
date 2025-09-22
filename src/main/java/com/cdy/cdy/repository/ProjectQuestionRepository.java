@@ -1,6 +1,6 @@
 package com.cdy.cdy.repository;
 
-import com.cdy.cdy.entity.proejct.ProjectQuestion;
+import com.cdy.cdy.entity.project.ProjectQuestion;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;

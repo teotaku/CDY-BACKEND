@@ -15,7 +15,7 @@ public interface StudyChannelRepository extends JpaRepository<StudyChannel,Long>
 
     @Query(value = """
         select new com.cdy.cdy.dto.response.study.SimpleStudyDto(
-            sc.id, u.id, u.profileImageUrl, u.category
+            sc.id, u.id, u.profileImageKey, u.category
         )
         from StudyChannel sc
         join sc.owner u

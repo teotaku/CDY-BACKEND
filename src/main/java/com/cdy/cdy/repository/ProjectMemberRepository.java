@@ -1,7 +1,7 @@
 package com.cdy.cdy.repository;
 
-import com.cdy.cdy.entity.proejct.ProjectMember;
-import com.cdy.cdy.entity.proejct.ProjectMemberStatus;
+import com.cdy.cdy.entity.project.ProjectMember;
+import com.cdy.cdy.entity.project.ProjectMemberStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -21,7 +21,7 @@ public interface ProjectMemberRepository extends JpaRepository<ProjectMember,Lon
         from ProjectMember pm
         join fetch pm.user u
         where pm.project.id = :projectId
-          and pm.status = com.cdy.cdy.entity.ProjectMemberStatus.APPLIED
+          and pm.status = com.cdy.cdy.entity.project.ProjectMemberStatus.APPLIED
         """)
     List<ProjectMember> findApplicants(@Param("projectId") Long projectId);
 
@@ -77,7 +77,7 @@ public interface ProjectMemberRepository extends JpaRepository<ProjectMember,Lon
             select count(pm)
              from ProjectMember pm
             where pm.project.id = :projectId
-            and pm.status = com.cdy.cdy.entity.ProjectMemberStatus.APPROVED
+            and pm.status = 'APPROVED'
             """)
     long countByApprovedPm(@Param("projectId") Long projectId);
 

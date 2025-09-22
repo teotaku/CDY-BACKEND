@@ -2,8 +2,8 @@ package com.cdy.cdy.service;
 
 import com.cdy.cdy.dto.request.UpdateMyImage;
 import com.cdy.cdy.dto.response.project.ProjectResponse;
-import com.cdy.cdy.entity.proejct.Project;
-import com.cdy.cdy.entity.proejct.ProjectMember;
+import com.cdy.cdy.entity.project.Project;
+import com.cdy.cdy.entity.project.ProjectMember;
 import com.cdy.cdy.entity.User;
 import com.cdy.cdy.repository.ProjectMemberRepository;
 import com.cdy.cdy.repository.StudyChannelRepository;

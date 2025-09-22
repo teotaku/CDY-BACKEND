@@ -1,5 +1,5 @@
 // src/main/java/com/cdy/cdy/entity/ProjectApplication.java
-package com.cdy.cdy.entity.proejct;
+package com.cdy.cdy.entity.project;
 
 import com.cdy.cdy.entity.ApplicationsStatus;
 import com.cdy.cdy.entity.BaseEntity;

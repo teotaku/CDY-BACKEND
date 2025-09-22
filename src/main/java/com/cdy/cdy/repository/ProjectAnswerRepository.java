@@ -1,7 +1,7 @@
 // src/main/java/com/cdy/cdy/repository/ProjectAnswerRepository.java
 package com.cdy.cdy.repository;
 
-import com.cdy.cdy.entity.proejct.ProjectAnswer;
+import com.cdy.cdy.entity.project.ProjectAnswer;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
