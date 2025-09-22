@@ -15,7 +15,7 @@ public interface StudyChannelRepository extends JpaRepository<StudyChannel,Long>
 
     @Query(value = """
         select new com.cdy.cdy.dto.response.study.SimpleStudyDto(
-            sc.id, u.id, u.profileImageKey, u.category
+           u.id, u.profileImageKey, u.category
         )
         from StudyChannel sc
         join sc.owner u
@@ -29,5 +29,9 @@ public interface StudyChannelRepository extends JpaRepository<StudyChannel,Long>
         """)
     Page<SimpleStudyDto> findByUserCategorySimple(@Param("category") UserCategory category,
                                                   Pageable pageable);
+
+
+    @Query("SELECT sc FROM StudyChannel sc WHERE sc.owner.id = :userId")
+    Page<StudyChannel> findUserStudies(@Param("userId") Long userId, Pageable pageable);
 
 }

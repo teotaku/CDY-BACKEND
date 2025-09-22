@@ -9,7 +9,6 @@ import lombok.Getter;
 @AllArgsConstructor
 @Builder
 public class SimpleStudyDto {
-    private Long studyId;
     private Long userId;
     private String userImage;
     private UserCategory category;

@@ -10,4 +10,7 @@ import java.util.List;
 @Repository
 public interface StudyImageRepository extends JpaRepository<StudyImage, Long> {
     List<StudyImage> findByStudyId(Long studyId);
+
+
+
 }

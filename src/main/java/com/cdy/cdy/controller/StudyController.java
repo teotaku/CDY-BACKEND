@@ -6,6 +6,7 @@ import com.cdy.cdy.dto.request.UpdateStudyChannelRequest;
 import com.cdy.cdy.dto.response.CustomUserDetails;
 import com.cdy.cdy.dto.response.StudyChannelResponse;
 import com.cdy.cdy.dto.response.study.GroupedStudiesResponse;
+import com.cdy.cdy.dto.response.study.ResponseStudyByUser;
 import com.cdy.cdy.service.StudyService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -13,6 +14,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.RequiredArgsConstructor;
+import org.apache.coyote.Response;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -29,20 +31,35 @@ public class StudyController {
 
     private final StudyService studyService;
 
+    @Operation(summary = "유저의 스터디목록 조회"
+            , description = "로그인된 유저의 스터디 전체 목록을 반환")
+
+    @GetMapping("/users/studies")
+    public ResponseEntity<Page<ResponseStudyByUser>> findStudiesByUser
+            (@AuthenticationPrincipal CustomUserDetails userDetails,
+             @PageableDefault(size = 10, sort = "createdAt", direction = Sort.Direction.DESC)
+             Pageable pageable) {
+        Page<ResponseStudyByUser> list = studyService.findStudiesByUser(userDetails.getId(), pageable);
+
+        return ResponseEntity.ok(list);
+
+    }
+
 
     @Operation(
             summary = "스터디 채널 생성",
             description = """
-    1) 먼저 `/storage/presign` API를 호출해 presigned URL을 발급받습니다.
-    2) 발급받은 URL로 이미지를 직접 업로드합니다.
-    3) 업로드가 끝나면, 응답으로 받은 이미지 `key` 값을 `CreateStudyChannelRequest`에 포함해 요청하세요.
-    """
+                    1) 먼저 `/storage/presign` API를 호출해 presigned URL을 발급받습니다.
+                    2) 발급받은 URL로 이미지를 직접 업로드합니다.
+                    3) 업로드가 끝나면, 응답으로 받은 이미지 `key` 값을 `CreateStudyChannelRequest`에 포함해 요청하세요.
+                    """
     )
     //스터디 생성
     @PostMapping("/create")
     public ResponseEntity<StudyChannelResponse> createStudy(
             @AuthenticationPrincipal CustomUserDetails user,
             @RequestBody CreateStudyChannelRequest request) {
+
         return ResponseEntity.ok(studyService.createStudy(user.getId(), request));
     }
 

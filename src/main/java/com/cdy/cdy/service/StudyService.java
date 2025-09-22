@@ -7,6 +7,7 @@ import com.cdy.cdy.dto.request.UpdateStudyImageDto;
 import com.cdy.cdy.dto.response.StudyChannelResponse;
 import com.cdy.cdy.dto.response.StudyImageResponse;
 import com.cdy.cdy.dto.response.study.GroupedStudiesResponse;
+import com.cdy.cdy.dto.response.study.ResponseStudyByUser;
 import com.cdy.cdy.dto.response.study.SimpleStudyDto;
 import com.cdy.cdy.entity.study.StudyChannel;
 import com.cdy.cdy.entity.study.StudyImage;
@@ -15,8 +16,11 @@ import com.cdy.cdy.entity.UserCategory;
 import com.cdy.cdy.repository.StudyChannelRepository;
 import com.cdy.cdy.repository.StudyImageRepository;
 import com.cdy.cdy.repository.UserRepository;
+import jakarta.persistence.EntityNotFoundException;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
@@ -33,6 +37,7 @@ public class StudyService {
     private final StudyImageRepository studyImageRepository;
     private final R2StorageService r2StorageService;
     private final AttendanceService attendanceService;
+    private final ImageUrlResolver imageUrlResolver;
 
 
     //스터디 생성
@@ -77,7 +82,7 @@ public class StudyService {
     }
 
     //스터디 수정
-
+    @Transactional
     public void updateStudy(Long studyId,
                             Long userId,
                             UpdateStudyChannelRequest studyChannelRequest) {
@@ -88,7 +93,6 @@ public class StudyService {
             throw new IllegalStateException("스터디 수정 권한이 없습니다.");
         }
 
-        List<StudyImage> current = studyImageRepository.findByStudyId(studyId);
 
         studyChannel.update(studyChannelRequest);
 
@@ -180,14 +184,28 @@ public class StudyService {
 
     /** presign 변환 로직 👉 여기에 넣으면 됨 */
     private SimpleStudyDto applyPresign(SimpleStudyDto dto) {
-        String url = r2StorageService.presignGet(dto.getUserImage(), 3600).toString();
+
         return SimpleStudyDto.builder()
-                .studyId(dto.getStudyId())
                 .userId(dto.getUserId())
-                .userImage(url) // presign된 URL로 교체
+                .userImage(imageUrlResolver.toPresignedUrl(dto.getUserImage())) // presign된 URL로 교체
                 .category(dto.getCategory())
                 .build();
     }
 
+    public Page<ResponseStudyByUser> findStudiesByUser(Long id, Pageable pageable) {
+
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("유저를 찾을 수 없습니다."));
+
+        Page<StudyChannel> userStudies = studyChannelRepository.findUserStudies(id, pageable);
+
+        List<ResponseStudyByUser> list = userStudies.stream().map(us -> ResponseStudyByUser.builder()
+                        .studyId(us.getId())
+                        .content(us.getContent())
+                        .build())
+                .toList();
+        return new PageImpl<>(list, pageable, userStudies.getTotalElements());
+
+    }
 }
 
