@@ -1,8 +1,10 @@
 // src/main/java/com/cdy/cdy/entity/StudyChannel.java
-package com.cdy.cdy.entity;
+package com.cdy.cdy.entity.study;
 
 import com.cdy.cdy.dto.request.CreateStudyChannelRequest;
 import com.cdy.cdy.dto.request.UpdateStudyChannelRequest;
+import com.cdy.cdy.entity.BaseEntity;
+import com.cdy.cdy.entity.User;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -59,6 +61,7 @@ public class StudyChannel extends BaseEntity {
     }
 
     public void replaceImages(List<StudyImage> newImages) {
+
         this.images.clear();          // 기존 전부 제거 (DB에서도 orphanRemoval로 삭제)
         this.images.addAll(newImages);
     }

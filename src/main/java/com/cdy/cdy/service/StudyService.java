@@ -4,29 +4,24 @@ import com.cdy.cdy.dto.request.CreateStudyChannelRequest;
 import com.cdy.cdy.dto.request.CreateStudyImageDto;
 import com.cdy.cdy.dto.request.UpdateStudyChannelRequest;
 import com.cdy.cdy.dto.request.UpdateStudyImageDto;
-import com.cdy.cdy.dto.response.CustomUserDetails;
 import com.cdy.cdy.dto.response.StudyChannelResponse;
 import com.cdy.cdy.dto.response.StudyImageResponse;
 import com.cdy.cdy.dto.response.study.GroupedStudiesResponse;
 import com.cdy.cdy.dto.response.study.SimpleStudyDto;
-import com.cdy.cdy.entity.StudyChannel;
-import com.cdy.cdy.entity.StudyImage;
+import com.cdy.cdy.entity.study.StudyChannel;
+import com.cdy.cdy.entity.study.StudyImage;
 import com.cdy.cdy.entity.User;
 import com.cdy.cdy.entity.UserCategory;
 import com.cdy.cdy.repository.StudyChannelRepository;
 import com.cdy.cdy.repository.StudyImageRepository;
 import com.cdy.cdy.repository.UserRepository;
-import jakarta.persistence.Id;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.RequestBody;
 
-import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 @Service
@@ -39,6 +34,8 @@ public class StudyService {
     private final R2StorageService r2StorageService;
     private final AttendanceService attendanceService;
 
+
+    //스터디 생성
     public StudyChannelResponse createStudy(Long userId, CreateStudyChannelRequest req) {
         User owner = userRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("user not found"));
@@ -54,7 +51,6 @@ public class StudyService {
                         .study(study)
                         .key(img.getKey())
                         .sortOrder(img.getSortOrder())
-//                        .alt(img.getAlt())
                         .build();
                 studyImageRepository.save(si);
             }
@@ -66,7 +62,6 @@ public class StudyService {
 
         List<StudyImageResponse> imageResponses = images.stream()
                 .map(img -> StudyImageResponse.builder()      // 🔥 변경: from → builder
-                        .key(img.getKey())
                         .url(r2StorageService.presignGet(img.getKey(), 3600).toString())  // presign url 생성 함수 필요
                         .sortOrder(img.getSortOrder())
                         .build()
@@ -132,7 +127,7 @@ public class StudyService {
 
     }
 
-
+    //단건조회
     public StudyChannelResponse getStudy(Long studyId) {
         StudyChannel studyChannel = studyChannelRepository.findById(studyId)
                 .orElseThrow(() -> new IllegalArgumentException("해당 스터디 채널을 찾을 수 없습니다."));
@@ -140,51 +135,57 @@ public class StudyService {
         // 이미지 조회
         List<StudyImage> images = studyImageRepository.findByStudyId(studyId);
 
+
         // key → url 변환 (퍼블릭이면 publicUrl, 프라이빗이면 presignGet)
-        List<StudyImageResponse> imageResponses = images.stream()
-                .map(img -> StudyImageResponse.from(
-                        img,
-                        r2StorageService.publicUrl(img.getKey()) // presignGet(img.getKey(), 300)도 가능
-                ))
+        List<StudyImageResponse> list = images.stream()
+                .sorted(Comparator.comparingInt(StudyImage::getSortOrder))
+                .map(img -> StudyImageResponse.builder()
+                        .url(r2StorageService.presignGet(img.getKey(), 3600).toString())
+                        .sortOrder(img.getSortOrder())
+                        .build())
                 .toList();
 
-        return StudyChannelResponse.from(studyChannel, imageResponses);
+        StudyChannelResponse build = StudyChannelResponse.builder()
+                .id(studyChannel.getId())
+                .content(studyChannel.getContent())
+                .createdAt(studyChannel.getCreatedAt())
+                .images(list)
+                .build();
+        return build;
+
     }
 
-    // 3. 전체 조회
-    public Page<StudyChannelResponse> getAllStudies(Pageable pageable) {
-
-        return studyChannelRepository.findAll(pageable)
-                .map(study -> {
-                    List<StudyImage> images = studyImageRepository.findByStudyId(study.getId());
-                    List<StudyImageResponse> imageResponses = images.stream()
-                            .map(img -> StudyImageResponse.from(
-                                    img,
-                                    r2StorageService.publicUrl(img.getKey())
-                            ))
-                            .toList();
-                    return StudyChannelResponse.from(study, imageResponses);
-                });
-    }
-
-
+    //카테고리별 조회
     public GroupedStudiesResponse getStudiesGrouped(Pageable codingPageable,
                                                     Pageable designPageable,
                                                     Pageable videoPageable) {
-
         Page<SimpleStudyDto> coding = studyChannelRepository
-                .findByUserCategorySimple(UserCategory.CODING, codingPageable);
+                .findByUserCategorySimple(UserCategory.CODING, codingPageable)
+                .map(this::applyPresign); // presign 변환 적용
 
         Page<SimpleStudyDto> design = studyChannelRepository
-                .findByUserCategorySimple(UserCategory.DESIGN, designPageable);
+                .findByUserCategorySimple(UserCategory.DESIGN, designPageable)
+                .map(this::applyPresign);
 
         Page<SimpleStudyDto> video = studyChannelRepository
-                .findByUserCategorySimple(UserCategory.VIDEO_EDITING, videoPageable);
+                .findByUserCategorySimple(UserCategory.VIDEO_EDITING, videoPageable)
+                .map(this::applyPresign);
 
         return GroupedStudiesResponse.builder()
                 .coding(coding)
                 .design(design)
                 .video(video)
+                .build();
+    }
+
+    /** presign 변환 로직 👉 여기에 넣으면 됨 */
+    private SimpleStudyDto applyPresign(SimpleStudyDto dto) {
+        String url = r2StorageService.presignGet(dto.getUserImage(), 3600).toString();
+        return SimpleStudyDto.builder()
+                .studyId(dto.getStudyId())
+                .userId(dto.getUserId())
+                .userImage(url) // presign된 URL로 교체
+                .category(dto.getCategory())
                 .build();
     }
 

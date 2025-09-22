@@ -1,4 +1,4 @@
-package com.cdy.cdy.entity;
+package com.cdy.cdy.entity.proejct;
 
 public enum ProjectMemberRole {
 

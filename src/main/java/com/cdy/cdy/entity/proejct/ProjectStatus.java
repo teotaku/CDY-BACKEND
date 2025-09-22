@@ -1,5 +1,4 @@
-// com.cdy.cdy.entity.ProjectStatus.java
-package com.cdy.cdy.entity;
+package com.cdy.cdy.entity.proejct;
 
 public enum ProjectStatus {
     RECRUITING,   // 모집중

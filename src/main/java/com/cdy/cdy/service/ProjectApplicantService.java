@@ -1,10 +1,10 @@
 package com.cdy.cdy.service;
 
 import com.cdy.cdy.dto.response.project.ProjectQuestionResponse;
-import com.cdy.cdy.entity.Project;
-import com.cdy.cdy.entity.ProjectMember;
-import com.cdy.cdy.entity.ProjectMemberStatus;
-import com.cdy.cdy.entity.ProjectQuestion;
+import com.cdy.cdy.entity.proejct.Project;
+import com.cdy.cdy.entity.proejct.ProjectMember;
+import com.cdy.cdy.entity.proejct.ProjectMemberStatus;
+import com.cdy.cdy.entity.proejct.ProjectQuestion;
 import com.cdy.cdy.repository.ProjectMemberRepository;
 import com.cdy.cdy.repository.ProjectQuestionRepository;
 import com.cdy.cdy.repository.ProjectRepository;
@@ -15,7 +15,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Optional;
 
 
 @Service
@@ -27,7 +26,7 @@ public class ProjectApplicantService {
     private final ProjectQuestionRepository projectQuestionRepository;
     private final ProjectRepository projectRepository;
 
-
+    //신청승인
     @Transactional
     public void approve(Long projectId, Long applicantUserId, Long currentUserId) {
         Project project = projectRepository.findById(projectId)
@@ -49,7 +48,6 @@ public class ProjectApplicantService {
     /**
      * 신청 거절
      */
-
     @Transactional
     public void reject(Long projectId, Long applicantUserId, Long currentUserId) {
         Project project = projectRepository.findById(projectId)
@@ -81,7 +79,7 @@ public class ProjectApplicantService {
 
         return list;
     }
-
+    //신청취소
     public void cancel(Long projectId, Long userId) {
 
         ProjectMember projectMember = projectMemberRepository.findByProjectIdAndUserId(projectId, userId)
@@ -95,7 +93,7 @@ public class ProjectApplicantService {
 
         projectMember.cancel();
     }
-
+    //프로젝트 완료
     public void complete(Long projectId, Long userId) {
 
         Project project = projectRepository.findById(projectId)

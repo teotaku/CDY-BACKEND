@@ -1,7 +1,7 @@
 package com.cdy.cdy.repository;
 
 import com.cdy.cdy.dto.response.study.SimpleStudyDto;
-import com.cdy.cdy.entity.StudyChannel;
+import com.cdy.cdy.entity.study.StudyChannel;
 import com.cdy.cdy.entity.UserCategory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;

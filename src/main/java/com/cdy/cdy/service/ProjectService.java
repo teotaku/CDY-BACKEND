@@ -6,6 +6,7 @@ import com.cdy.cdy.dto.request.CreateProjectRequest;
 import com.cdy.cdy.dto.response.MemberBrief;
 import com.cdy.cdy.dto.response.project.*;
 import com.cdy.cdy.entity.*;
+import com.cdy.cdy.entity.proejct.*;
 import com.cdy.cdy.repository.*;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -33,6 +34,8 @@ public class ProjectService {
     private final ProjectTechRepository projectTechRepository;
     private final ProjectAnswerRepository projectAnswerRepository;
     private final TechTagRepository techTagRepository;
+    private final R2StorageService r2StorageService;
+    private final ImageUrlResolver imageUrlResolver;
 
 
     //프로젝트 생성
@@ -98,7 +101,6 @@ public class ProjectService {
             );
         }
 
-        long memberCount = projectMemberRepository.countByProjectId(project.getId());
         String phone = leader.getPhoneNumber(); // 또는 req.getContact()
     }
 
@@ -113,7 +115,7 @@ public class ProjectService {
 //                .orElseThrow(() -> new EntityNotFoundException("신청중인 프로젝트가 없습니다."));
 
 
-        long memberCount = projectMemberRepository.countByProjectId(project.getId());
+        long memberCount = projectMemberRepository.countByApprovedPm(project.getId());
 
         List<ProjectMember> members = projectMemberRepository
                 .findApprovedMembersWithUserByProjectId(project.getId());
@@ -123,7 +125,7 @@ public class ProjectService {
                 .map(pm -> MemberBrief.builder()
                         .userId(pm.getUser().getId())
                         .name(pm.getUser().getNickname())
-                        .profileUrl(pm.getUser().getProfileImageUrl())
+                        .profileKey(imageUrlResolver.toPresignedUrl(pm.getUser().getProfileImageKey()))
                         .build()).toList();
 
 
@@ -135,7 +137,7 @@ public class ProjectService {
                 .memberBriefs(memberBriefs)
                 .position(project.getPositions())
                 .kakaoLink(project.getKakaoLink())
-                .imageKey(project.getLogoImageKey())
+                .imageKey(imageUrlResolver.toPresignedUrl(project.getLogoImageKey()))
                 .build();
 
 
@@ -149,7 +151,7 @@ public class ProjectService {
                 .orElseThrow(() -> new EntityNotFoundException("신청중인 프로젝트가 없습니다."));
 
         Project project = pm.getProject();
-        long memberCount = projectMemberRepository.countByProjectId(project.getId());
+        long memberCount = projectMemberRepository.countByApprovedPm(project.getId());
 
 
         List<ProjectMember> members = projectMemberRepository
@@ -159,7 +161,7 @@ public class ProjectService {
                 .map(pmb -> MemberBrief.builder()
                         .userId(pmb.getUser().getId())
                         .name(pmb.getUser().getNickname())
-                        .profileUrl(pmb.getUser().getProfileImageUrl())
+                        .profileKey(imageUrlResolver.toPresignedUrl(pm.getUser().getProfileImageKey()))
                         .build()).toList();
 
 
@@ -169,7 +171,7 @@ public class ProjectService {
                 .memberBriefs(memberBriefs)
                 .position(project.getPositions())
                 .memberCount(memberCount)
-                .imageKey(project.getLogoImageKey())
+                .imageKey(imageUrlResolver.toPresignedUrl(project.getLogoImageKey()))
                 .techs(project.getTechs())
                 .build();
     }
@@ -220,6 +222,8 @@ public class ProjectService {
                 .user(user)
                 .project(project)
                 .role(ProjectMemberRole.MEMBER) // 기본 포지션
+                .position(req.getPosition())
+                .techs(req.getTechs())
                 .status(ProjectMemberStatus.APPLIED)
                 .joinedAt(LocalDateTime.now())
                 .build();
@@ -307,7 +311,7 @@ public class ProjectService {
                         .slogan(p.getSlogan())
                         .createdAt(p.getCreatedAt())
                         .title(p.getTitle())
-                        .imageKey(p.getLogoImageKey())
+                        .imageKey(imageUrlResolver.toPresignedUrl(p.getLogoImageKey()))
                         .build());
 //                .map(p -> ProjectResponse.builder()
 //                        .id(p.getId())
@@ -327,16 +331,17 @@ public class ProjectService {
                 .map(pm -> MemberBrief.builder()
                         .userId(pm.getUser().getId())
                         .name(pm.getUser().getNickname())
-                        .profileUrl(pm.getUser().getProfileImageUrl())
+                        .profileKey(imageUrlResolver.toPresignedUrl(pm.getUser().getProfileImageKey()))
                         .build()
                 ).toList();
 
-        String profileImageUrl = project.getManager().getProfileImageUrl();
+        String leaderProfileImageUrl = project.getManager().getProfileImageKey();
+        String presignedLeaderProfileImageUrl = imageUrlResolver.toPresignedUrl(leaderProfileImageUrl);
 
         return OneProjectResponse.builder()
                 .id(projectId)
                 .content(project.getDescription())
-                .leaderImage(profileImageUrl)
+                .leaderImage(presignedLeaderProfileImageUrl)
                 .title(project.getTitle())
                 .memberBriefs(members)
                 .techs(project.getTechs())
@@ -345,6 +350,7 @@ public class ProjectService {
 
 
     }
+    //신청자 목록 조회
     @Transactional(readOnly = true)
     public List<ProjectApplicationResponse> getApplication(Long userId, Long projectId) {
         // 1) 팀장 검증
@@ -390,12 +396,18 @@ public class ProjectService {
                         .projectId(projectId)
                         .userId(pm.getUser().getId())
                         .nickName(pm.getUser().getNickname())
-                        .profileImage(pm.getUser().getProfileImageUrl())
+                        .profileImage(imageUrlResolver.toPresignedUrl(pm.getUser().getProfileImageKey()))
+                        .position(pm.getPosition())
+                        .techs(pm.getTechs())
                         .answers(answersByMember.getOrDefault(pm.getId(), List.of()))
                         .build())
                 .toList();
     }
 
-
+    // presign 변환 메서드
+    private String resolveProfileImageUrl(User user) {
+        if (user.getProfileImageKey() == null) return null;
+        return r2StorageService.presignGet(user.getProfileImageKey(), 3600).toString();
+    }
 
 }

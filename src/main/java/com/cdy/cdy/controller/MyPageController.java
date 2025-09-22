@@ -8,6 +8,7 @@ import com.cdy.cdy.dto.response.CustomUserDetails;
 import com.cdy.cdy.dto.response.MypageResponse;
 import com.cdy.cdy.entity.User;
 import com.cdy.cdy.repository.UserRepository;
+import com.cdy.cdy.service.ImageUrlResolver;
 import com.cdy.cdy.service.MyPageService;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
@@ -22,9 +23,11 @@ public class MyPageController {
 
     private final MyPageService myPageService;
     private final UserRepository userRepository;
+    private final ImageUrlResolver imageUrlResolver;
 
 
     //마이 페이지 조회
+    @Operation(summary = "마이페이지조회", description = "닉네임,이메일,이미지 반환")
     @GetMapping
     public ResponseEntity<MypageResponse> getMyPage(@AuthenticationPrincipal CustomUserDetails userDetails) {
         String email = userDetails.getEmail();
@@ -37,6 +40,7 @@ public class MyPageController {
         MypageResponse mypageResponse = MypageResponse.builder()
                 .nickName(nickname)
                 .email(email)
+                .imageKey(imageUrlResolver.toPresignedUrl(user.getProfileImageKey()))
                 .build();
         return ResponseEntity.ok(mypageResponse);
 

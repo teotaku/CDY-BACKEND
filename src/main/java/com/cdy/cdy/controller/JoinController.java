@@ -2,12 +2,14 @@ package com.cdy.cdy.controller;
 
 import com.cdy.cdy.dto.request.LoginRequest;
 import com.cdy.cdy.dto.request.SignUpRequest;
+import com.cdy.cdy.dto.response.CustomUserDetails;
 import com.cdy.cdy.dto.response.LoginResponse;
 import com.cdy.cdy.service.AuthService;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -27,7 +29,9 @@ public class JoinController {
 
     @Operation(summary = "", description = "이메일,비밀번호 입력 회원가입")
     @PostMapping("/join")
-    public ResponseEntity<String> joinProcess(@RequestBody @Valid SignUpRequest signUpRequest) {
+    public ResponseEntity<String> joinProcess(@RequestBody @Valid
+                                                  @AuthenticationPrincipal CustomUserDetails userDetails,
+                                                  SignUpRequest signUpRequest) {
         authService.join(signUpRequest);
         return ResponseEntity.ok("회원가입 성공3");
     }

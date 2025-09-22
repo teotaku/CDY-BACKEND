@@ -1,5 +1,5 @@
 // src/main/java/com/cdy/cdy/entity/StudyImage.java
-package com.cdy.cdy.entity;
+package com.cdy.cdy.entity.study;
 
 import jakarta.persistence.*;
 import lombok.*;

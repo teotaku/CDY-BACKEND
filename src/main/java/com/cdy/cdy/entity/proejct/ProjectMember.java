@@ -1,10 +1,10 @@
 // src/main/java/com/cdy/cdy/entity/ProjectMember.java
-package com.cdy.cdy.entity;
+package com.cdy.cdy.entity.proejct;
 
+import com.cdy.cdy.entity.User;
 import jakarta.persistence.*;
 import lombok.*;
 import java.time.LocalDateTime;
-import java.util.Objects;
 
 @Builder
 @AllArgsConstructor(access = AccessLevel.PRIVATE)

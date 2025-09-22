@@ -9,5 +9,5 @@ public class MemberBrief {
 
     private Long userId;
     private String name;
-    private String profileUrl;
+    private String profileKey;
 }

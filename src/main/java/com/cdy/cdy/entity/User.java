@@ -32,7 +32,7 @@ public class User extends BaseEntity {
     private String phoneNumber;
 
     @Column(name = "avatar_key")
-    private String avatarKey;
+    private String profileImageKey;
 
     @Column(name = "password_hash", length = 255, nullable = false)
     // ↑ 비밀번호 해시(평문 금지). 컬럼명 스네이크로 고정
@@ -46,8 +46,7 @@ public class User extends BaseEntity {
     private UserCategory category;
 
 
-    @Column
-    private String profileImageUrl;
+   ;
 
     // --- 생성 루트(Setter 대신) ---
     public static User create(String nickname, String email, String passwordHash, UserRole role) {
@@ -86,8 +85,8 @@ public class User extends BaseEntity {
         this.email = Objects.requireNonNull(newEmail);
     }
 
-    public void changeAvatar(String key) {       // 아바타 변경 메서드
-        this.avatarKey = key;
+    public void changeProfileImage (String key) {       // 아바타 변경 메서드
+        this.profileImageKey = key;
     }
 
 }

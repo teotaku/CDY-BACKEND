@@ -1,6 +1,7 @@
 // src/main/java/com/cdy/cdy/entity/ProjectTech.java
-package com.cdy.cdy.entity;
+package com.cdy.cdy.entity.proejct;
 
+import com.cdy.cdy.entity.TechTag;
 import jakarta.persistence.*;
 import lombok.*;
 import java.util.Objects;

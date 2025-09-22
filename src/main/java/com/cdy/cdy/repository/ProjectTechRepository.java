@@ -1,6 +1,6 @@
 package com.cdy.cdy.repository;
 
-import com.cdy.cdy.entity.ProjectTech;
+import com.cdy.cdy.entity.proejct.ProjectTech;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

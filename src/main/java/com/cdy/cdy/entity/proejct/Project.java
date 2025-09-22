@@ -1,20 +1,21 @@
-package com.cdy.cdy.entity;
+package com.cdy.cdy.entity.proejct;
 
 import com.cdy.cdy.dto.request.CreateProjectRequest;
+import com.cdy.cdy.entity.BaseEntity;
 import com.cdy.cdy.entity.User;
 import jakarta.persistence.*;
 import lombok.*;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
+
 @Builder
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity
 @Table(name = "projects")
-public class Project extends BaseEntity  {
+public class Project extends BaseEntity {
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

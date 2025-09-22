@@ -1,7 +1,7 @@
 // src/main/java/com/cdy/cdy/repository/ProjectApplicationRepository.java
 package com.cdy.cdy.repository;
 
-import com.cdy.cdy.entity.ProjectApplication;
+import com.cdy.cdy.entity.proejct.ProjectApplication;
 import com.cdy.cdy.entity.ApplicationsStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
 

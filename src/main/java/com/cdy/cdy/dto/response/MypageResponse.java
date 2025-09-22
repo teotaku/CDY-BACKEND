@@ -11,6 +11,8 @@ import lombok.Getter;
 public class MypageResponse {
 
 
+    private String imageKey;
+
     private String nickName;
 
     private String email;

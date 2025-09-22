@@ -1,6 +1,7 @@
 package com.cdy.cdy.dto.response;
 
-import com.cdy.cdy.entity.StudyChannel;
+import com.cdy.cdy.entity.study.StudyChannel;
+import com.cdy.cdy.entity.study.StudyImage;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.*;
 
@@ -27,7 +28,7 @@ public class StudyChannelResponse {
                 .images(images)// BaseEntity 상속받아서 자동 기록
                 .build();
     }
-    public static StudyChannelResponse from(StudyChannel study) {
+    public static StudyChannelResponse fromWithImage(StudyChannel study, List<StudyImage> images) {
         return from(study, List.of()); // 이미지가 없을 땐 빈 리스트로
     }
 }

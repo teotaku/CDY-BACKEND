@@ -30,7 +30,7 @@ public class DataInitializer {
                     userRepository.save(User.builder()
                             .nickname("coding" + i)
                             .email("coding" + i + "@test.com")
-                            .passwordHash(passwordEncoder.encode("1234"))
+                            .passwordHash(passwordEncoder.encode("abcd123!"))
                             .role(UserRole.USER)
                             .category(UserCategory.CODING)
                             .build());
@@ -41,7 +41,7 @@ public class DataInitializer {
                     userRepository.save(User.builder()
                             .nickname("design" + i)
                             .email("design" + i + "@test.com")
-                            .passwordHash(passwordEncoder.encode("1234"))
+                            .passwordHash(passwordEncoder.encode("abcd123!"))
                             .role(UserRole.USER)
                             .category(UserCategory.DESIGN)
                             .build());
@@ -52,7 +52,7 @@ public class DataInitializer {
                     userRepository.save(User.builder()
                             .nickname("video" + i)
                             .email("video" + i + "@test.com")
-                            .passwordHash(passwordEncoder.encode("1234"))
+                            .passwordHash(passwordEncoder.encode("abcd123!"))
                             .role(UserRole.USER)
                             .category(UserCategory.VIDEO_EDITING)
                             .build());

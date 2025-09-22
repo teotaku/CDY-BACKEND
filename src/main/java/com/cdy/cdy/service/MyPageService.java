@@ -2,10 +2,8 @@ package com.cdy.cdy.service;
 
 import com.cdy.cdy.dto.request.UpdateMyImage;
 import com.cdy.cdy.dto.response.project.ProjectResponse;
-import com.cdy.cdy.dto.response.StudyChannelResponse;
-import com.cdy.cdy.entity.Project;
-import com.cdy.cdy.entity.ProjectMember;
-import com.cdy.cdy.entity.StudyChannel;
+import com.cdy.cdy.entity.proejct.Project;
+import com.cdy.cdy.entity.proejct.ProjectMember;
 import com.cdy.cdy.entity.User;
 import com.cdy.cdy.repository.ProjectMemberRepository;
 import com.cdy.cdy.repository.StudyChannelRepository;
@@ -17,7 +15,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.Collections;
-import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -38,7 +35,7 @@ public class MyPageService {
     public void changeImage(Long userId, UpdateMyImage updateMyImage) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("유저 없음"));
-        user.changeAvatar(updateMyImage.getImageKey());
+        user.changeProfileImage(updateMyImage.getImageKey());
         userRepository.save(user);
 
     }
@@ -95,23 +92,6 @@ public class MyPageService {
                 .memberCount(size)
                 .kakaoLink(phoneNumber)
                 .build();
-    }
-
-    // 2. 단건 조회
-    public StudyChannelResponse getStudy(Long studyId) {
-        StudyChannel studyChannel = studyChannelRepository.findById(studyId)
-                .orElseThrow(() -> new IllegalArgumentException("해당 스터디 채널을 찾을 수 없습니다."));
-
-        return StudyChannelResponse.from(studyChannel);
-    }
-
-    // 3. 전체 조회
-    public List<StudyChannelResponse> getAllStudies() {
-        List<StudyChannel> studies = studyChannelRepository.findAll();
-
-        return studies.stream()
-                .map(StudyChannelResponse::from)
-                .toList();
     }
 
 

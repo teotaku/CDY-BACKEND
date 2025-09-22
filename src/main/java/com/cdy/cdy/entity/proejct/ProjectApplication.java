@@ -1,6 +1,9 @@
 // src/main/java/com/cdy/cdy/entity/ProjectApplication.java
-package com.cdy.cdy.entity;
+package com.cdy.cdy.entity.proejct;
 
+import com.cdy.cdy.entity.ApplicationsStatus;
+import com.cdy.cdy.entity.BaseEntity;
+import com.cdy.cdy.entity.User;
 import jakarta.persistence.*;
 import lombok.*;
 import java.time.LocalDateTime;

@@ -1,7 +1,7 @@
 package com.cdy.cdy.repository;
 
-import com.cdy.cdy.entity.ProjectMember;
-import com.cdy.cdy.entity.ProjectMemberStatus;
+import com.cdy.cdy.entity.proejct.ProjectMember;
+import com.cdy.cdy.entity.proejct.ProjectMemberStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -73,7 +73,13 @@ public interface ProjectMemberRepository extends JpaRepository<ProjectMember,Lon
 
 
     // 멤버 수 카운트 (앞서 쓰던 것)
-    long countByProjectId(Long projectId);
+    @Query("""
+            select count(pm)
+             from ProjectMember pm
+            where pm.project.id = :projectId
+            and pm.status = com.cdy.cdy.entity.ProjectMemberStatus.APPROVED
+            """)
+    long countByApprovedPm(@Param("projectId") Long projectId);
 
 
     // 유저가 해당 프로젝트에 이미 신청/참여 중인지(중복 신청 방지)

@@ -30,6 +30,13 @@ public class ProjectApplicationResponse {
     @Schema(description = "신청자가 작성한 답변 리스트")
     private List<AnswerResponseDTO> answers;
 
+    @Schema(description = "신청자 기술")
+    private String techs;
+
+    @Schema(description = "신청자 포지션")
+    private String position;
+
+
     @Getter
     @NoArgsConstructor(access = AccessLevel.PROTECTED)
     @AllArgsConstructor
