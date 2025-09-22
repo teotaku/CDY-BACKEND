@@ -30,7 +30,6 @@ public class JoinController {
     @Operation(summary = "", description = "이메일,비밀번호 입력 회원가입")
     @PostMapping("/join")
     public ResponseEntity<String> joinProcess(@RequestBody @Valid
-                                                  @AuthenticationPrincipal CustomUserDetails userDetails,
                                                   SignUpRequest signUpRequest) {
         authService.join(signUpRequest);
         return ResponseEntity.ok("회원가입 성공3");
