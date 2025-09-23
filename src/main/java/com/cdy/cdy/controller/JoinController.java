@@ -27,7 +27,7 @@ public class JoinController {
 
     //회원가입
 
-    @Operation(summary = "", description = "이메일,비밀번호 입력 회원가입")
+    @Operation(summary = "회원가입", description = "이메일,비밀번호 입력 회원가입")
     @PostMapping("/join")
     public ResponseEntity<String> joinProcess(@RequestBody @Valid
                                                   SignUpRequest signUpRequest) {
@@ -37,7 +37,7 @@ public class JoinController {
 
     //로그인
 
-    @Operation(summary = "", description = "이메일과 비밀번호로 로그인하여 JWT 토큰 발급")
+    @Operation(summary = "로그인", description = "이메일과 비밀번호로 로그인하여 JWT 토큰 발급")
     @PostMapping("/login")
     public ResponseEntity<LoginResponse> login(@RequestBody @Valid LoginRequest request) {
         LoginResponse token = authService.login(request);

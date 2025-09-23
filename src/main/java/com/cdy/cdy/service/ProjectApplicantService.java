@@ -65,6 +65,7 @@ public class ProjectApplicantService {
         pm.reject(); // ← 도메인 메서드 호출
     }
 
+    //질문 목록 가져오기
     public List<ProjectQuestionResponse> getQuestions(Long projectId) {
 
         List<ProjectQuestion> questions =

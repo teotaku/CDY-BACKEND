@@ -9,7 +9,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Profile;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 @Configuration
@@ -30,7 +29,7 @@ public class DataInitializer {
                     userRepository.save(User.builder()
                             .nickname("coding" + i)
                             .email("coding" + i + "@test.com")
-                            .passwordHash(passwordEncoder.encode("abcd123!"))
+                            .passwordHash(passwordEncoder.encode("abcd123!A"))
                             .role(UserRole.USER)
                             .category(UserCategory.CODING)
                             .build());
@@ -41,7 +40,7 @@ public class DataInitializer {
                     userRepository.save(User.builder()
                             .nickname("design" + i)
                             .email("design" + i + "@test.com")
-                            .passwordHash(passwordEncoder.encode("abcd123!"))
+                            .passwordHash(passwordEncoder.encode("abcd123!A"))
                             .role(UserRole.USER)
                             .category(UserCategory.DESIGN)
                             .build());
@@ -52,7 +51,7 @@ public class DataInitializer {
                     userRepository.save(User.builder()
                             .nickname("video" + i)
                             .email("video" + i + "@test.com")
-                            .passwordHash(passwordEncoder.encode("abcd123!"))
+                            .passwordHash(passwordEncoder.encode("abcd123!A"))
                             .role(UserRole.USER)
                             .category(UserCategory.VIDEO_EDITING)
                             .build());
