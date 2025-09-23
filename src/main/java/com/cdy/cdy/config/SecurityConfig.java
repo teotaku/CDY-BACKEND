@@ -89,6 +89,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/auth/**", "/__dev/db/**").permitAll()
                         .requestMatchers("/login", "/", "/join", "/health").permitAll()
                         .requestMatchers("/login", "/", "/join").permitAll()
+                        .requestMatchers("/api/storage").permitAll()
                         .requestMatchers("/admin").hasRole("ADMIN")
                         .anyRequest().authenticated()
 
