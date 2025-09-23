@@ -163,16 +163,13 @@ public class StudyService {
     public GroupedStudiesResponse getStudiesGrouped(Pageable codingPageable,
                                                     Pageable designPageable,
                                                     Pageable videoPageable) {
-        Page<SimpleStudyDto> coding = studyChannelRepository
-                .findByUserCategorySimple(UserCategory.CODING, codingPageable)
-                .map(this::applyPresign); // presign 변환 적용
 
-        Page<SimpleStudyDto> design = studyChannelRepository
-                .findByUserCategorySimple(UserCategory.DESIGN, designPageable)
+
+        Page<SimpleStudyDto> coding = userRepository.findByCategory(UserCategory.CODING, codingPageable)
                 .map(this::applyPresign);
-
-        Page<SimpleStudyDto> video = studyChannelRepository
-                .findByUserCategorySimple(UserCategory.VIDEO_EDITING, videoPageable)
+        Page<SimpleStudyDto> design = userRepository.findByCategory(UserCategory.DESIGN, designPageable)
+                .map(this::applyPresign);
+        Page<SimpleStudyDto> video  = userRepository.findByCategory(UserCategory.VIDEO_EDITING, videoPageable)
                 .map(this::applyPresign);
 
         return GroupedStudiesResponse.builder()
