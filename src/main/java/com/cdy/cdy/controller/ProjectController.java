@@ -17,6 +17,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -62,7 +63,8 @@ public class ProjectController {
             content = @Content(schema = @Schema(implementation = AllProjectResponse.class)))
     @GetMapping("/findAll")
     public ResponseEntity<Page<AllProjectResponse>> getAllProjectes
-    (@PageableDefault(size = 10, sort = "createdAt", direction = Sort.Direction.DESC)
+    (       @ParameterObject
+            @PageableDefault(size = 10, sort = "createdAt", direction = Sort.Direction.DESC)
      Pageable pageable
     ) {
         return ResponseEntity.ok(projectService.findAll(pageable));

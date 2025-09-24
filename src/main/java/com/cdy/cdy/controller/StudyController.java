@@ -16,6 +16,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.apache.coyote.Response;
+import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -38,6 +39,7 @@ public class StudyController {
     @GetMapping("/users/studies")
     public ResponseEntity<Page<ResponseStudyByUser>> findStudiesByUser
             (@AuthenticationPrincipal CustomUserDetails userDetails,
+             @ParameterObject
              @PageableDefault(size = 10, sort = "createdAt", direction = Sort.Direction.DESC)
              Pageable pageable) {
         Page<ResponseStudyByUser> list = studyService.findStudiesByUser(userDetails.getId(), pageable);
