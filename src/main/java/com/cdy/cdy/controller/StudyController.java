@@ -13,6 +13,7 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.apache.coyote.Response;
 import org.springframework.data.domain.Page;
@@ -132,6 +133,13 @@ public class StudyController {
     }
 
 
+    @Operation(summary = "유저의 스터디채널 반환", description = "유저의 id를 토대로 해당 유저의 상세스터디채널 반환")
+    @GetMapping("/{userId}")
+    public ResponseEntity<Void> getStudyChannel(@RequestParam Long userId) {
+        studyService.findStudyChannel(userId);
+        return null;
+
+    }
 
 }
 

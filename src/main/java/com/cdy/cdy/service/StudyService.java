@@ -204,5 +204,10 @@ public class StudyService {
         return new PageImpl<>(list, pageable, userStudies.getTotalElements());
 
     }
+
+    public void findStudyChannel(Long userId) {
+
+
+    }
 }
 
