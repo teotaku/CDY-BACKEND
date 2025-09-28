@@ -15,4 +15,15 @@ public interface AttendanceRepository extends JpaRepository<DailyAttendance ,Lon
 
     // 한 달 범위 조회 (양끝 포함)
     List<DailyAttendance> findAllByUser_IdAndCheckDateBetween(Long userId, LocalDate start, LocalDate end);
+
+
+    //
+//    @Query("SELECT a FROM DailyAttendance a " +
+//            "WHERE a.user.id = :userId " +
+//            "AND a.checkDate BETWEEN :start AND :end")
+//    List<DailyAttendance> findAttendanceByUserAndMonth(
+//            @Param("userId") Long userId,
+//            @Param("start") LocalDate start,
+//            @Param("end") LocalDate end);
+
 }

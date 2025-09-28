@@ -34,4 +34,10 @@ public interface StudyChannelRepository extends JpaRepository<StudyChannel,Long>
     @Query("SELECT sc FROM StudyChannel sc WHERE sc.owner.id = :userId")
     Page<StudyChannel> findUserStudies(@Param("userId") Long userId, Pageable pageable);
 
+
+    @Query("SELECT COUNT(sc) FROM StudyChannel sc WHERE sc.owner.id = :userId")
+    Long getStudyCount(@Param("userId") Long userId);
+
+
+
 }

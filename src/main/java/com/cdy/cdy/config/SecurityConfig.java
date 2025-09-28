@@ -88,9 +88,9 @@ public class SecurityConfig {
                         ).permitAll()
                         .requestMatchers(
                                 "/api/project/findAll",          // 프로젝트 전체 조회
-                                "/api/project/*",                // 단일 프로젝트 조회 (예: /api/project/1)
+                                "/api/project/**",                // 단일 프로젝트 조회 (예: /api/project/1)
                                 "/api/study/category/grouped",   // 카테고리별 스터디 그룹 조회
-                                "/api/study/*"                   // 스터디 단건 조회 (예: /api/study/1)
+                                "/api/study/**"                   // 스터디 단건 조회 (예: /api/study/1)
                         ).permitAll()
 
 

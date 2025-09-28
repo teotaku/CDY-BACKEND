@@ -1,5 +1,6 @@
 package com.cdy.cdy.repository;
 
+import com.cdy.cdy.entity.project.Project;
 import com.cdy.cdy.entity.project.ProjectMember;
 import com.cdy.cdy.entity.project.ProjectMemberStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -147,6 +148,17 @@ public interface ProjectMemberRepository extends JpaRepository<ProjectMember,Lon
        order by pm.joinedAt asc
        """)
     List<ProjectMember> findAllApplicantsWithUser(@Param("projectId") Long projectId);
+
+
+    @Query("""
+    select p
+    from ProjectMember pm
+    join pm.project p
+    where pm.user.id = :userId
+      and pm.status = 'COMPLICATED'
+      and p.status = 'COMPLETED'
+    """)
+    List<Project> findUserCompletedProjects(@Param("userId") Long userId);
 
 }
 

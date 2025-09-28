@@ -4,15 +4,17 @@ import com.cdy.cdy.dto.request.CreateStudyChannelRequest;
 import com.cdy.cdy.dto.request.CreateStudyImageDto;
 import com.cdy.cdy.dto.request.UpdateStudyChannelRequest;
 import com.cdy.cdy.dto.request.UpdateStudyImageDto;
+import com.cdy.cdy.dto.response.MonthCalendarResponse;
 import com.cdy.cdy.dto.response.StudyChannelResponse;
 import com.cdy.cdy.dto.response.StudyImageResponse;
-import com.cdy.cdy.dto.response.study.GroupedStudiesResponse;
-import com.cdy.cdy.dto.response.study.ResponseStudyByUser;
-import com.cdy.cdy.dto.response.study.SimpleStudyDto;
+import com.cdy.cdy.dto.response.project.CompleteProject;
+import com.cdy.cdy.dto.response.study.*;
+import com.cdy.cdy.entity.project.Project;
 import com.cdy.cdy.entity.study.StudyChannel;
 import com.cdy.cdy.entity.study.StudyImage;
 import com.cdy.cdy.entity.User;
 import com.cdy.cdy.entity.UserCategory;
+import com.cdy.cdy.repository.ProjectMemberRepository;
 import com.cdy.cdy.repository.StudyChannelRepository;
 import com.cdy.cdy.repository.StudyImageRepository;
 import com.cdy.cdy.repository.UserRepository;
@@ -24,9 +26,13 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
+import java.time.YearMonth;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Stream;
 
 @Service
 @RequiredArgsConstructor
@@ -38,6 +44,7 @@ public class StudyService {
     private final R2StorageService r2StorageService;
     private final AttendanceService attendanceService;
     private final ImageUrlResolver imageUrlResolver;
+    private final ProjectMemberRepository projectMemberRepository;
 
 
     //스터디 생성
@@ -189,6 +196,7 @@ public class StudyService {
                 .build();
     }
 
+    //유저의 스터디목록 전체조회
     public Page<ResponseStudyByUser> findStudiesByUser(Long id, Pageable pageable) {
 
         User user = userRepository.findById(id)
@@ -205,9 +213,51 @@ public class StudyService {
 
     }
 
-    public void findStudyChannel(Long userId) {
+
+    //유저의 상세 스터디채널 조회
+    public DetailStudyChannelResponse findStudyChannel(Long userId,Pageable StudyPageable) {
+
+        LocalDate now = LocalDate.now(ZoneId.of("Asia/Seoul"));
+
+        LocalDate startOfMonth = now.withDayOfMonth(1);
+        LocalDate endOfMonth = now.withDayOfMonth(now.lengthOfMonth());
+
+        YearMonth ym = YearMonth.from(now);
+
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new EntityNotFoundException("유저를 찾을 수 없습니다."));
+
+        String category = user.getCategory().toString();
+
+        Long studyCount = studyChannelRepository.getStudyCount(userId);
+
+        MonthCalendarResponse month = attendanceService.getMonth(userId, ym);
+
+        Page<ResponseStudyByUser> studies = findStudiesByUser(userId, StudyPageable);
 
 
+        List<Project> userCompletedProjects = projectMemberRepository.findUserCompletedProjects(userId);
+
+        List<CompleteProject> completeProjectList = userCompletedProjects.stream().map(project -> CompleteProject.builder()
+                        .id(project.getId())
+                        .logoImageURL(imageUrlResolver.toPresignedUrl(project.getLogoImageKey()))
+                        .build())
+                .toList();
+
+
+        return DetailStudyChannelResponse.builder()
+                .category(category)
+                .userImageUrl(imageUrlResolver.toPresignedUrl(user.getProfileImageKey()))
+                .Studies(PageResponse.from(studies))
+                .completedProject(completeProjectList)
+                .studyCount(studyCount)
+                .month(month)
+                .build();
     }
+
+
+
+
+
 }
 

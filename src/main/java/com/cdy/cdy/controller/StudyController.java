@@ -5,6 +5,7 @@ import com.cdy.cdy.dto.request.CreateStudyChannelRequest;
 import com.cdy.cdy.dto.request.UpdateStudyChannelRequest;
 import com.cdy.cdy.dto.response.CustomUserDetails;
 import com.cdy.cdy.dto.response.StudyChannelResponse;
+import com.cdy.cdy.dto.response.study.DetailStudyChannelResponse;
 import com.cdy.cdy.dto.response.study.GroupedStudiesResponse;
 import com.cdy.cdy.dto.response.study.ResponseStudyByUser;
 import com.cdy.cdy.service.StudyService;
@@ -33,7 +34,7 @@ public class StudyController {
 
     private final StudyService studyService;
 
-    @Operation(summary = "유저의 스터디목록 조회"
+    @Operation(summary = "유저의 전체 스터디목록 조회"
             , description = "로그인된 유저의 스터디 전체 목록을 반환")
 
     @GetMapping("/users/studies")
@@ -50,7 +51,7 @@ public class StudyController {
 
 
     @Operation(
-            summary = "스터디 채널 생성",
+            summary = "스터디 글 생성",
             description = """
                     1) 먼저 `/storage/presign` API를 호출해 presigned URL을 발급받습니다.
                     2) 발급받은 URL로 이미지를 직접 업로드합니다.
@@ -66,6 +67,9 @@ public class StudyController {
         return ResponseEntity.ok(studyService.createStudy(user.getId(), request));
     }
 
+    @Operation
+            (summary = "스터디 단건 내용 조회",
+            description = "스터디 이미지를 클릭하면 스터디 작성글의 내용 반환")
     // 단건 조회
     @GetMapping("/{studyId}")
     public ResponseEntity<StudyChannelResponse> getStudy(@PathVariable Long studyId) {
@@ -135,11 +139,13 @@ public class StudyController {
     }
 
 
-    @Operation(summary = "유저의 스터디채널 반환", description = "유저의 id를 토대로 해당 유저의 상세스터디채널 반환")
-    @GetMapping("/{userId}")
-    public ResponseEntity<Void> getStudyChannel(@RequestParam Long userId) {
-        studyService.findStudyChannel(userId);
-        return null;
+    @Operation(summary = "유저의 상세스터디채널 반환", description = "유저의 id를 토대로 해당 유저의 상세스터디채널 반환")
+    @GetMapping("/user/{userId}")
+    public ResponseEntity<DetailStudyChannelResponse> getStudyChannel(@PathVariable Long userId,
+               @PageableDefault(size = 10, sort = "createdAt", direction = Sort.Direction.DESC)
+    Pageable StudyPageable) {
+        DetailStudyChannelResponse studyChannel = studyService.findStudyChannel(userId, StudyPageable);
+        return ResponseEntity.ok(studyChannel);
 
     }
 
