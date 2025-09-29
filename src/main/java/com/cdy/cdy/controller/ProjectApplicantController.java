@@ -1,6 +1,7 @@
 package com.cdy.cdy.controller;
 
 import com.cdy.cdy.dto.response.CustomUserDetails;
+import com.cdy.cdy.dto.response.ProjectCompleteResponse;
 import com.cdy.cdy.dto.response.project.ProjectQuestionResponse;
 import com.cdy.cdy.service.ProjectApplicantService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -33,14 +34,14 @@ public class ProjectApplicantController {
             @ApiResponse(responseCode = "404", description = "프로젝트 또는 신청 내역 없음")
     })
     @PostMapping("{projectId}/applicants/{userId}/approve")
-    public ResponseEntity<Void> approve(
+    public ResponseEntity<String> approve(
             @PathVariable Long projectId,
             @PathVariable Long userId,
             @AuthenticationPrincipal CustomUserDetails userDetails
     ) {
 
         projectApplicantService.approve(projectId, userId, userDetails.getId());
-        return ResponseEntity.ok().build();
+        return ResponseEntity.ok("승인이 완료되었습니다.");
     }
 
     // 신청자 거절
@@ -85,14 +86,15 @@ public class ProjectApplicantController {
         return ResponseEntity.ok("프로젝트 신청이 취소되었습니다.");
 
     }
+    //프로젝트 완료하기
     @Operation
             (summary = "프로젝트 완료하기",
                     description = "프로젝트 id 넘기고 로그인된 유저가 해당 프로젝트 진행중이면 완료")
     @PostMapping("/complete/{projectId}")
-    public ResponseEntity<String> complete(@PathVariable Long projectId,
-                                         @AuthenticationPrincipal CustomUserDetails userDetails) {
-        projectApplicantService.complete(projectId, userDetails.getId());
-        return ResponseEntity.ok("프로젝트 완료");
+    public ResponseEntity<ProjectCompleteResponse> complete(@PathVariable Long projectId,
+                                                            @AuthenticationPrincipal CustomUserDetails userDetails) {
+        ProjectCompleteResponse complete = projectApplicantService.complete(projectId, userDetails.getId());
+        return ResponseEntity.ok(complete);
 
     }
 }

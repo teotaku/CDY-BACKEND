@@ -4,6 +4,7 @@ import com.cdy.cdy.dto.request.LoginRequest;
 import com.cdy.cdy.dto.request.SignUpRequest;
 import com.cdy.cdy.dto.response.LoginResponse;
 import com.cdy.cdy.entity.User;
+import com.cdy.cdy.entity.UserCategory;
 import com.cdy.cdy.entity.UserRole;
 import com.cdy.cdy.jwt.JWTUtil;
 import com.cdy.cdy.repository.UserRepository;
@@ -37,6 +38,8 @@ public class AuthService {
                 .email(signUpRequest.getEmail())
                 .passwordHash(passwordEncoder.encode(signUpRequest.getPassword()))
                 .role(UserRole.USER) // 필요 시 지정, 아니면 of()로 기본값 처리
+                .phoneNumber(signUpRequest.getPhoneNumber())
+                .category(UserCategory.from(signUpRequest.getUserCategory()))
                 .build();
         userRepository.save(user);
 

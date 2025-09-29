@@ -1,5 +1,6 @@
 package com.cdy.cdy.service;
 
+import com.cdy.cdy.dto.response.ProjectCompleteResponse;
 import com.cdy.cdy.dto.response.project.ProjectQuestionResponse;
 import com.cdy.cdy.entity.project.Project;
 import com.cdy.cdy.entity.project.ProjectMember;
@@ -81,6 +82,7 @@ public class ProjectApplicantService {
         return list;
     }
     //신청취소
+    @Transactional
     public void cancel(Long projectId, Long userId) {
 
         ProjectMember projectMember = projectMemberRepository.findByProjectIdAndUserId(projectId, userId)
@@ -95,7 +97,8 @@ public class ProjectApplicantService {
         projectMember.cancel();
     }
     //프로젝트 완료
-    public void complete(Long projectId, Long userId) {
+    @Transactional
+    public ProjectCompleteResponse  complete(Long projectId, Long userId) {
 
         Project project = projectRepository.findById(projectId)
                 .orElseThrow(() -> new EntityNotFoundException("프로젝트 없음"));
@@ -103,12 +106,40 @@ public class ProjectApplicantService {
              ProjectMember projectMember = projectMemberRepository.findByProjectIdAndUserId(projectId, userId)
                         .orElseThrow(()-> new EntityNotFoundException("프로젝트에 참가하고있지않습니다."));
 
+        if (projectMember.isCompleted()) {
+            int total = projectMemberRepository.findApprovedMembersWithUserByProjectId(projectId).size();
+            long completed = projectMemberRepository.findApprovedMembersWithUserByProjectId(projectId).stream()
+                    .filter(ProjectMember::isCompleted).count();
+            double rate = total == 0 ? 0 : (completed * 100.0) / total;
+
+            return ProjectCompleteResponse.builder()
+                    .success(true)
+                    .status("WAITING")
+                    .message("이미 완료 처리된 사용자입니다.")
+                    .data(ProjectCompleteResponse.Data.builder()
+                            .userRole(projectMember.getRole().name())
+                            .completedMembers((int) completed)
+                            .totalMembers((int) total)
+                            .completionRate(rate)
+                            .build())
+                    .build();
+        }
 
 
         if (projectMember.getStatus() != ProjectMemberStatus.APPROVED) {
             throw new IllegalStateException("승인된 멤버만 프로젝트 완료 처리할 수 있습니다.");
         }
+        // 팀장이라면 → 무조건 "다른 멤버가 완료했는지" 확인
+        if (project.getManager().getId().equals(userId)) {
+            boolean othersCompleted = projectMemberRepository
+                    .findApprovedMembersWithUserByProjectId(projectId).stream()
+                    .filter(pm -> !pm.getUser().getId().equals(userId)) // 팀장 제외
+                    .allMatch(ProjectMember::isCompleted);
 
+            if (!othersCompleted) {
+                throw new IllegalStateException("팀장은 모든 멤버가 완료한 이후에만 완료할 수 있습니다.");
+            }
+        }
 
         projectMember.complete();
 
@@ -122,6 +153,23 @@ public class ProjectApplicantService {
         if (allCompleted && project.getManager().getId().equals(userId)) {
             project.complete();
         }
+
+        int total = projectMemberRepository.findApprovedMembersWithUserByProjectId(projectId).size();
+        long completed = projectMemberRepository.findApprovedMembersWithUserByProjectId(projectId).stream()
+                .filter(ProjectMember::isCompleted).count();
+        double rate = total == 0 ? 0 : (completed * 100.0) / total;
+
+        return ProjectCompleteResponse.builder()
+                .success(true)
+                .status(allCompleted ? "COMPLETED" : "WAITING")
+                .message(allCompleted ? "프로젝트 최종 완료" : "팀장의 완료를 기다리는 중")
+                .data(ProjectCompleteResponse.Data.builder()
+                        .userRole(projectMember.getRole().name())
+                        .completedMembers((int) completed)
+                        .totalMembers(total)
+                        .completionRate(rate)
+                        .build())
+                .build();
 
     }
 }
