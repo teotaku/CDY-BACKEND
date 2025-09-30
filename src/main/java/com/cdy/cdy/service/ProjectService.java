@@ -192,6 +192,12 @@ public class ProjectService {
             throw new IllegalStateException("본인이 관리자인 프로젝트에는 신청할 수 없습니다.");
         }
 
+        //이미 완료된 프로젝트 신청금지
+        if (project.getStatus() == ProjectStatus.COMPLETED) {
+            throw new IllegalStateException("이미 완료된 프로젝트입니다.");
+        }
+
+
         // 3) 중복 신청/참여 금지 (이미 신청 or 이미 승인 상태면 막기)
         boolean already = projectMemberRepository.existsByUser_IdAndProject_IdAndStatusIn(
                 userId, projectId, List.of(ProjectMemberStatus.APPLIED, ProjectMemberStatus.APPROVED));
