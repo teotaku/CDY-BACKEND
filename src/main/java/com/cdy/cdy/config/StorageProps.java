@@ -1,5 +1,7 @@
 package com.cdy.cdy.config;
 
+import jakarta.annotation.PostConstruct;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
 import lombok.*;
@@ -13,6 +15,7 @@ import lombok.*;
  * - region: R2는 의미 없어서 'auto' 같은 더미값
  * - presignSeconds: 프리사인 URL 유효시간(초)
  */
+@Slf4j
 @Getter @Setter
 @ToString(exclude = "secretKey")                  // 로그에 비밀키 안 찍히게
 @Component                                        // 스프링 빈 등록
@@ -25,4 +28,13 @@ public class StorageProps {
     private String endpoint;      // R2 S3 호환 엔드포인트(도메인만)
     private String region;        // 'auto' 등 더미
     private int presignSeconds;   // 프리사인 URL 유효시간(초)
+
+    @PostConstruct
+    public void debugPrint() {
+        log.info("=== StorageProps Loaded ===");
+        log.info("bucket = {}", bucket);
+        log.info("endpoint = {}", endpoint);
+        log.info("region = {}", region);
+        log.info("===========================");
+    }
 }
