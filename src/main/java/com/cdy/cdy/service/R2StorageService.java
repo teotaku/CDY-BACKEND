@@ -66,7 +66,7 @@ public class R2StorageService {
         PutObjectRequest put = PutObjectRequest.builder()
                 .bucket(props.getBucket())      // 대상 버킷명
                 .key(key)                       // 객체 키
-                .contentType(contentType)       // Content-Type 헤더 고정(브라우저 PUT 때 동일하게 보내야 함)
+//                .contentType(contentType)       // Content-Type 헤더 고정(브라우저 PUT 때 동일하게 보내야 함)
                 .build();
 
         // 위의 PUT 스펙에 "서명 유효시간" 같은 프리사인 메타를 덧붙여 최종 서명 요청을 만든다.
