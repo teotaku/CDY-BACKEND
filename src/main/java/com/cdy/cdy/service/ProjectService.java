@@ -218,7 +218,7 @@ public class ProjectService {
                     projectId, ProjectMemberStatus.APPROVED);
             if (approvedCount >= project.getCapacity()) {
                 // (A) 대기자 없이 꽉 차면 차단:
-                // throw new IllegalStateException("정원이 가득 찼습니다.");
+                 throw new IllegalStateException("정원이 가득 찼습니다.");
                 // (B) 대기자(신청) 허용 → 그대로 진행 (여기선 B로 진행)
             }
         }
