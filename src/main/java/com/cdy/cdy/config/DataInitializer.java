@@ -22,45 +22,46 @@ public class DataInitializer {
     @Bean
     public CommandLineRunner initUsers() {
         return args -> {
-            if (userRepository.count() == 0) { // 이미 있으면 중복 방지
+            if (userRepository.count() == 0) // 이미 있으면 중복 방지
 
                 // CODING 10명
-            for (int i = 1; i <= 5; i++) {
-                userRepository.save(User.builder()
-                        .nickname("coding" + i)
-                        .email("coding" + i + "@test.com")
-                        .phoneNumber("01012345678")
-                        .passwordHash(passwordEncoder.encode("abcd1234A!"))
-                        .role(UserRole.USER)
-                        .category(UserCategory.CODING)
-                        .build());
-            }
+                for (int i = 1; i <= 5; i++) {
+                    userRepository.save(User.builder()
+                            .nickname("coding" + i)
+                            .email("coding" + i + "@test.com")
+                            .phoneNumber("01012345678")
+                            .passwordHash(passwordEncoder.encode("abcd1234A!"))
+                            .role(UserRole.USER)
+                            .category(UserCategory.CODING)
+                            .build());
+                }
 
-            // DESIGN 5명
-            for (int i = 1; i <= 5; i++) {
-                userRepository.save(User.builder()
-                        .nickname("design" + i)
-                        .email("design" + i + "@test.com")
-                        .phoneNumber("01012345678")
-                        .passwordHash(passwordEncoder.encode("abcd1234A!"))
-                        .role(UserRole.USER)
-                        .category(UserCategory.DESIGN)
-                        .build());
-            }
+                // DESIGN 5명
+                for (int i = 1; i <= 5; i++) {
+                    userRepository.save(User.builder()
+                            .nickname("design" + i)
+                            .email("design" + i + "@test.com")
+                            .phoneNumber("01012345678")
+                            .passwordHash(passwordEncoder.encode("abcd1234A!"))
+                            .role(UserRole.USER)
+                            .category(UserCategory.DESIGN)
+                            .build());
+                }
 
-            // VIDEO 5명
-            for (int i = 1; i <= 5; i++) {
-                userRepository.save(User.builder()
-                        .nickname("video" + i)
-                        .email("video" + i + "@test.com")
-                        .phoneNumber("01012345678")
-                        .passwordHash(passwordEncoder.encode("abcd1234A!"))
-                        .role(UserRole.USER)
-                        .category(UserCategory.VIDEO_EDITING)
-                        .build());
-            }
+                // VIDEO 5명
+                for (int i = 1; i <= 5; i++) {
+                    userRepository.save(User.builder()
+                            .nickname("video" + i)
+                            .email("video" + i + "@test.com")
+                            .phoneNumber("01012345678")
+                            .passwordHash(passwordEncoder.encode("abcd1234A!"))
+                            .role(UserRole.USER)
+                            .category(UserCategory.VIDEO_EDITING)
+                            .build());
+                }
 
-            log.info("더미 데이터 각 카테고리 5명씩 생성 완료 ✅");
-        };
+                log.info("더미 데이터 각 카테고리 5명씩 생성 완료 ✅");
+            }
+            ;
         }
     }
