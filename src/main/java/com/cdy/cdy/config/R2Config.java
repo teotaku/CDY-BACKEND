@@ -37,6 +37,9 @@ public class R2Config {
                 AwsBasicCredentials.create(p.getAccessKey(), p.getSecretKey())))
             .region(Region.of(p.getRegion()))
             .endpointOverride(URI.create(p.getEndpoint()))
+                .serviceConfiguration(S3Configuration.builder()
+                        .pathStyleAccessEnabled(true)   // ✅ 이 줄 추가
+                        .build())
             .build();
     }
 }
