@@ -22,7 +22,7 @@ public class DataInitializer {
     @Bean
     public CommandLineRunner initUsers() {
         return args -> {
-//            if (userRepository.count() == 0) { // 이미 있으면 중복 방지
+            if (userRepository.count() == 0) { // 이미 있으면 중복 방지
 
                 // CODING 5명
                 for (int i = 1; i <= 5; i++) {
@@ -61,7 +61,7 @@ public class DataInitializer {
                 }
 
                 log.info("더미 데이터 각 카테고리 5명씩 생성 완료 ✅");
-//            }
+            }
         };
     }
 }

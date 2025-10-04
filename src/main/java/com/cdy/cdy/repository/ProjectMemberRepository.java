@@ -129,7 +129,7 @@ public interface ProjectMemberRepository extends JpaRepository<ProjectMember,Lon
     //다른 프로젝트에 신청,승인상태인지 확인
     @Query(value = """
     SELECT CASE WHEN COUNT(*) > 0 THEN TRUE ELSE FALSE END
-    FROM project_member pm
+    FROM project_members pm
     WHERE pm.user_id = :userId
       AND pm.status IN (:statuses)
     """, nativeQuery = true)
