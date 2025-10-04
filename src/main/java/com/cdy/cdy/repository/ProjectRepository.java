@@ -15,7 +15,7 @@ public interface ProjectRepository extends JpaRepository<Project,Long> {
 
 
     //완료된 프로젝트 제외하고 프로젝트 전체조회
-    @Query(value = "SELECT * FROM project p WHERE p.status <> 'COMPLETED'", nativeQuery = true)
+    @Query(value = "SELECT * FROM projects p WHERE p.status <> 'COMPLETED'", nativeQuery = true)
     Page<Project> findAllExcludeCompleted(Pageable pageable);
 
 
