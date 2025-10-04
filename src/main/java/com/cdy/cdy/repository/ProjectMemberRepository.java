@@ -43,7 +43,7 @@ public interface ProjectMemberRepository extends JpaRepository<ProjectMember,Lon
 
     @Query(value = """
         SELECT pm.*
-        FROM project_member pm
+        FROM project_members pm
         JOIN `user` u ON pm.user_id = u.id
         WHERE pm.project_id = :projectId
         AND pm.status IN ('APPROVED', 'COMPLICATED')
