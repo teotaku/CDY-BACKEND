@@ -1,11 +1,13 @@
 package com.cdy.cdy.dto.request;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.Size;
 import lombok.*;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @Getter
@@ -32,4 +34,7 @@ public class CreateProjectRequest {
     private List<String> questions; // 질문 ["자기소개", "가능 요일"]
 
     private String kakaoLink;
+
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
+    private LocalDate completeDay;
 }

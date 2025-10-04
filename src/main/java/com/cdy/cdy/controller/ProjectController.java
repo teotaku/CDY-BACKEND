@@ -36,9 +36,12 @@ public class ProjectController {
 
     private final ProjectService projectService;
 
+
+    //메인페이지 프로젝트 반환
+
+
+
     //프로젝트 생성
-
-
     @Operation(summary = "프로젝트 생성", description = "새로운 프로젝트를 생성합니다.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "생성 성공",
@@ -67,7 +70,7 @@ public class ProjectController {
             @PageableDefault(size = 10, sort = "createdAt", direction = Sort.Direction.DESC)
      Pageable pageable
     ) {
-        return ResponseEntity.ok(projectService.findAll(pageable));
+        return ResponseEntity.ok(projectService.findAllExcludeCompleted(pageable));
 
     }
 

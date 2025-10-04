@@ -44,7 +44,7 @@ public class ProjectService {
 
         boolean existsAny = projectMemberRepository.existsByUser_IdAndStatusIn(
                 leaderUserId,
-                List.of(ProjectMemberStatus.APPLIED, ProjectMemberStatus.APPROVED)
+                List.of(ProjectMemberStatus.APPLIED.name(), ProjectMemberStatus.APPROVED.name())
         );
         if (existsAny) {
             throw new IllegalStateException("다른 프로젝트에 이미 신청/참여 중입니다.");
@@ -67,6 +67,7 @@ public class ProjectService {
                 .status(ProjectStatus.IN_PROGRESS)
                 .logoImageKey(req.getImageKey()) // null 가능
                 .kakaoLink(req.getKakaoLink())
+                .completeDay(req.getCompleteDay())
                 .build();
         projectRepository.save(project);
 
@@ -118,7 +119,7 @@ public class ProjectService {
         long memberCount = projectMemberRepository.countByApprovedPm(project.getId());
 
         List<ProjectMember> members = projectMemberRepository
-                .findApprovedMembersWithUserByProjectId(project.getId());
+                .findApprovedAndComplicatedMembersWithUserByProjectId(project.getId());
 
 
         List<MemberBrief> memberBriefs = members.stream()
@@ -128,8 +129,13 @@ public class ProjectService {
                         .profileKey(imageUrlResolver.toPresignedUrl(pm.getUser().getProfileImageKey()))
                         .build()).toList();
 
+        long complicatedCount = members.stream()
+                .filter(pm -> pm.getStatus() == ProjectMemberStatus.COMPLICATED)
+                .count();
+
 
         return ProgressingProjectResponse.builder()
+                .complicatedCount(complicatedCount)
                 .id(project.getId())
                 .title(project.getTitle())
                 .capacity(project.getCapacity())
@@ -153,9 +159,11 @@ public class ProjectService {
         Project project = pm.getProject();
         long memberCount = projectMemberRepository.countByApprovedPm(project.getId());
 
+        Integer capacity = project.getCapacity();
+
 
         List<ProjectMember> members = projectMemberRepository
-                .findApprovedMembersWithUserByProjectId(project.getId());
+                .findApprovedAndComplicatedMembersWithUserByProjectId(project.getId());
 
         List<MemberBrief> memberBriefs = members.stream()
                 .map(pmb -> MemberBrief.builder()
@@ -167,6 +175,7 @@ public class ProjectService {
 
         return ApplyingProjectResponse.builder()
                 .id(project.getId())
+                .capacity(capacity)
                 .title(project.getTitle())
                 .memberBriefs(memberBriefs)
                 .position(project.getPositions())
@@ -197,25 +206,42 @@ public class ProjectService {
             throw new IllegalStateException("이미 완료된 프로젝트입니다.");
         }
 
-
-        // 3) 중복 신청/참여 금지 (이미 신청 or 이미 승인 상태면 막기)
-        boolean already = projectMemberRepository.existsByUser_IdAndProject_IdAndStatusIn(
-                userId, projectId, List.of(ProjectMemberStatus.APPLIED, ProjectMemberStatus.APPROVED));
-        if (already) {
-            throw new IllegalStateException("이미 신청 또는 참여 중인 프로젝트입니다.");
-        }
-
         boolean existsAny = projectMemberRepository
                 .existsByUser_IdAndStatusIn(
                         userId,
-                        List.of(ProjectMemberStatus.APPLIED, ProjectMemberStatus.APPROVED)
+                        List.of(ProjectMemberStatus.APPLIED.name(), ProjectMemberStatus.APPROVED.name())
                 );
         if (existsAny) throw new IllegalStateException("다른 프로젝트에 이미 신청/참여 중입니다.");
+
+
+
+        // 3) 중복 신청/참여 금지 (이미 신청 or 이미 승인 상태면 막기)
+        ProjectMember existing = projectMemberRepository
+                .findByUser_IdAndProject_Id(userId, projectId)
+                .orElse(null);
+
+        if (existing != null) {
+            if (existing.getStatus() == ProjectMemberStatus.APPLIED
+                    || existing.getStatus() == ProjectMemberStatus.APPROVED) {
+                throw new IllegalStateException("이미 신청 또는 참여 중인 프로젝트입니다.");
+            }
+
+            if (existing.getStatus() == ProjectMemberStatus.CANCEL
+                    || existing.getStatus() == ProjectMemberStatus.REJECTED
+                    || existing.getStatus() == ProjectMemberStatus.COMPLICATED) {
+                existing.changeStatus(ProjectMemberStatus.APPLIED);   // 새 메서드 필요
+                existing.changeJoinedAt(LocalDateTime.now());         // 새 메서드 필요
+                existing.updatePosition(req.getPosition());           // 이미 엔티티에 있음
+                existing.updateTechs(req.getTechs());                 // 이미 엔티티에 있음
+                return;
+            }
+        }
+
 
         // 4) 정원 체크 (정책 선택)
         if (project.getCapacity() != null) {
             long approvedCount = projectMemberRepository.countByProject_IdAndStatus(
-                    projectId, ProjectMemberStatus.APPROVED);
+                    projectId, ProjectMemberStatus.APPROVED.name());
             if (approvedCount >= project.getCapacity()) {
                 // (A) 대기자 없이 꽉 차면 차단:
                  throw new IllegalStateException("정원이 가득 찼습니다.");
@@ -307,6 +333,22 @@ public class ProjectService {
 //        }
 
     }
+    //완료된 프로젝트 제외 전체조회
+    @Transactional(readOnly = true)
+    public Page<AllProjectResponse> findAllExcludeCompleted(Pageable pageable) {
+        return projectRepository.findAllExcludeCompleted(pageable)
+                .map(p -> AllProjectResponse.builder()
+                        .id(p.getId())
+                        .slogan(p.getSlogan())
+                        .createdAt(p.getCreatedAt())
+                        .completeDay(p.getCompleteDay())
+                        .title(p.getTitle())
+                        .imageKey(imageUrlResolver.toPresignedUrl(p.getLogoImageKey()))
+                        .build());
+    }
+
+
+
 
     //전체조회
     @Transactional(readOnly = true)

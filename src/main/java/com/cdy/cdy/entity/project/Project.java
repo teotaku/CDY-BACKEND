@@ -6,6 +6,7 @@ import com.cdy.cdy.entity.User;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -62,7 +63,7 @@ public class Project extends BaseEntity {
     @Column(nullable = false)
     private ProjectStatus status = ProjectStatus.IN_PROGRESS;
 
-
+    private LocalDate completeDay;
 
 
     // 👉 DTO에서 바로 변환할 수 있게 팩토리 메서드

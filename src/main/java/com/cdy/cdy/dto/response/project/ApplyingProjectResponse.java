@@ -32,6 +32,10 @@ public class ApplyingProjectResponse {
 
     @Schema(description = "기술 스택", example = "[\"Java\", \"Spring\"]")
     private List<String> techs;
+
+
+    @Schema(description = "프로젝트 정원", example = "4")
+    private Integer capacity;
 }
 
 

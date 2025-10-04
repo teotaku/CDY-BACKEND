@@ -107,8 +107,8 @@ public class ProjectApplicantService {
              ProjectMember projectMember = projectMemberRepository.findByProjectIdAndUserId(projectId, userId)
                         .orElseThrow(()-> new EntityNotFoundException("프로젝트에 참가하고있지않습니다."));
 
-        int total = projectMemberRepository.findApprovedMembersWithUserByProjectId(projectId).size();
-        long completed = projectMemberRepository.findApprovedMembersWithUserByProjectId(projectId).stream()
+        int total = projectMemberRepository.findApprovedAndComplicatedMembersWithUserByProjectId(projectId).size();
+        long completed = projectMemberRepository.findApprovedAndComplicatedMembersWithUserByProjectId(projectId).stream()
                 .filter(ProjectMember::isCompleted).count();
         double rate = total == 0 ? 0 : (completed * 100.0) / total;
 
@@ -138,7 +138,7 @@ public class ProjectApplicantService {
         // 팀장이라면 → 무조건 "다른 멤버가 완료했는지" 확인
         if (project.getManager().getId().equals(userId)) {
             boolean othersCompleted = projectMemberRepository
-                    .findApprovedMembersWithUserByProjectId(projectId).stream()
+                    .findApprovedAndComplicatedMembersWithUserByProjectId(projectId).stream()
                     .filter(pm -> !pm.getUser().getId().equals(userId)) // 팀장 제외
                     .allMatch(ProjectMember::isCompleted);
 
@@ -150,7 +150,7 @@ public class ProjectApplicantService {
 
         // 모든 멤버가 COMPLETE 상태인지 체크
         boolean allCompleted = projectMemberRepository
-                .findApprovedMembersWithUserByProjectId(projectId)
+                .findApprovedAndComplicatedMembersWithUserByProjectId(projectId)
                 .stream()
                 .allMatch(pm -> pm.isCompleted());
 

@@ -87,4 +87,14 @@ public class ProjectMember {
     public boolean isCompleted() {
         return this.status == ProjectMemberStatus.COMPLICATED;
     }
+
+
+    public void changeStatus(ProjectMemberStatus status) {
+        this.status = status;
+    }
+
+    public void changeJoinedAt(LocalDateTime joinedAt) {
+        this.joinedAt = joinedAt;
+    }
+
 }

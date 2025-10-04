@@ -3,6 +3,7 @@ package com.cdy.cdy.dto.response.project;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Getter
@@ -22,6 +23,10 @@ public class AllProjectResponse {
 
     @Schema(description = "생성일시", example = "2025-09-17T12:00:00")
     private LocalDateTime createdAt;
+
+
+    @Schema(description = "완료일(d-day)", example = "2025-12-26")
+    private LocalDate completeDay;
 }
 
 
