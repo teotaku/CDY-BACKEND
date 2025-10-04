@@ -27,12 +27,15 @@ public interface ProjectRepository extends JpaRepository<Project,Long> {
 
 
     @Query("""
-            SELECT p FROM Project p
-            JOIN p.projectMembers m
-            WHERE m.user.id = :userId
-            AND m.status = com.cdy.cdy.entity.project.ProjectMemberStatus.APPROVED
-            AND p.status = com.cdy.cdy.entity.project.ProjectStatus.IN_PROGRESS
-            """)
+    SELECT p FROM Project p
+    JOIN p.projectMembers m
+    WHERE m.user.id = :userId
+    AND m.status IN (
+        com.cdy.cdy.entity.project.ProjectMemberStatus.APPROVED,
+        com.cdy.cdy.entity.project.ProjectMemberStatus.COMPLICATED
+    )
+    AND p.status = com.cdy.cdy.entity.project.ProjectStatus.IN_PROGRESS
+""")
     Optional<Project> findProgressingProjectByUserId(@Param("userId") Long userId);
 
 
