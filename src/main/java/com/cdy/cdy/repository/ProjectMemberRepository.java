@@ -104,7 +104,7 @@ public interface ProjectMemberRepository extends JpaRepository<ProjectMember,Lon
     // 현재 승인된(진행중) 인원 수 (정원 체크용)
     @Query(value = """
     SELECT COUNT(*) 
-    FROM project_member pm
+    FROM project_members pm
     WHERE pm.project_id = :projectId
       AND pm.status = :status
     """, nativeQuery = true)
@@ -116,7 +116,7 @@ public interface ProjectMemberRepository extends JpaRepository<ProjectMember,Lon
     // 1) 특정 프로젝트에 기존 신청/참여 기록 찾기
     @Query(value = """
     SELECT * 
-    FROM project_member pm
+    FROM project_members pm
     WHERE pm.user_id = :userId
       AND pm.project_id = :projectId
     LIMIT 1
