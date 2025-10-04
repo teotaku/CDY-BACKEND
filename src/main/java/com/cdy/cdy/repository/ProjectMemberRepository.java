@@ -127,12 +127,12 @@ public interface ProjectMemberRepository extends JpaRepository<ProjectMember,Lon
     );
 
     //다른 프로젝트에 신청,승인상태인지 확인
-    @Query(value = """
-    SELECT CASE WHEN COUNT(*) > 0 THEN TRUE ELSE FALSE END
-    FROM project_members pm
-    WHERE pm.user_id = :userId
-      AND pm.status IN (:statuses)
-    """, nativeQuery = true)
+    @Query("""
+    select case when count(pm) > 0 then true else false end
+    from ProjectMember pm
+    where pm.user.id = :userId
+      and pm.status in :statuses
+""")
     boolean existsByUser_IdAndStatusIn(
             @Param("userId") Long userId,
             @Param("statuses") List<String> statuses
