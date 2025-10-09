@@ -4,11 +4,8 @@ import com.cdy.cdy.dto.request.ApplyProjectRequest;
 import com.cdy.cdy.dto.request.CreateProjectRequest;
 import com.cdy.cdy.dto.response.CustomUserDetails;
 
-import com.cdy.cdy.dto.response.project.AllProjectResponse;
-import com.cdy.cdy.dto.response.project.ApplyingProjectResponse;
-import com.cdy.cdy.dto.response.project.OneProjectResponse;
-import com.cdy.cdy.dto.response.project.ProjectApplicationResponse;
-import com.cdy.cdy.dto.response.project.ProgressingProjectResponse;
+import com.cdy.cdy.dto.response.project.*;
+import com.cdy.cdy.dto.response.study.ResponseStudyByUser;
 import com.cdy.cdy.service.ProjectService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -40,7 +37,6 @@ public class ProjectController {
     //메인페이지 프로젝트 반환
 
 
-
     //프로젝트 생성
     @Operation(summary = "프로젝트 생성", description = "새로운 프로젝트를 생성합니다.")
     @ApiResponses(value = {
@@ -66,8 +62,8 @@ public class ProjectController {
             content = @Content(schema = @Schema(implementation = AllProjectResponse.class)))
     @GetMapping("/findAll")
     public ResponseEntity<Page<AllProjectResponse>> getAllProjectes
-    (       @ParameterObject
-            @PageableDefault(size = 10, sort = "createdAt", direction = Sort.Direction.DESC)
+    (@ParameterObject
+     @PageableDefault(size = 10, sort = "createdAt", direction = Sort.Direction.DESC)
      Pageable pageable
     ) {
         return ResponseEntity.ok(projectService.findAllExcludeCompleted(pageable));
@@ -140,9 +136,24 @@ public class ProjectController {
     public ResponseEntity<List<ProjectApplicationResponse>> getApplication(
             @PathVariable Long projectId,
             @AuthenticationPrincipal CustomUserDetails userDetails
-            ) {
+    ) {
         List<ProjectApplicationResponse> application =
                 projectService.getApplication(userDetails.getId(), projectId);
         return ResponseEntity.ok(application);
+    }
+
+    //완료된 프로젝트 조회
+    @Operation(summary = "완료 프로젝트조회", description = "로그인된 사용자 정보의 완료된프로젝트조회")
+    @GetMapping("/find/completedProject")
+    public ResponseEntity<Page<CompleteProject>> getCompleteProject(
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @ParameterObject
+            @PageableDefault(size = 10, sort = "createdAt", direction = Sort.Direction.DESC)
+            Pageable pageable) {
+
+
+        Page<CompleteProject> list = projectService.findCompleteProejct(userDetails.getId(), pageable);
+
+        return ResponseEntity.ok(list);
     }
 }

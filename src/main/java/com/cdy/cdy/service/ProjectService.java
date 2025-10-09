@@ -12,6 +12,7 @@ import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -451,6 +452,38 @@ public class ProjectService {
                         .build())
                 .toList();
     }
+
+
+    public Page<CompleteProject> findCompleteProejct(Long userId, Pageable pageable) {
+        List<Project> userCompletedProjects = projectMemberRepository.findUserCompletedProjects(userId);
+
+        List<CompleteProject> completeProjectList = userCompletedProjects.stream()
+                .map(project -> CompleteProject.builder()
+                        .id(project.getId())
+                        .logoImageURL(imageUrlResolver.toPresignedUrl(project.getLogoImageKey()))
+                        .build())
+                .toList();
+
+
+        // 3️⃣ 페이징 계산
+        int start = (int) pageable.getOffset(); // 이번 페이지의 시작 인덱스
+        int end = Math.min(start + pageable.getPageSize(), completeProjectList.size()); // 끝 인덱스
+
+        // 4️⃣ 페이지 범위 벗어나면 빈 페이지 리턴
+        if (start > completeProjectList.size()) {
+            return new PageImpl<>(List.of(), pageable, completeProjectList.size());
+        }
+
+        // 5️⃣ subList로 현재 페이지에 해당하는 데이터만 자르기
+        List<CompleteProject> pagedList = completeProjectList.subList(start, end);
+
+        // 6️⃣ PageImpl로 감싸서 반환
+        return new PageImpl<>(pagedList, pageable, completeProjectList.size());
+
+
+
+    }
+
 
     // presign 변환 메서드
     private String resolveProfileImageUrl(User user) {

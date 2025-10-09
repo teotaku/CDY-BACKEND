@@ -16,7 +16,7 @@ import java.util.Optional;
 public interface ProjectMemberRepository extends JpaRepository<ProjectMember,Long> {
     List<ProjectMember> findByUserId(Long userId);
 
-
+    //프로젝트 지원자 조회
     @Query("""
         select pm
         from ProjectMember pm
@@ -26,7 +26,7 @@ public interface ProjectMemberRepository extends JpaRepository<ProjectMember,Lon
         """)
     List<ProjectMember> findApplicants(@Param("projectId") Long projectId);
 
-
+    //userId와 projectId 두개 매칭하는 projectMember찾기
     @Query("""
         select pm
         from ProjectMember pm
@@ -40,7 +40,7 @@ public interface ProjectMemberRepository extends JpaRepository<ProjectMember,Lon
     );
 
 
-
+    //승인되고 완료된 프로젝트 멤버 조회
     @Query(value = """
         SELECT pm.*
         FROM project_members pm
@@ -149,7 +149,7 @@ public interface ProjectMemberRepository extends JpaRepository<ProjectMember,Lon
        """)
     List<ProjectMember> findAllApplicantsWithUser(@Param("projectId") Long projectId);
 
-
+    //완료된 프로젝트 찾기
     @Query("""
     select p
     from ProjectMember pm
