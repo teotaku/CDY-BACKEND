@@ -8,5 +8,6 @@ import lombok.Getter;
 public class ResponseStudyByUser {
 
     private Long studyId;
+    private String firstImage;
     private String content;
 }

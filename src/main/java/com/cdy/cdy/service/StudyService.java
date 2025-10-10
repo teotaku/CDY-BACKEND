@@ -206,9 +206,14 @@ public class StudyService {
 
         List<ResponseStudyByUser> list = userStudies.stream().map(us -> ResponseStudyByUser.builder()
                         .studyId(us.getId())
+                        .firstImage(
+                                us.getImages().isEmpty()
+                                        ? null
+                                :imageUrlResolver.toPresignedUrl(us.getImages().get(0).getKey()))
                         .content(us.getContent())
                         .build())
                 .toList();
+
         return new PageImpl<>(list, pageable, userStudies.getTotalElements());
 
     }
@@ -245,10 +250,26 @@ public class StudyService {
                 .toList();
 
 
+        //스터디목록조회
+        Page<StudyChannel> userStudies = studyChannelRepository.findUserStudies(userId, StudyPageable);
+
+        //dto변환,firstimage삽입
+        List<ResponseStudyByUser> list = userStudies.stream().map(us -> ResponseStudyByUser.builder()
+                        .studyId(us.getId())
+                        .firstImage(us.getImages().isEmpty()
+                                ? null
+                                : imageUrlResolver.toPresignedUrl(us.getImages().get(0).getKey()))
+                        .content(us.getContent())
+                        .build())
+                .toList();
+        PageImpl<ResponseStudyByUser> studyPage =
+                new PageImpl<>(list, StudyPageable, userStudies.getTotalElements());
+
+
         return DetailStudyChannelResponse.builder()
                 .category(category)
                 .userImageUrl(imageUrlResolver.toPresignedUrl(user.getProfileImageKey()))
-                .Studies(PageResponse.from(studies))
+                .Studies(PageResponse.from(studyPage))
                 .completedProject(completeProjectList)
                 .studyCount(studyCount)
                 .month(month)
