@@ -56,7 +56,7 @@ public class ProjectController {
         return ResponseEntity.ok("프로젝트가 생성되었습니다");
     }
 
-    //프로젝트 전체조회
+    //프로젝트 전체조회(메인 홈화면)
     @Operation(summary = "프로젝트 전체 조회", description = "모든 프로젝트를 페이징 처리하여 최신순으로 조회합니다.")
     @ApiResponse(responseCode = "200", description = "조회 성공",
             content = @Content(schema = @Schema(implementation = AllProjectResponse.class)))

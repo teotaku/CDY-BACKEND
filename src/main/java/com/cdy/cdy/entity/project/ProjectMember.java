@@ -4,6 +4,8 @@ package com.cdy.cdy.entity.project;
 import com.cdy.cdy.entity.User;
 import jakarta.persistence.*;
 import lombok.*;
+import org.springframework.transaction.annotation.Transactional;
+
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -48,7 +50,7 @@ public class ProjectMember {
     private LocalDateTime joinedAt; // 합류 시각
 
 
-
+    @Transactional
     public void updatePosition(String position) {
         if (position == null || position.isBlank()) {
             this.position = "포지션없음";
@@ -57,6 +59,7 @@ public class ProjectMember {
         }
     }
 
+    @Transactional
     public void updateTechs(List<String> techs) {
         if (techs == null || techs.isEmpty()) {
             this.techs = List.of("기술 없음");
@@ -66,34 +69,36 @@ public class ProjectMember {
     }
 
 
-
+    @Transactional
     public void approve() {
         this.status = ProjectMemberStatus.APPROVED;
         this.joinedAt = LocalDateTime.now();
     }
 
-
+    @Transactional
     public void reject() {
         this.status = ProjectMemberStatus.REJECTED;
     }
 
+    @Transactional
     public void cancel() {
         this.status = ProjectMemberStatus.CANCEL;
     }
 
+    @Transactional
     public void complete() {
         this.status = ProjectMemberStatus.COMPLICATED;
     }
-
+    @Transactional
     public boolean isCompleted() {
         return this.status == ProjectMemberStatus.COMPLICATED;
     }
 
-
+    @Transactional
     public void changeStatus(ProjectMemberStatus status) {
         this.status = status;
     }
-
+    @Transactional
     public void changeJoinedAt(LocalDateTime joinedAt) {
         this.joinedAt = joinedAt;
     }
