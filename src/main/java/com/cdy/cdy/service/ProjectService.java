@@ -217,6 +217,11 @@ public class ProjectService {
             throw new IllegalStateException("이미 완료된 프로젝트입니다.");
         }
 
+        if (project.getStatus() == ProjectStatus.CLOSED) {
+            throw new IllegalStateException("이미 종료된 프로젝트입니다.");
+        }
+
+
         boolean existsAny = projectMemberRepository
                 .existsByUser_IdAndStatusIn(
                         userId,
@@ -496,12 +501,14 @@ public class ProjectService {
 
 
     // presign 변환 메서드
+    @Transactional
     private String resolveProfileImageUrl(User user) {
         if (user.getProfileImageKey() == null) return null;
         return r2StorageService.presignGet(user.getProfileImageKey(), 3600).toString();
     }
 
 
+    @Transactional
     //팀장에 의한 프로젝트 취소
     public void deleteByProjectLeader(Long id, Long projectId) {
         ProjectMember projectMember = projectMemberRepository.findByUser_IdAndProject_Id(id, projectId)

@@ -5,6 +5,7 @@ import com.cdy.cdy.entity.BaseEntity;
 import com.cdy.cdy.entity.User;
 import jakarta.persistence.*;
 import lombok.*;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -88,6 +89,7 @@ public class Project extends BaseEntity {
         return manager.getPhoneNumber(); // User 엔티티에 phone 필드 필요
     }
 
+    @Transactional
     public void complete() {
         if (this.status == ProjectStatus.COMPLETED) {
             throw new IllegalStateException("이미 완료된 프로젝트입니다.");
@@ -95,6 +97,7 @@ public class Project extends BaseEntity {
         this.status = ProjectStatus.COMPLETED;
     }
 
+    @Transactional
     public void closed() {
         if (this.status == ProjectStatus.CLOSED) {
             throw new IllegalStateException("이미 종료된 프로젝트입니다.");

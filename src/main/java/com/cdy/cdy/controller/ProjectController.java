@@ -159,13 +159,12 @@ public class ProjectController {
 
     //프로젝트 취소(개설자전용)
     @Operation(summary = "프로젝트 취소(개설자전용)", description = "팀장이 프로젝트를 취소한다. 단 팀원이 1명이라도있으면 취소불가능")
-    @DeleteMapping("/delete/byProjectLeader/{projectId}")
+    @PutMapping("/delete/byProjectLeader/{projectId}")
     public ResponseEntity<String> deleteByProjectLeader(@AuthenticationPrincipal CustomUserDetails userDetails,
                                                         @PathVariable Long projectId) {
         projectService.deleteByProjectLeader(userDetails.getId(), projectId);
 
         return ResponseEntity.ok("프로젝트가 취소되었습니다. 프로젝트 id = " + projectId);
-
 
     }
 
