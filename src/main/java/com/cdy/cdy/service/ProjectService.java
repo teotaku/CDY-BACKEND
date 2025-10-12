@@ -344,10 +344,10 @@ public class ProjectService {
 //        }
 
     }
-    //완료된 프로젝트 제외 전체조회
+    //진행중인 프로젝트만 완료된거 제외 전체조회
     @Transactional(readOnly = true)
     public Page<AllProjectResponse> findAllExcludeCompleted(Pageable pageable) {
-        return projectRepository.findAllExcludeCompleted(pageable)
+        return projectRepository.findAllInProgressProject(pageable)
                 .map(p -> AllProjectResponse.builder()
                         .id(p.getId())
                         .slogan(p.getSlogan())
@@ -463,7 +463,7 @@ public class ProjectService {
                 .toList();
     }
 
-
+    //완료된 프로젝트 조회
     public Page<CompleteProject> findCompleteProejct(Long userId, Pageable pageable) {
         List<Project> userCompletedProjects = projectMemberRepository.findUserCompletedProjects(userId);
 

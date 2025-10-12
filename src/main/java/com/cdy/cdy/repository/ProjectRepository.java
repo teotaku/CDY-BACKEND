@@ -19,6 +19,10 @@ public interface ProjectRepository extends JpaRepository<Project,Long> {
     Page<Project> findAllExcludeCompleted(Pageable pageable);
 
 
+    @Query("SELECT p FROM Project p WHERE p.status = IN_PROGRESS")
+    Page<Project> findAllInProgressProject(Pageable pageable);
+
+
     @Query("SELECT pm.project " +
             "FROM ProjectMember pm " +
             "WHERE pm.user.id = :userId " +
