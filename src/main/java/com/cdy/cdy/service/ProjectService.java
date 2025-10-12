@@ -62,6 +62,7 @@ public class ProjectService {
                 .title(req.getTitle())
                 .description(req.getDescription())
                 .capacity(req.getCapacity())
+                .techs(req.getTechs())
                 .manager(leader)
                 .positions(req.getPositions())
                 .slogan(req.getSlogan())
@@ -116,6 +117,13 @@ public class ProjectService {
 //                .findTopByUserIdAndStatusOrderByJoinedAtDesc(userId, ProjectMemberStatus.APPROVED)
 //                .orElseThrow(() -> new EntityNotFoundException("신청중인 프로젝트가 없습니다."));
 
+        ProjectMember projectMember = projectMemberRepository.findByUser_IdAndProject_Id(userId, project.getId())
+                .orElseThrow(() -> new EntityNotFoundException("로그인 된 userId에 해당하는 프로젝트 참여 기록이없습니다."));
+
+        if (projectMember.getStatus() == ProjectMemberStatus.CANCEL) {
+            throw new EntityNotFoundException("진행중인 프로젝트가 없습니다.");
+        }
+
 
         long memberCount = projectMemberRepository.countByApprovedPm(project.getId());
 
@@ -138,6 +146,7 @@ public class ProjectService {
         return ProgressingProjectResponse.builder()
                 .complicatedCount(complicatedCount)
                 .id(project.getId())
+                .techs(project.getTechs())
                 .title(project.getTitle())
                 .capacity(project.getCapacity())
                 .memberCount(memberCount)
@@ -176,6 +185,7 @@ public class ProjectService {
 
         return ApplyingProjectResponse.builder()
                 .id(project.getId())
+                .techs(project.getTechs())
                 .capacity(capacity)
                 .title(project.getTitle())
                 .memberBriefs(memberBriefs)
@@ -296,10 +306,10 @@ public class ProjectService {
 
             // 3) 포지션/기술 답변은 ProjectMember에 동기화
             if ("포지션".equals(q.getQuestionText())) {
-                pm.updatePosition(answerText);
+                pm.updatePosition(req.getPosition());
             }
             if ("기술".equals(q.getQuestionText())) {
-                pm.updateTechs(answerText);
+                pm.updateTechs(req.getTechs());
             }
         }
 
@@ -491,4 +501,43 @@ public class ProjectService {
         return r2StorageService.presignGet(user.getProfileImageKey(), 3600).toString();
     }
 
+
+    //팀장에 의한 프로젝트 취소
+    public void deleteByProjectLeader(Long id, Long projectId) {
+        ProjectMember projectMember = projectMemberRepository.findByUser_IdAndProject_Id(id, projectId)
+                .orElseThrow(()->new EntityNotFoundException("이 프로젝트에 참여하고있지않습니다."));
+
+        if (projectMember.getRole() != ProjectMemberRole.LEADER) {
+            throw new IllegalArgumentException("팀장만이 프로젝트를 취소할수있습니다.");
+        }
+
+        long approvedCount = projectMemberRepository.countByProject_IdAndStatus(
+                projectId, ProjectMemberStatus.APPROVED.name()
+        );
+
+
+        if (approvedCount > 1) {
+            // 팀장 외에 참여 중인 멤버가 있음 → 취소 불가
+            throw new IllegalStateException("참가 중인 팀원이 있어 프로젝트를 취소할 수 없습니다.");
+        }
+
+
+        // 4️⃣ 관련 모든 신청자 상태 변경 (APPLIED, APPROVED → CANCEL)
+        List<ProjectMember> allMembers = projectMemberRepository.findAll(); // 비효율
+        // 🔥 개선 버전: 쿼리 추가 추천
+        List<ProjectMember> targetMembers = projectMemberRepository.findAllByProjectIdAndStatusIn(
+                projectId,
+                List.of(ProjectMemberStatus.APPLIED, ProjectMemberStatus.APPROVED)
+        );
+
+        for (ProjectMember pm : targetMembers) {
+            pm.cancel();
+        }
+
+
+        Project project = projectMember.getProject();
+
+        project.closed();
+        projectMember.cancel();
+    }
 }

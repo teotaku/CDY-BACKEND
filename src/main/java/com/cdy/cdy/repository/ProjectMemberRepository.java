@@ -14,6 +14,8 @@ import java.util.Optional;
 
 @Repository
 public interface ProjectMemberRepository extends JpaRepository<ProjectMember,Long> {
+
+
     List<ProjectMember> findByUserId(Long userId);
 
     //프로젝트 지원자 조회
@@ -160,5 +162,16 @@ public interface ProjectMemberRepository extends JpaRepository<ProjectMember,Lon
     """)
     List<Project> findUserCompletedProjects(@Param("userId") Long userId);
 
+
+    @Query("""
+    select pm
+    from ProjectMember pm
+    where pm.project.id = :projectId
+      and pm.status in :statuses
+""")
+    List<ProjectMember> findAllByProjectIdAndStatusIn(
+            @Param("projectId") Long projectId,
+            @Param("statuses") List<ProjectMemberStatus> statuses
+    );
 }
 

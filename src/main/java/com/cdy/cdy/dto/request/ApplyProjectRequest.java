@@ -14,7 +14,7 @@ public class ApplyProjectRequest {
 
     private String position; // 지원자가 선택한 포지션
 
-    private String techs; // 지원자가 적은 기술 (혹은 선택)
+    private List<String> techs; // 지원자가 적은 기술 (혹은 선택)
 
     private List<AnswerDto> answers; // 질문에 대한 답변들
 

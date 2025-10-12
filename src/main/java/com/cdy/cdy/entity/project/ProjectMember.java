@@ -5,6 +5,7 @@ import com.cdy.cdy.entity.User;
 import jakarta.persistence.*;
 import lombok.*;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Builder
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
@@ -35,7 +36,7 @@ public class ProjectMember {
     @Column(length = 20, nullable = false)
     private ProjectMemberStatus status;
 
-    private String techs;
+    private List<String> techs;
 
     private String position;
 
@@ -56,9 +57,9 @@ public class ProjectMember {
         }
     }
 
-    public void updateTechs(String techs) {
-        if (techs == null || techs.isBlank()) {
-            this.techs = "기술없음";
+    public void updateTechs(List<String> techs) {
+        if (techs == null || techs.isEmpty()) {
+            this.techs = List.of("기술 없음");
         } else {
             this.techs = techs;
         }

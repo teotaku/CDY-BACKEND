@@ -31,7 +31,7 @@ public class ProjectApplicationResponse {
     private List<AnswerResponseDTO> answers;
 
     @Schema(description = "신청자 기술")
-    private String techs;
+    private List<String> techs;
 
     @Schema(description = "신청자 포지션")
     private String position;

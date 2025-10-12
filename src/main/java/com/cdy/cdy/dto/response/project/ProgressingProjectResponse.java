@@ -24,6 +24,8 @@ public class ProgressingProjectResponse {
     @Schema(description = "현재 참여 중인 인원 수", example = "4")
     private long memberCount;
 
+    private List<String> techs;
+
     @Schema(description = "모집 포지션", example = "[\"백엔드\", \"프론트엔드\"]")
     private List<String> position;
 
