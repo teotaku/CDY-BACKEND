@@ -17,6 +17,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.RequestBody;
 
+import java.security.SecureRandom;
+
 @Service
 @RequiredArgsConstructor
 public class AuthService {
@@ -90,6 +92,23 @@ public class AuthService {
         );
     }
 
+
+    @Transactional
+    public void findPassword(FindIdRequestDto dto) {
+
+        User user = userRepository.findByNameAndEmail(dto.getName(), dto.getEmail())
+                .orElseThrow(() -> new EntityNotFoundException("사용자 정보를 찾을 수 없습니다."));
+
+
+        String tempPassword = createTempPassword();
+
+
+        mailService.sendMail(user.getEmail(),
+                "[CDY] 임시 비밀번호 안내",
+                "회원님의 임시 비밀번호는 다음과 같습니다. \n\n " + tempPassword);
+    }
+
+
     // 아이디 일부 마스킹 (보안용)
     private String maskUserId(String userEmail) {
         // 1️⃣ null 체크 (혹시 모를 NPE 방지)
@@ -117,4 +136,23 @@ public class AuthService {
         // 4️⃣ 다시 조합해서 반환
         return localPart + "@" + domainPart;
     }
-}
+
+    private String createTempPassword() {
+        // 사용할 문자 조합
+        String chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+
+        // 암호학적으로 안전한 난수 생성기
+        SecureRandom random = new SecureRandom();
+
+        // 결과 문자열 생성
+        StringBuilder sb = new StringBuilder();
+
+        // 10자리 비밀번호 생성
+        for (int i = 0; i < 10; i++) {
+            int index = random.nextInt(chars.length()); // 0~chars.length()-1 범위 랜덤
+            sb.append(chars.charAt(index)); // 해당 인덱스의 문자 추가
+        }
+
+        return sb.toString();
+
+}}

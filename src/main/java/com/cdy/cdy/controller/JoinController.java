@@ -31,7 +31,7 @@ public class JoinController {
     @Operation(summary = "회원가입", description = "이메일,비밀번호 입력 회원가입")
     @PostMapping("/join")
     public ResponseEntity<String> joinProcess(@RequestBody @Valid
-                                                  SignUpRequest signUpRequest) {
+                                              SignUpRequest signUpRequest) {
         authService.join(signUpRequest);
         return ResponseEntity.ok("회원가입 성공3");
     }
@@ -59,5 +59,12 @@ public class JoinController {
     public ResponseEntity<String> findUserId(@RequestBody FindIdRequestDto dto) {
         authService.findUserId(dto);
         return ResponseEntity.ok("입력하신 이메일로 아이디를 전송하였습니다.");
+    }
+
+    @Operation(summary = "비밀번호 찾기", description = "등록된 이름과 이메일 정보로 비밀번호 찾기(이메일전송)")
+    @PostMapping("/find-password")
+    public ResponseEntity<String> findPassword(@RequestBody FindIdRequestDto dto) {
+        authService.findPassword(dto);
+        return ResponseEntity.ok("가입하신 이메일로 비밀번호를 전송하였습니다.");
     }
 }
