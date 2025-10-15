@@ -28,6 +28,7 @@ public class DataInitializer {
                 for (int i = 1; i <= 5; i++) {
                     userRepository.save(User.builder()
                             .nickname("coding" + i)
+                                    .name("name1"+ i)
                             .email("coding" + i + "@test.com")
                             .phoneNumber("01012345678")
                             .passwordHash(passwordEncoder.encode("abcd1234A!"))
@@ -41,6 +42,7 @@ public class DataInitializer {
                     userRepository.save(User.builder()
                             .nickname("design" + i)
                             .email("design" + i + "@test.com")
+                            .name("name1"+ i)
                             .phoneNumber("01012345678")
                             .passwordHash(passwordEncoder.encode("abcd1234A!"))
                             .role(UserRole.USER)
@@ -52,6 +54,7 @@ public class DataInitializer {
                 for (int i = 1; i <= 5; i++) {
                     userRepository.save(User.builder()
                             .nickname("video" + i)
+                            .name("name1"+ i)
                             .email("video" + i + "@test.com")
                             .phoneNumber("01012345678")
                             .passwordHash(passwordEncoder.encode("abcd1234A!"))

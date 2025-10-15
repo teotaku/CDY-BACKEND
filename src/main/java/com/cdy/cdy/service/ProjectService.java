@@ -192,7 +192,6 @@ public class ProjectService {
                 .position(project.getPositions())
                 .memberCount(memberCount)
                 .imageKey(imageUrlResolver.toPresignedUrl(project.getLogoImageKey()))
-                .techs(project.getTechs())
                 .build();
     }
 

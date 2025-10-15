@@ -1,5 +1,6 @@
 package com.cdy.cdy.controller;
 
+import com.cdy.cdy.dto.request.FindIdRequestDto;
 import com.cdy.cdy.dto.request.LoginRequest;
 import com.cdy.cdy.dto.request.SignUpRequest;
 import com.cdy.cdy.dto.response.CustomUserDetails;
@@ -46,11 +47,17 @@ public class JoinController {
 
 
     //로그아웃
-    @Operation(summary = "", description = "클라이언트쪽에서 서버에서 발급받은 jwt삭제 후 로그아웃처리")
+    @Operation(summary = "로그아웃", description = "클라이언트쪽에서 서버에서 발급받은 jwt삭제 후 로그아웃처리")
     @PostMapping("/logout")
     public ResponseEntity<String> logout() {
 
         return ResponseEntity.ok("로그아웃 완료. 토큰을 삭제하세요.");
     }
 
+    @Operation(summary = "아이디 찾기", description = "등록된 이름과 이메일 정보로 아이디 찾기(이메일전송)")
+    @PostMapping("/find-id")
+    public ResponseEntity<String> findUserId(@RequestBody FindIdRequestDto dto) {
+        authService.findUserId(dto);
+        return ResponseEntity.ok("입력하신 이메일로 아이디를 전송하였습니다.");
+    }
 }

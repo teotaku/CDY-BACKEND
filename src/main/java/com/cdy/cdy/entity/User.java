@@ -21,7 +21,10 @@ public class User extends BaseEntity {
     // ↑ PK, DB auto_increment 사용 (MySQL 등)
     private Long id;
 
-    @Column(length = 50, nullable = false, unique = true)
+    @Column(name = "name", nullable = false)
+    private String name;
+
+    @Column(length = 50,  unique = true)
     // ↑ unique=true: 컬럼 단일 유니크 제약(중복 닉네임 방지)
     private String nickname;
 
