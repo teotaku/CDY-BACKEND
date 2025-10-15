@@ -172,11 +172,14 @@ public class StudyService {
                                                     Pageable videoPageable) {
 
 
-        Page<SimpleStudyDto> coding = userRepository.findByCategory(UserCategory.CODING, codingPageable)
+        Page<SimpleStudyDto> coding = userRepository.findByCategoryOrderByLatestStudyNative
+                        (UserCategory.CODING.name(), codingPageable)
                 .map(this::applyPresign);
-        Page<SimpleStudyDto> design = userRepository.findByCategory(UserCategory.DESIGN, designPageable)
+        Page<SimpleStudyDto> design = userRepository.findByCategoryOrderByLatestStudyNative
+                        (UserCategory.DESIGN.name(), designPageable)
                 .map(this::applyPresign);
-        Page<SimpleStudyDto> video  = userRepository.findByCategory(UserCategory.VIDEO_EDITING, videoPageable)
+        Page<SimpleStudyDto> video  = userRepository.findByCategoryOrderByLatestStudyNative
+                        (UserCategory.VIDEO_EDITING.name(), videoPageable)
                 .map(this::applyPresign);
 
         return GroupedStudiesResponse.builder()

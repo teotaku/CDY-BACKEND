@@ -103,9 +103,9 @@ public class StudyController {
             @RequestParam(defaultValue = "10") int videoSize
     ) {
         Sort sort   = Sort.by(Sort.Direction.DESC, "createdAt");
-        Pageable coding = PageRequest.of(codingPage, codingSize, sort);
-        Pageable design = PageRequest.of(designPage, designSize, sort);
-        Pageable video  = PageRequest.of(videoPage,  videoSize,  sort);
+        Pageable coding = PageRequest.of(codingPage, codingSize);
+        Pageable design = PageRequest.of(designPage, designSize);
+        Pageable video  = PageRequest.of(videoPage,  videoSize);
 
         return ResponseEntity.ok(
                 studyService.getStudiesGrouped(coding, design, video)

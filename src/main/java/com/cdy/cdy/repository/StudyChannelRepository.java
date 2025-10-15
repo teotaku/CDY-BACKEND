@@ -13,22 +13,22 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface StudyChannelRepository extends JpaRepository<StudyChannel,Long> {
 
-    @Query(value = """
-        select new com.cdy.cdy.dto.response.study.SimpleStudyDto(
-           u.id, u.profileImageKey, u.category
-        )
-        from StudyChannel sc
-        join sc.owner u
-        where u.category = :category
-        """,
-            countQuery = """
-        select count(sc)
-        from StudyChannel sc
-        join sc.owner u
-        where u.category = :category
-        """)
-    Page<SimpleStudyDto> findByUserCategorySimple(@Param("category") UserCategory category,
-                                                  Pageable pageable);
+//    @Query(value = """
+//        select new com.cdy.cdy.dto.response.study.SimpleStudyDto(
+//           u.id, u.profileImageKey, u.category
+//        )
+//        from StudyChannel sc
+//        join sc.owner u
+//        where u.category = :category
+//        """,
+//            countQuery = """
+//        select count(sc)
+//        from StudyChannel sc
+//        join sc.owner u
+//        where u.category = :category
+//        """)
+//    Page<SimpleStudyDto> findByUserCategorySimple(@Param("category") UserCategory category,
+//                                                  Pageable pageable);
 
 
     @Query("SELECT sc FROM StudyChannel sc WHERE sc.owner.id = :userId")

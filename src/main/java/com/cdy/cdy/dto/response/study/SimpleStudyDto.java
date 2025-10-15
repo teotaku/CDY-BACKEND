@@ -11,6 +11,6 @@ import lombok.Getter;
 public class SimpleStudyDto {
     private Long userId;
     private String userImage;
-    private UserCategory category;
+    private String category;
 
 }
