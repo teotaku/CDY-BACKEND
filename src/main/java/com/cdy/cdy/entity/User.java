@@ -41,6 +41,9 @@ public class User extends BaseEntity {
     // ↑ 비밀번호 해시(평문 금지). 컬럼명 스네이크로 고정
     private String passwordHash;
 
+    @Column(name = "off_line")
+    private Long offLine;
+
     @Enumerated(EnumType.STRING) // ↑ Enum을 문자열로 저장(숫자 ordinal은 위험)
     @Column(length = 20)
     private UserRole role;

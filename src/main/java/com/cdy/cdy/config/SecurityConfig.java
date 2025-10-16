@@ -82,6 +82,13 @@ public class SecurityConfig {
 
         http
                 .authorizeHttpRequests((auth) -> auth
+
+                        .requestMatchers(
+                                "/api/admin/createAdmin"
+                        ).permitAll()
+
+
+
                         .requestMatchers( // Swagger/OpenAPI 경로 허용
                                 "/v3/api-docs/**",
                                 "/swagger-ui/**",

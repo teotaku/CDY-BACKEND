@@ -1,6 +1,7 @@
 package com.cdy.cdy.repository;
 
 
+import com.cdy.cdy.dto.admin.AdminHomeResponseDto;
 import com.cdy.cdy.dto.response.study.SimpleStudyDto;
 import com.cdy.cdy.entity.User;
 import com.cdy.cdy.entity.UserCategory;
@@ -11,6 +12,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 
 @Repository
@@ -66,7 +68,33 @@ public interface UserRepository extends JpaRepository<User, Long> {
     @Query("SELECT u FROM User u WHERE u.name = :name AND u.email = :email")
     Optional<User> findByNameAndEmail(@Param("name") String name, @Param("email") String email);
 
-
-
+    @Query(value = """
+SELECT 
+    u.id AS id,
+    u.name AS name,
+    u.avatar_key AS profileImage,
+    u.off_line AS offlineCount,  -- ✅ 오프라인 참여 횟수 추가
+    COALESCE(sc.study_count, 0) AS studyCount,
+    COALESCE(pm.project_count, 0) AS projectCount
+FROM users u
+LEFT JOIN (
+    SELECT owner_id, COUNT(*) AS study_count
+    FROM study_channels
+    GROUP BY owner_id
+) sc ON u.id = sc.owner_id
+LEFT JOIN (
+    SELECT user_id, COUNT(*) AS project_count
+    FROM project_members
+    WHERE status = 'COMPLICATED'
+    GROUP BY user_id
+) pm ON u.id = pm.user_id
+WHERE (:lastUserId IS NULL OR u.id < :lastUserId)
+ORDER BY u.id DESC
+LIMIT :limit
+""", nativeQuery = true)
+    List<AdminHomeResponseDto> findHomeData(
+            @Param("lastUserId") Long lastUserId,
+            @Param("limit") int limit
+    );
 
 }
