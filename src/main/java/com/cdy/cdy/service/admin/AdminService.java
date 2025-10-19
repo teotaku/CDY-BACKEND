@@ -8,9 +8,11 @@ import com.cdy.cdy.entity.User;
 import com.cdy.cdy.entity.UserCategory;
 import com.cdy.cdy.entity.UserRole;
 import com.cdy.cdy.repository.UserRepository;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -21,6 +23,7 @@ public class AdminService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
 
+    @Transactional
     public void createdAdmin(SignUpRequest signUpRequest) {
         if (userRepository.existsByEmail(signUpRequest.getEmail())) {
             throw new IllegalArgumentException("이미 가입된 이메일입니다.");
@@ -39,6 +42,7 @@ public class AdminService {
     }
 
 
+    @Transactional(readOnly = true)
     public CursorResponse<AdminHomeResponseDto> getHomeData(Long lastUserId, int limit) {
 
         List<AdminHomeResponseDto> data = userRepository.findHomeData(lastUserId, limit);
@@ -48,4 +52,17 @@ public class AdminService {
 
         return new CursorResponse<>(data, nextCursor, hasNext);
     }
+
+    //오프라인 참가횟수 수정
+    public void updateOffline(Long count, Long userId) {
+
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new EntityNotFoundException("유저를 찾을 수 없습니다."));
+
+
+        user.changeOffline(count);
+    }
+
+
+
 }

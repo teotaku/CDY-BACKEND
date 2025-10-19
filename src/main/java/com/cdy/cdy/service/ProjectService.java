@@ -3,6 +3,7 @@ package com.cdy.cdy.service;
 
 import com.cdy.cdy.dto.request.ApplyProjectRequest;
 import com.cdy.cdy.dto.request.CreateProjectRequest;
+import com.cdy.cdy.dto.response.LeaderInfoProjection;
 import com.cdy.cdy.dto.response.MemberBrief;
 import com.cdy.cdy.dto.response.project.*;
 import com.cdy.cdy.entity.*;
@@ -124,6 +125,10 @@ public class ProjectService {
             throw new EntityNotFoundException("진행중인 프로젝트가 없습니다.");
         }
 
+        LeaderInfoProjection leaderInfo = projectMemberRepository.findLeaderInfo(project.getId());
+
+        String presignedLeaderImageURL = imageUrlResolver.toPresignedUrl(leaderInfo.getAvatarURL());
+
 
         long memberCount = projectMemberRepository.countByApprovedPm(project.getId());
 
@@ -143,6 +148,8 @@ public class ProjectService {
                 .count();
 
 
+
+
         return ProgressingProjectResponse.builder()
                 .complicatedCount(complicatedCount)
                 .id(project.getId())
@@ -154,6 +161,17 @@ public class ProjectService {
                 .position(project.getPositions())
                 .kakaoLink(project.getKakaoLink())
                 .imageKey(imageUrlResolver.toPresignedUrl(project.getLogoImageKey()))
+                .leaderInfoProjection(new LeaderInfoProjection() {
+                    @Override
+                    public Long getManagerId() {
+                        return leaderInfo.getManagerId();
+                    }
+
+                    @Override
+                    public String getAvatarURL() {
+                        return presignedLeaderImageURL;
+                    }
+                })
                 .build();
 
 

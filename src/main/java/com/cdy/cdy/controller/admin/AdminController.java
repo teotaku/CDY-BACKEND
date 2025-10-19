@@ -28,12 +28,11 @@ public class AdminController {
     private final AdminService adminService;
 
 
-
     @PreAuthorize("hasRole('ADMIN')")
-    @Operation(summary = "ADMIN권한 회원가입 테스트용")
+    @Operation(summary = "회원가입")
     @PostMapping("/create")
     public ResponseEntity<String> createAdmin(@RequestBody SignUpRequest signUpRequest,
-                                             @AuthenticationPrincipal CustomUserDetails userDetails) {
+                                              @AuthenticationPrincipal CustomUserDetails userDetails) {
 
         adminService.createdAdmin(signUpRequest);
         return ResponseEntity.ok("ADMIN회원가입 완료");
@@ -45,7 +44,7 @@ public class AdminController {
     public ResponseEntity<String> createUser(@RequestBody SignUpRequest signUpRequest,
                                              @AuthenticationPrincipal CustomUserDetails userDetails) {
 
-       adminService.createdAdmin(signUpRequest);
+        adminService.createdAdmin(signUpRequest);
         return ResponseEntity.ok("회원가입 완료");
     }
 
@@ -62,7 +61,22 @@ public class AdminController {
     }
 
 
+    @PreAuthorize("hasRole('ADMIN')")
+    @Operation(summary = "오프라인 참가 횟수 변경", description = "유저 아이디와(userId) " +
+            ", 오프라인참여횟수(count)를 받고 오프라인 참가 횟수 수정 ")
+    @PostMapping("/updateOffline")
+    public ResponseEntity<String> updateOffline(@RequestParam Long count,
+                                                @RequestParam Long userId) {
+        adminService.updateOffline(count, userId);
 
+        return ResponseEntity.ok("값이 변경되었습니다 (" + count + ")");
+    }
 
-
+//    @PreAuthorize("hasRole('ADMIN')")
+//    @Operation(summary = "사용자 관리 페이지")
+//    public ResponseEntity<> userControlPage() {
+//
+//
+//
+//    }
 }

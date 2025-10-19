@@ -1,5 +1,6 @@
 package com.cdy.cdy.dto.response.project;
 
+import com.cdy.cdy.dto.response.LeaderInfoProjection;
 import com.cdy.cdy.dto.response.MemberBrief;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
@@ -37,6 +38,9 @@ public class ProgressingProjectResponse {
 
     @Schema(description = "대표 이미지 Key", example = "project/clone-shop.png")
     private String imageKey;
+
+    @Schema(description = "프로젝트 팀장 정보 (id,imageURL)")
+    private LeaderInfoProjection leaderInfoProjection;
 
     @Schema(description = "프로젝트 완료 누른 사람 명수", example = "4")
     private long complicatedCount;

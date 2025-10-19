@@ -1,5 +1,6 @@
 package com.cdy.cdy.repository;
 
+import com.cdy.cdy.dto.response.LeaderInfoProjection;
 import com.cdy.cdy.entity.project.Project;
 import com.cdy.cdy.entity.project.ProjectMember;
 import com.cdy.cdy.entity.project.ProjectMemberStatus;
@@ -43,14 +44,25 @@ public interface ProjectMemberRepository extends JpaRepository<ProjectMember,Lon
 
 
     //승인되고 완료된 프로젝트 멤버 조회
-    @Query(value = """
-        SELECT pm.*
-        FROM project_members pm
-        JOIN users u ON pm.user_id = u.id
-        WHERE pm.project_id = :projectId
-        AND pm.status IN ('APPROVED', 'COMPLICATED')
-        ORDER BY pm.joined_at DESC
-        """, nativeQuery = true)
+//    @Query(value = """
+//        SELECT pm.*
+//        FROM project_members pm
+//        JOIN users u ON pm.user_id = u.id
+//        WHERE pm.project_id = :projectId
+//        AND pm.status IN ('APPROVED', 'COMPLICATED')
+//        AND pm.role = MEMBER
+//        ORDER BY pm.joined_at DESC
+//        """, nativeQuery = true)
+
+    @Query("""
+    SELECT pm
+    FROM ProjectMember pm
+    JOIN FETCH pm.user u
+    WHERE pm.project.id = :projectId
+      AND pm.status IN ('APPROVED', 'COMPLICATED')
+      AND pm.role = 'MEMBER'
+    ORDER BY pm.joinedAt DESC
+        """)
     List<ProjectMember> findApprovedAndComplicatedMembersWithUserByProjectId(@Param("projectId") Long projectId);
 
 
@@ -173,5 +185,14 @@ public interface ProjectMemberRepository extends JpaRepository<ProjectMember,Lon
             @Param("projectId") Long projectId,
             @Param("statuses") List<ProjectMemberStatus> statuses
     );
+    @Query(value = """
+            SELECT p.manager_id AS managerID
+            , u.avatar_key AS avatarURL
+            FROM projects p 
+            JOIN users u on p.manager_id = u.id
+            WHERE p.id = :projectId
+            """,nativeQuery = true)
+    LeaderInfoProjection findLeaderInfo(@Param("projectId")Long projectId);
+
 }
 

@@ -88,11 +88,15 @@ public class User extends BaseEntity {
     }
 
     public void changeEmail(String newEmail) {
-        this.email = Objects.requireNonNull(newEmail);
+        this.email = Objects.requireNonNull(newEmail,"이메일은 null일 수 없습니다");
     }
 
     public void changeProfileImage (String key) {       // 아바타 변경 메서드
         this.profileImageKey = key;
+    }
+
+    public void changeOffline(Long count) {
+        this.offLine = count;
     }
 
 }
