@@ -130,6 +130,8 @@ public class ProjectService {
         String presignedLeaderImageURL = imageUrlResolver.toPresignedUrl(leaderInfo.getAvatarURL());
 
 
+        ProjectMemberStatus status = projectMember.getStatus();
+
         long memberCount = projectMemberRepository.countByApprovedPm(project.getId());
 
         List<ProjectMember> members = projectMemberRepository
@@ -156,6 +158,7 @@ public class ProjectService {
                 .techs(project.getTechs())
                 .title(project.getTitle())
                 .capacity(project.getCapacity())
+                .currentUserStatus(status.name())
                 .memberCount(memberCount)
                 .memberBriefs(memberBriefs)
                 .position(project.getPositions())

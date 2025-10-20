@@ -44,4 +44,7 @@ public class ProgressingProjectResponse {
 
     @Schema(description = "프로젝트 완료 누른 사람 명수", example = "4")
     private long complicatedCount;
+
+    @Schema(description = "현재 로그인한 유저의 status 상태")
+    private String currentUserStatus;
 }
