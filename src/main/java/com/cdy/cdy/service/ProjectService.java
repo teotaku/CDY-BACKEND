@@ -125,19 +125,23 @@ public class ProjectService {
             throw new EntityNotFoundException("진행중인 프로젝트가 없습니다.");
         }
 
+        //팀장 정보 가져오기
         LeaderInfoProjection leaderInfo = projectMemberRepository.findLeaderInfo(project.getId());
 
+         //팀장 프로필 이미지 presign 변환
         String presignedLeaderImageURL = imageUrlResolver.toPresignedUrl(leaderInfo.getAvatarURL());
 
-
+        //현재 유저 상태
         ProjectMemberStatus status = projectMember.getStatus();
 
+        //멤버 수
         long memberCount = projectMemberRepository.countByApprovedPm(project.getId());
 
+        ///멤버 정보 가져오기
         List<ProjectMember> members = projectMemberRepository
                 .findApprovedAndComplicatedMembersWithUserByProjectId(project.getId());
 
-
+        //멤버 간략 정보 변환
         List<MemberBrief> memberBriefs = members.stream()
                 .map(pm -> MemberBrief.builder()
                         .userId(pm.getUser().getId())
@@ -182,20 +186,34 @@ public class ProjectService {
 
     //신청중 프로젝트
     public ApplyingProjectResponse getApplyProject(Long userId) {
-
+            //신청중인 프로젝트 조회
         ProjectMember pm = projectMemberRepository
                 .findTopByUserIdAndStatusOrderByJoinedAtDesc(userId, ProjectMemberStatus.APPLIED)
                 .orElseThrow(() -> new EntityNotFoundException("신청중인 프로젝트가 없습니다."));
 
+
         Project project = pm.getProject();
+
+        //멤버 수
         long memberCount = projectMemberRepository.countByApprovedPm(project.getId());
 
+
+        //정원
         Integer capacity = project.getCapacity();
 
-
+        //멤버 정보 가져오기
         List<ProjectMember> members = projectMemberRepository
                 .findApprovedAndComplicatedMembersWithUserByProjectId(project.getId());
 
+        //팀장 정보 가져오기
+        LeaderInfoProjection leaderInfo = projectMemberRepository.findLeaderInfo(project.getId());
+
+        //팀장 프로필 이미지 presign 변환
+        String presignedLeaderImageURL = imageUrlResolver.toPresignedUrl(leaderInfo.getAvatarURL());
+
+
+
+        //멤버 간략 정보 변환
         List<MemberBrief> memberBriefs = members.stream()
                 .map(pmb -> MemberBrief.builder()
                         .userId(pmb.getUser().getId())
@@ -209,6 +227,17 @@ public class ProjectService {
                 .techs(project.getTechs())
                 .capacity(capacity)
                 .title(project.getTitle())
+                .leaderInfoProjection(new LeaderInfoProjection() {
+                    @Override
+                    public Long getManagerId() {
+                        return leaderInfo.getManagerId();
+                    }
+
+                    @Override
+                    public String getAvatarURL() {
+                        return presignedLeaderImageURL;
+                    }
+                })
                 .memberBriefs(memberBriefs)
                 .position(project.getPositions())
                 .memberCount(memberCount)
@@ -241,7 +270,7 @@ public class ProjectService {
             throw new IllegalStateException("이미 종료된 프로젝트입니다.");
         }
 
-
+        // 2-1) 다른 프로젝트에 이미 신청/참여 중인지 검사
         boolean existsAny = projectMemberRepository
                 .existsByUser_IdAndStatusIn(
                         userId,

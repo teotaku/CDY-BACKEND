@@ -8,3 +8,4 @@ docker compose -f docker-compose.dev.yml down
 
 # 3) 새 이미지 빌드 + 컨테이너 실행
 docker compose -f docker-compose.dev.yml up --build -d
+

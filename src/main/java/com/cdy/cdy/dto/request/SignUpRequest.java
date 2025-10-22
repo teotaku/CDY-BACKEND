@@ -26,6 +26,6 @@ public class SignUpRequest {
             example = "CODING")
     private String userCategory;
 
-    @Schema(description = "닉네임", example = "테오")
+    @Schema(description = "닉네임", example = "닉네임")
     private String nickname;
 }

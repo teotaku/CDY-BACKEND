@@ -1,5 +1,6 @@
 package com.cdy.cdy.dto.response.project;
 
+import com.cdy.cdy.dto.response.LeaderInfoProjection;
 import com.cdy.cdy.dto.response.MemberBrief;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
@@ -33,6 +34,8 @@ public class ApplyingProjectResponse {
     @Schema(description = "기술 스택", example = "[\"Java\", \"Spring\"]")
     private List<String> techs;
 
+    @Schema(description = "프로젝트 팀장 정보 (id,imageURL)")
+    private LeaderInfoProjection leaderInfoProjection;
 
     @Schema(description = "프로젝트 정원", example = "4")
     private Integer capacity;
