@@ -101,4 +101,10 @@ public class GlobalExceptionHandler {
         );
         return ResponseEntity.badRequest().body(errors);
     }
+
+    @ExceptionHandler(org.springframework.security.access.AccessDeniedException.class)
+    public ResponseEntity<ErrorResponse> handleAccessDenied(org.springframework.security.access.AccessDeniedException e) {
+        return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                .body(new ErrorResponse(403, "권한이 없습니다."));
+    }
 }

@@ -23,10 +23,11 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 
 import java.util.Collections;
-@EnableMethodSecurity
+@EnableMethodSecurity(prePostEnabled = true)
 @Configuration
 @EnableWebSecurity
 @RequiredArgsConstructor
+
 public class SecurityConfig {
 
     private final AuthenticationConfiguration authenticationConfiguration;
@@ -106,7 +107,7 @@ public class SecurityConfig {
                         .requestMatchers("/login", "/", "/join", "/health").permitAll()
                         .requestMatchers("/login", "/", "/join").permitAll()
                         .requestMatchers("/api/storage").permitAll()
-                        .requestMatchers("/admin").hasRole("ADMIN")
+                        .requestMatchers("/admin/*").authenticated()
                         .anyRequest().authenticated()
 
                 );

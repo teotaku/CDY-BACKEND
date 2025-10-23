@@ -1,5 +1,6 @@
 package com.cdy.cdy.repository;
 
+import com.cdy.cdy.dto.response.project.AdminProjectResponse;
 import com.cdy.cdy.entity.project.Project;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -56,5 +57,16 @@ public interface ProjectRepository extends JpaRepository<Project,Long> {
     // 프로젝트의 팀장(userId)만 뽑아오기 (가볍게)
     @Query("select p.manager.id from Project p where p.id = :projectId")
     Optional<Long> findManagerId(@Param("projectId") Long projectId);
+
+
+    @Query(
+            value = """
+                    SELECT NEW com.cdy.cdy.dto.response.project.AdminProjectResponse ( p.id, p.logoImageKey)
+                    FROM Project p
+                    ORDER BY p.createdAt DESC
+                    """,
+            countQuery = "SELECT COUNT(p) FROM Project p"
+    )
+    Page<AdminProjectResponse> findProjectforAdminPage(Pageable pageable);
 }
 

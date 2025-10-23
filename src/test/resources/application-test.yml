@@ -1,0 +1,30 @@
+spring:
+  datasource:
+    driver-class-name: org.h2.Driver
+    url: jdbc:h2:mem:cdy;MODE=MySQL;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
+    username: sa
+    password:
+
+  h2:
+    console:
+      enabled: true
+
+  jpa:
+    database-platform: org.hibernate.dialect.H2Dialect  # ✅ 핵심 부분 (hibernate.dialect 설정)
+    hibernate:
+      ddl-auto: create
+    properties:
+      hibernate:
+        format_sql: true
+        show_sql: true
+    defer-datasource-initialization: true  # ✅ JPA보다 DB 초기화 먼저 실행되게 함
+
+  sql:
+    init:
+      mode: always  # ✅ schema.sql, data.sql 자동 실행 허용
+
+
+  logging:
+    level:
+      org.hibernate.SQL: off
+      org.hibernate.type.descriptor.sql: off

@@ -1,8 +1,7 @@
 package com.cdy.cdy.repository;
 
-import com.cdy.cdy.dto.response.study.SimpleStudyDto;
+import com.cdy.cdy.dto.response.study.AdminStudyResponse;
 import com.cdy.cdy.entity.study.StudyChannel;
-import com.cdy.cdy.entity.UserCategory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -38,6 +37,14 @@ public interface StudyChannelRepository extends JpaRepository<StudyChannel,Long>
     @Query("SELECT COUNT(sc) FROM StudyChannel sc WHERE sc.owner.id = :userId")
     Long getStudyCount(@Param("userId") Long userId);
 
+    @Query(
+            value = """
+                    SELECT new com.cdy.cdy.dto.response.study.AdminStudyResponse(s.id, s.content,s.createdAt)
+                    FROM StudyChannel s
+                    """,
+                    countQuery = "SELECT COUNT(s) FROM StudyChannel s"
+    )
+    Page<AdminStudyResponse> findStudyList(Pageable pageable);
 
 
 }
