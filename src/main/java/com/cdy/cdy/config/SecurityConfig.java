@@ -23,6 +23,8 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 
 import java.util.Collections;
+import java.util.List;
+
 @EnableMethodSecurity(prePostEnabled = true)
 @Configuration
 @EnableWebSecurity
@@ -59,8 +61,15 @@ public class SecurityConfig {
 
                                 CorsConfiguration configuration = new CorsConfiguration();
 
+                                // 여러 도메인 허용
+                                configuration.setAllowedOriginPatterns(List.of(
+                                        "http://localhost:3000",
+                                        "https://www.codiyoung.com"
+                                ));
 
-                                configuration.setAllowedOrigins(Collections.singletonList("http://localhost:3000"));
+
+//                                configuration.setAllowedOrigins(Collections.singletonList("http://localhost:3000"));
+//                                configuration.setAllowedOrigins(Collections.singletonList("https://www.codiyoung.com/"));
                                 configuration.setAllowedMethods(Collections.singletonList("*"));
                                 configuration.setAllowCredentials(true);
                                 configuration.setAllowedHeaders(Collections.singletonList("*"));
