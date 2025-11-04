@@ -3,6 +3,7 @@ package com.cdy.cdy.service;
 import com.cdy.cdy.config.StorageProps;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import software.amazon.awssdk.core.sync.RequestBody;
@@ -17,6 +18,7 @@ import java.net.URL;
 import java.time.Duration;
 import java.util.UUID;
 
+@Profile("dev")
 @Service
 @RequiredArgsConstructor
 public class StorageService {
