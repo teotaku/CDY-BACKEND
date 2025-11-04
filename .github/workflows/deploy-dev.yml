@@ -1,0 +1,69 @@
+name: Deploy to DEV EC2
+
+on:
+  push:
+    branches:
+      - dev
+
+
+
+
+jobs:
+  Deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Github Repository에 올린 파일들 불러오기
+        uses: actions/checkout@v4
+
+
+      - name: graldew에 실행 권한 부여
+        run: chmod +x gradlew
+
+      - name: JDK 17버전 설치
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - name: application.yml 파일 만들기
+        run: |
+          mkdir -p src/main/resources
+          echo "${{ secrets.APPLICATION_DEV_YML }}" > src/main/resources/application.yml
+
+      - name: 테스트 및 빌드하기
+        run: ./gradlew clean build -x test
+
+
+      - name: 빌드 결과물 jar 이름 변경
+        run: mv ./build/libs/*SNAPSHOT.jar project.jar
+
+      # 7. EC2에 jar 파일 전송
+      - name: EC2로 jar 파일 전송
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.EC2_DEV_HOST }}
+          username: ${{ secrets.EC2_DEV_USERNAME }}
+          key: ${{ secrets.EC2_DEV_PRIVATE_KEY }}
+          source: project.jar
+          target: /home/ubuntu/BE/tobe
+
+      # 8. EC2에 접속 후 jar 실행
+      - name: EC2에 접속해서 실행하기
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.EC2_DEV_HOST }}          # EC2 퍼블릭 IP (Secrets에 저장한 값)
+          username: ${{ secrets.EC2_DEV_USERNAME }}  # EC2 접속 유저 (ex: ubuntu)
+          key: ${{ secrets.EC2_DEV_PRIVATE_KEY }}    # 개인키 (Secrets에 저장한 값)
+          script_stop: true                      # 중간에 에러 나면 바로 종료
+          # timeout, command_timeout 은 기본값(10분)으로도 충분하면 생략 가능
+          script: |
+            rm -rf /home/ubuntu/BE/current
+            mkdir -p /home/ubuntu/BE/current
+            mv /home/ubuntu/BE/tobe/project.jar /home/ubuntu/BE/current/project.jar
+            cd /home/ubuntu/BE/current
+            
+            
+            
+            sudo fuser -k -n tcp 8080 || true
+            nohup java -jar project.jar > ./output.log 2>&1 &
+            rm -rf /home/ubuntu/BE/tobe
