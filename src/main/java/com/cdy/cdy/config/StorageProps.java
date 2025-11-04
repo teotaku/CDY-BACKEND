@@ -3,11 +3,12 @@ package com.cdy.cdy.config;
 import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 import lombok.*;
 
 /**
- * application.yml 의 storage: 값을 바인딩하는 단순 설정 객체.
+ * application-prod.yml 의 storage: 값을 바인딩하는 단순 설정 객체.
  * - bucket: 버킷명 (예: cdy-img)
  * - accessKey: R2 Access Key ID
  * - secretKey: R2 Secret Access Key
@@ -16,6 +17,7 @@ import lombok.*;
  * - presignSeconds: 프리사인 URL 유효시간(초)
  */
 @Slf4j
+@Profile("prod")
 @Getter @Setter
 @ToString(exclude = "secretKey")                  // 로그에 비밀키 안 찍히게
 @Component                                        // 스프링 빈 등록

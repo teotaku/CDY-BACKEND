@@ -97,13 +97,11 @@ public class SecurityConfig {
                                 "/api/admin/createAdmin"
                         ).permitAll()
 
-
-
-                        .requestMatchers( // Swagger/OpenAPI 경로 허용
-                                "/v3/api-docs/**",
-                                "/swagger-ui/**",
-                                "/swagger-ui.html"
-                        ).permitAll()
+//                        .requestMatchers( // Swagger/OpenAPI 경로 허용
+//                                "/v3/api-docs/**",
+//                                "/swagger-ui/**",
+//                                "/swagger-ui.html"
+//                        ).permitAll()
                         .requestMatchers(
                                 "/api/project/findAll",          // 프로젝트 전체 조회
                                 "/api/project/**",                // 단일 프로젝트 조회 (예: /api/project/1)
