@@ -1,19 +1,4 @@
 services:
-  app:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    ports:
-      - 8080:8080
-    env_file:
-      - ./.env
-    environment:
-      SPRING_PROFILES_ACTIVE: dev
-      # @Value("${AWS_REGION}")은 JVM이 직접 읽어야 하므로 여기도 명시
-
-    depends_on:
-      db:
-        condition: service_healthy
 
   db:
     image: mysql:8

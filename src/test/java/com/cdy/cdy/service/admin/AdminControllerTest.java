@@ -44,8 +44,8 @@ class AdminControllerTest {
         // given
         Pageable pageable = PageRequest.of(0, 10, Sort.by(Sort.Direction.DESC, "createdAt"));
         List<AdminStudyResponse> content = List.of(
-                new AdminStudyResponse(1L, "스터디 제목1",  LocalDateTime.now(),"홍길동"),
-                new AdminStudyResponse(2L, "스터디 제목2",  LocalDateTime.now(),"김철수")
+                new AdminStudyResponse(1L, "스터디 제목1",  LocalDateTime.now()),
+                new AdminStudyResponse(2L, "스터디 제목2",  LocalDateTime.now())
         );
         Page<AdminStudyResponse> page = new PageImpl<>(content, pageable, content.size());
 
