@@ -4,9 +4,11 @@ import com.cdy.cdy.dto.admin.AdminHomeResponseDto;
 import com.cdy.cdy.dto.admin.CursorResponse;
 import com.cdy.cdy.dto.request.SignUpRequest;
 import com.cdy.cdy.dto.response.CustomUserDetails;
+import com.cdy.cdy.dto.response.study.StudyChannelResponse;
 import com.cdy.cdy.dto.response.project.AdminProjectResponse;
 import com.cdy.cdy.dto.response.study.AdminStudyResponse;
 import com.cdy.cdy.service.AuthService;
+import com.cdy.cdy.service.StudyService;
 import com.cdy.cdy.service.admin.AdminService;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
@@ -28,7 +30,7 @@ public class AdminController {
 
     private final AuthService authService;
     private final AdminService adminService;
-
+    private final StudyService studyService;
 
     @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "회원가입")
@@ -97,4 +99,25 @@ public class AdminController {
         return ResponseEntity.ok(adminService.findProjectList(pageable));
 
     }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @Operation(summary = "스터디 삭제", description = "관리자가 스터디 id를 파라미터로 받고 스터디를 삭제")
+    @DeleteMapping("/deleteStudy/{studyId}")
+    public ResponseEntity<?> deleteStudy(@PathVariable Long studyId) {
+
+        adminService.deleteStudy(studyId);
+        return ResponseEntity.ok("스터디가 삭제되었습니다.");
+    }
+
+    @Operation(summary = "스터디 상세 조회", description = "관리자가 스터디 id를 파라미터로 받고 스터디를 조회")
+    @GetMapping("/findStudy/{studyId}")
+    public ResponseEntity<StudyChannelResponse> findStudyById(@PathVariable Long studyId) {
+
+        StudyChannelResponse result = studyService.getStudy(studyId);
+
+        return ResponseEntity.ok(result);
+    }
+
+
+
 }

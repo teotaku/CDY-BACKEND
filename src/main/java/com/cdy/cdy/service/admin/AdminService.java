@@ -100,4 +100,15 @@ public class AdminService {
 
 
     }
+
+    public void deleteStudy(Long studyId) {
+
+
+        studyChannelRepository.findById(studyId)
+                .orElseThrow(() ->
+                        new EntityNotFoundException("존재하지 않는 스터디 아이디입니다 id: " + studyId));
+
+        studyChannelRepository.deleteById(studyId);
+    }
+
 }

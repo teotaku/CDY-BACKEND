@@ -5,7 +5,7 @@ import com.cdy.cdy.dto.request.CreateStudyImageDto;
 import com.cdy.cdy.dto.request.UpdateStudyChannelRequest;
 import com.cdy.cdy.dto.request.UpdateStudyImageDto;
 import com.cdy.cdy.dto.response.MonthCalendarResponse;
-import com.cdy.cdy.dto.response.StudyChannelResponse;
+import com.cdy.cdy.dto.response.study.StudyChannelResponse;
 import com.cdy.cdy.dto.response.StudyImageResponse;
 import com.cdy.cdy.dto.response.project.CompleteProject;
 import com.cdy.cdy.dto.response.study.*;
@@ -32,7 +32,6 @@ import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
-import java.util.stream.Stream;
 
 @Service
 @RequiredArgsConstructor

@@ -1,5 +1,6 @@
-package com.cdy.cdy.dto.response;
+package com.cdy.cdy.dto.response.study;
 
+import com.cdy.cdy.dto.response.StudyImageResponse;
 import com.cdy.cdy.entity.study.StudyChannel;
 import com.cdy.cdy.entity.study.StudyImage;
 import com.fasterxml.jackson.annotation.JsonInclude;
