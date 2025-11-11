@@ -2,6 +2,8 @@ package com.cdy.cdy.controller.admin;
 
 import com.cdy.cdy.dto.admin.AdminHomeResponseDto;
 import com.cdy.cdy.dto.admin.CursorResponse;
+import com.cdy.cdy.dto.admin.DeleteStudyReason;
+import com.cdy.cdy.dto.admin.UserInfoResponse;
 import com.cdy.cdy.dto.request.SignUpRequest;
 import com.cdy.cdy.dto.response.CustomUserDetails;
 import com.cdy.cdy.dto.response.study.StudyChannelResponse;
@@ -22,6 +24,8 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 
 @RestController
 @RequiredArgsConstructor
@@ -33,23 +37,23 @@ public class AdminController {
     private final StudyService studyService;
 
     @PreAuthorize("hasRole('ADMIN')")
-    @Operation(summary = "회원가입")
+    @Operation(summary = "회원가입",description = "관리자(ADMIN권한)가 일반유저 생성,회원가입 ")
     @PostMapping("/create")
     public ResponseEntity<String> createAdmin(@RequestBody SignUpRequest signUpRequest,
                                               @AuthenticationPrincipal CustomUserDetails userDetails) {
 
-        adminService.createdAdmin(signUpRequest);
-        return ResponseEntity.ok("ADMIN회원가입 완료");
+        authService.join(signUpRequest);
+        return ResponseEntity.ok("일반계정 회원가입 완료");
     }
 
 
-    @Operation(summary = "회원가입 admin용")
+    @Operation(summary = "회원가입 admin용",description = "어드민 계정 생성용")
     @PostMapping("/createAdmin")
     public ResponseEntity<String> createUser(@RequestBody SignUpRequest signUpRequest,
                                              @AuthenticationPrincipal CustomUserDetails userDetails) {
 
         adminService.createdAdmin(signUpRequest);
-        return ResponseEntity.ok("회원가입 완료");
+        return ResponseEntity.ok("어드민계정 생성 완료");
     }
 
 
@@ -59,10 +63,9 @@ public class AdminController {
     public ResponseEntity<CursorResponse<AdminHomeResponseDto>> homeData(@AuthenticationPrincipal CustomUserDetails userDetails,
                                                                          @RequestParam(required = false) Long lastUserId,
                                                                          @RequestParam(defaultValue = "10") int limit) {
-
         return ResponseEntity.ok(adminService.getHomeData(lastUserId, limit));
-
     }
+
 
 
     @PreAuthorize("hasRole('ADMIN')")
@@ -77,13 +80,23 @@ public class AdminController {
     }
 
     @PreAuthorize("hasRole('ADMIN')")
+    @Operation(summary = "유저 정보", description = "유저이름,연락처,이메일,비밀번호,포지션,가입일 조회,커서스크롤 형태")
+    @GetMapping("/getUserInfoList")
+    public ResponseEntity<?> UserInfoList(@RequestParam(required = false) Long lastUserId,
+                                          @RequestParam(defaultValue = "10") int limit) {
+        CursorResponse<UserInfoResponse> result = adminService.getUserInfoList(lastUserId, limit);
+        return ResponseEntity.ok(result);
+
+    }
+
+
+    @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "스터디 조회", description = "관리자가 전체 유저의 스터디목록조회(페이징처리)")
     @GetMapping("/findStudyList")
     public ResponseEntity<Page<AdminStudyResponse>> findStudyList(
             @ParameterObject
             @PageableDefault(size = 10, sort = "createdAt", direction = Sort.Direction.DESC)
             Pageable pageable) {
-
 
         return ResponseEntity.ok(adminService.findStudyList(pageable));
     }
@@ -102,10 +115,10 @@ public class AdminController {
 
     @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "스터디 삭제", description = "관리자가 스터디 id를 파라미터로 받고 스터디를 삭제")
-    @DeleteMapping("/deleteStudy/{studyId}")
-    public ResponseEntity<?> deleteStudy(@PathVariable Long studyId) {
+    @DeleteMapping("/deleteStudy")
+    public ResponseEntity<?> deleteStudy(@RequestBody DeleteStudyReason dto) {
 
-        adminService.deleteStudy(studyId);
+        adminService.deleteStudy(dto);
         return ResponseEntity.ok("스터디가 삭제되었습니다.");
     }
 

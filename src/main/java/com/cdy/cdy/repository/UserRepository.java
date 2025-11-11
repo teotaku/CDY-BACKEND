@@ -2,9 +2,11 @@ package com.cdy.cdy.repository;
 
 
 import com.cdy.cdy.dto.admin.AdminHomeResponseDto;
+import com.cdy.cdy.dto.admin.UserInfoResponse;
 import com.cdy.cdy.dto.response.study.SimpleStudyDto;
 import com.cdy.cdy.entity.User;
 import com.cdy.cdy.entity.UserCategory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -97,4 +99,33 @@ LIMIT :limit
             @Param("limit") int limit
     );
 
+
+    @Query(value = """
+        SELECT 
+            name AS name,
+            phone_number AS phoneNumber,
+            email AS email,
+            password_hash AS passwordHash,
+            category AS category,
+            created_at AS createdAt
+        FROM users
+        WHERE id < :lastUserId
+        ORDER BY id DESC
+        LIMIT :limit
+    """, nativeQuery = true)
+    List<UserInfoResponse> getUserInfoList(@Param("lastUserId") Long lastUserId,
+                                           @Param("limit") int limit);
+
+
+    @Query(value =
+            """
+                    SELECT * FROM
+                    USER u
+                    JOIN study_channels s ON s.owner_id = u.id
+                    WHERE s.id = :studyId
+                    """,nativeQuery = true
+
+    )
+    Optional<User> findByStudyID(@Param("studyId")  Long studyId);
 }
+
