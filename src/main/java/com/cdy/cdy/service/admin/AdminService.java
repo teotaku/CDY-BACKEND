@@ -8,9 +8,11 @@ import com.cdy.cdy.dto.admin.UserInfoResponse;
 import com.cdy.cdy.dto.request.SignUpRequest;
 import com.cdy.cdy.dto.response.project.AdminProjectResponse;
 import com.cdy.cdy.dto.response.study.AdminStudyResponse;
+import com.cdy.cdy.entity.Banner;
 import com.cdy.cdy.entity.User;
 import com.cdy.cdy.entity.UserCategory;
 import com.cdy.cdy.entity.UserRole;
+import com.cdy.cdy.repository.BannerRepository;
 import com.cdy.cdy.repository.ProjectRepository;
 import com.cdy.cdy.repository.StudyChannelRepository;
 import com.cdy.cdy.repository.UserRepository;
@@ -35,6 +37,7 @@ public class AdminService {
     private final StudyChannelRepository studyChannelRepository;
     private final ProjectRepository projectRepository;
     private final MailService mailService;
+    private final BannerRepository bannerRepository;
     private ImageUrlResolver imageUrlResolver;
 
     @Transactional
@@ -139,5 +142,18 @@ public class AdminService {
         CursorResponse<UserInfoResponse> response = new CursorResponse<>(users, nextCursor, hasNext);
 
         return response;
+    }
+    //배너추가
+    public void addBanner(String imageKey) {
+
+        if (imageKey == null || imageKey.isEmpty()) {
+            throw new IllegalStateException("이미지 키가 유효하지 않습니다.");
+        }
+
+        Banner banner = Banner.builder()
+                .imageKey(imageKey)
+                .build();
+        bannerRepository.save(banner);
+
     }
 }
