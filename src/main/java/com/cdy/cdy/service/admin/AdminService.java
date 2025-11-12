@@ -3,6 +3,8 @@ package com.cdy.cdy.service.admin;
 
 import com.cdy.cdy.dto.admin.AdminHomeResponseDto;
 import com.cdy.cdy.dto.admin.CursorResponse;
+import com.cdy.cdy.dto.admin.DeleteStudyReason;
+import com.cdy.cdy.dto.admin.UserInfoResponse;
 import com.cdy.cdy.dto.request.SignUpRequest;
 import com.cdy.cdy.dto.response.project.AdminProjectResponse;
 import com.cdy.cdy.dto.response.study.AdminStudyResponse;
@@ -13,6 +15,7 @@ import com.cdy.cdy.repository.ProjectRepository;
 import com.cdy.cdy.repository.StudyChannelRepository;
 import com.cdy.cdy.repository.UserRepository;
 import com.cdy.cdy.service.ImageUrlResolver;
+import com.cdy.cdy.service.MailService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -31,6 +34,7 @@ public class AdminService {
     private final PasswordEncoder passwordEncoder;
     private final StudyChannelRepository studyChannelRepository;
     private final ProjectRepository projectRepository;
+    private final MailService mailService;
     private ImageUrlResolver imageUrlResolver;
 
     @Transactional
@@ -63,7 +67,7 @@ public class AdminService {
         return new CursorResponse<>(data, nextCursor, hasNext);
     }
 
-    //오프라인 참가횟수 수정
+    //특정 유저 오프라인 참가횟수 수정
     @Transactional
     public void updateOffline(Long count, Long userId) {
 
@@ -73,7 +77,7 @@ public class AdminService {
 
         user.changeOffline(count);
     }
-
+    //전체 스터디 목록 조회
     public Page<AdminStudyResponse> findStudyList(Pageable pageable) {
 
         Page<AdminStudyResponse> studyList = studyChannelRepository.findStudyList(pageable);
@@ -81,7 +85,7 @@ public class AdminService {
         return studyList;
     }
 
-
+    //전체 프로젝트 목록 조회
     public Page<AdminProjectResponse> findProjectList(Pageable pageable) {
 
         Page<AdminProjectResponse> list = projectRepository.findProjectforAdminPage(pageable);
@@ -101,14 +105,39 @@ public class AdminService {
 
     }
 
-    public void deleteStudy(Long studyId) {
+
+    //스터디 삭제
+    @Transactional
+    public void deleteStudy(DeleteStudyReason request) {
 
 
-        studyChannelRepository.findById(studyId)
+        studyChannelRepository.findById(request.getId())
                 .orElseThrow(() ->
-                        new EntityNotFoundException("존재하지 않는 스터디 아이디입니다 id: " + studyId));
+                        new EntityNotFoundException("존재하지 않는 스터디 아이디입니다 id: " + request.getId()));
 
-        studyChannelRepository.deleteById(studyId);
+        User user = userRepository.findByStudyID(request.getId())
+                .orElseThrow(() -> new EntityNotFoundException("유저를 찾을 수 없습니다 . id"));
+
+
+        mailService.sendMail(user.getEmail(),"스터디가 삭제되었습니다.", request.getReason());
+
+        studyChannelRepository.deleteById(request.getId());
+
+
     }
 
+    //유저목록 조회 이름,이메일,전화번호,비밀번호해쉬,가입일자,포지션
+    public CursorResponse<UserInfoResponse> getUserInfoList(Long lastUserId, int limit) {
+
+
+        List<UserInfoResponse> users = userRepository.getUserInfoList(lastUserId, limit);
+
+        boolean hasNext = users.size() == limit;
+
+        Long nextCursor = users.isEmpty() ? null : lastUserId + limit; // 단순 예시
+
+        CursorResponse<UserInfoResponse> response = new CursorResponse<>(users, nextCursor, hasNext);
+
+        return response;
+    }
 }
