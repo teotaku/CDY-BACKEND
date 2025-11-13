@@ -4,6 +4,7 @@ import com.cdy.cdy.dto.admin.AdminHomeResponseDto;
 import com.cdy.cdy.dto.admin.CursorResponse;
 import com.cdy.cdy.dto.admin.DeleteStudyReason;
 import com.cdy.cdy.dto.admin.UserInfoResponse;
+import com.cdy.cdy.dto.request.LoginRequest;
 import com.cdy.cdy.dto.request.SignUpRequest;
 import com.cdy.cdy.dto.response.CustomUserDetails;
 import com.cdy.cdy.dto.response.study.StudyChannelResponse;
@@ -35,6 +36,7 @@ public class AdminController {
     private final AuthService authService;
     private final AdminService adminService;
     private final StudyService studyService;
+
 
     @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "회원가입", description = "관리자(ADMIN권한)가 일반유저 생성,회원가입 ")
@@ -137,5 +139,12 @@ public class AdminController {
 
         adminService.addBanner(imageKey);
         return ResponseEntity.ok("배너가 추가되었습니다.");
+    }
+
+    @PostMapping("/login")
+    public ResponseEntity<String> adminLogin(@RequestBody LoginRequest loginRequest) {
+
+        adminService.login(loginRequest);
+        return ResponseEntity.ok("관리자 로그인 성공");
     }
 }

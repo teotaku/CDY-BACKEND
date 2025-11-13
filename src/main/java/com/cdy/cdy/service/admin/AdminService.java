@@ -5,6 +5,7 @@ import com.cdy.cdy.dto.admin.AdminHomeResponseDto;
 import com.cdy.cdy.dto.admin.CursorResponse;
 import com.cdy.cdy.dto.admin.DeleteStudyReason;
 import com.cdy.cdy.dto.admin.UserInfoResponse;
+import com.cdy.cdy.dto.request.LoginRequest;
 import com.cdy.cdy.dto.request.SignUpRequest;
 import com.cdy.cdy.dto.response.project.AdminProjectResponse;
 import com.cdy.cdy.dto.response.study.AdminStudyResponse;
@@ -16,6 +17,7 @@ import com.cdy.cdy.repository.BannerRepository;
 import com.cdy.cdy.repository.ProjectRepository;
 import com.cdy.cdy.repository.StudyChannelRepository;
 import com.cdy.cdy.repository.UserRepository;
+import com.cdy.cdy.service.AuthService;
 import com.cdy.cdy.service.ImageUrlResolver;
 import com.cdy.cdy.service.MailService;
 import jakarta.persistence.EntityNotFoundException;
@@ -39,6 +41,7 @@ public class AdminService {
     private final MailService mailService;
     private final BannerRepository bannerRepository;
     private ImageUrlResolver imageUrlResolver;
+    private final AuthService authService;
 
     @Transactional
     public void createdAdmin(SignUpRequest signUpRequest) {
@@ -155,5 +158,17 @@ public class AdminService {
                 .build();
         bannerRepository.save(banner);
 
+    }
+
+    public void login(LoginRequest loginRequest) {
+
+        User user = userRepository.findByEmail(loginRequest.getEmail())
+                .orElseThrow(() -> new EntityNotFoundException("존재하지 않는 이메일입니다."));
+
+        if (user.getRole() != UserRole.ADMIN) {
+            throw new IllegalArgumentException("관리자 계정이 아닙니다.");
+        }
+
+        authService.login(loginRequest);
     }
 }
