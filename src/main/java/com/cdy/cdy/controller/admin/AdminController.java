@@ -7,6 +7,7 @@ import com.cdy.cdy.dto.admin.UserInfoResponse;
 import com.cdy.cdy.dto.request.LoginRequest;
 import com.cdy.cdy.dto.request.SignUpRequest;
 import com.cdy.cdy.dto.response.CustomUserDetails;
+import com.cdy.cdy.dto.response.LoginResponse;
 import com.cdy.cdy.dto.response.study.StudyChannelResponse;
 import com.cdy.cdy.dto.response.project.AdminProjectResponse;
 import com.cdy.cdy.dto.response.study.AdminStudyResponse;
@@ -142,9 +143,9 @@ public class AdminController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<String> adminLogin(@RequestBody LoginRequest loginRequest) {
+    public ResponseEntity<LoginResponse> adminLogin(@RequestBody LoginRequest loginRequest) {
 
-        adminService.login(loginRequest);
-        return ResponseEntity.ok("관리자 로그인 성공");
+        LoginResponse token = adminService.login(loginRequest);
+        return ResponseEntity.ok(token);
     }
 }

@@ -7,6 +7,7 @@ import com.cdy.cdy.dto.admin.DeleteStudyReason;
 import com.cdy.cdy.dto.admin.UserInfoResponse;
 import com.cdy.cdy.dto.request.LoginRequest;
 import com.cdy.cdy.dto.request.SignUpRequest;
+import com.cdy.cdy.dto.response.LoginResponse;
 import com.cdy.cdy.dto.response.project.AdminProjectResponse;
 import com.cdy.cdy.dto.response.study.AdminStudyResponse;
 import com.cdy.cdy.entity.Banner;
@@ -160,7 +161,7 @@ public class AdminService {
 
     }
 
-    public void login(LoginRequest loginRequest) {
+    public LoginResponse login(LoginRequest loginRequest) {
 
         User user = userRepository.findByEmail(loginRequest.getEmail())
                 .orElseThrow(() -> new EntityNotFoundException("존재하지 않는 이메일입니다."));
@@ -169,6 +170,6 @@ public class AdminService {
             throw new IllegalArgumentException("관리자 계정이 아닙니다.");
         }
 
-        authService.login(loginRequest);
+        return authService.login(loginRequest);
     }
 }
