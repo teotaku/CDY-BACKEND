@@ -5,15 +5,20 @@ import com.cdy.cdy.dto.admin.AdminHomeResponseDto;
 import com.cdy.cdy.dto.admin.CursorResponse;
 import com.cdy.cdy.dto.admin.DeleteStudyReason;
 import com.cdy.cdy.dto.admin.UserInfoResponse;
+import com.cdy.cdy.dto.request.LoginRequest;
 import com.cdy.cdy.dto.request.SignUpRequest;
+import com.cdy.cdy.dto.response.LoginResponse;
 import com.cdy.cdy.dto.response.project.AdminProjectResponse;
 import com.cdy.cdy.dto.response.study.AdminStudyResponse;
+import com.cdy.cdy.entity.Banner;
 import com.cdy.cdy.entity.User;
 import com.cdy.cdy.entity.UserCategory;
 import com.cdy.cdy.entity.UserRole;
+import com.cdy.cdy.repository.BannerRepository;
 import com.cdy.cdy.repository.ProjectRepository;
 import com.cdy.cdy.repository.StudyChannelRepository;
 import com.cdy.cdy.repository.UserRepository;
+import com.cdy.cdy.service.AuthService;
 import com.cdy.cdy.service.ImageUrlResolver;
 import com.cdy.cdy.service.MailService;
 import jakarta.persistence.EntityNotFoundException;
@@ -35,7 +40,9 @@ public class AdminService {
     private final StudyChannelRepository studyChannelRepository;
     private final ProjectRepository projectRepository;
     private final MailService mailService;
+    private final BannerRepository bannerRepository;
     private ImageUrlResolver imageUrlResolver;
+    private final AuthService authService;
 
     @Transactional
     public void createdAdmin(SignUpRequest signUpRequest) {
@@ -139,5 +146,30 @@ public class AdminService {
         CursorResponse<UserInfoResponse> response = new CursorResponse<>(users, nextCursor, hasNext);
 
         return response;
+    }
+    //배너추가
+    public void addBanner(String imageKey) {
+
+        if (imageKey == null || imageKey.isEmpty()) {
+            throw new IllegalStateException("이미지 키가 유효하지 않습니다.");
+        }
+
+        Banner banner = Banner.builder()
+                .imageKey(imageKey)
+                .build();
+        bannerRepository.save(banner);
+
+    }
+
+    public LoginResponse login(LoginRequest loginRequest) {
+
+        User user = userRepository.findByEmail(loginRequest.getEmail())
+                .orElseThrow(() -> new EntityNotFoundException("존재하지 않는 이메일입니다."));
+
+        if (user.getRole() != UserRole.ADMIN) {
+            throw new IllegalArgumentException("관리자 계정이 아닙니다.");
+        }
+
+        return authService.login(loginRequest);
     }
 }

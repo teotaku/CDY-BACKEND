@@ -4,8 +4,10 @@ import com.cdy.cdy.dto.admin.AdminHomeResponseDto;
 import com.cdy.cdy.dto.admin.CursorResponse;
 import com.cdy.cdy.dto.admin.DeleteStudyReason;
 import com.cdy.cdy.dto.admin.UserInfoResponse;
+import com.cdy.cdy.dto.request.LoginRequest;
 import com.cdy.cdy.dto.request.SignUpRequest;
 import com.cdy.cdy.dto.response.CustomUserDetails;
+import com.cdy.cdy.dto.response.LoginResponse;
 import com.cdy.cdy.dto.response.study.StudyChannelResponse;
 import com.cdy.cdy.dto.response.project.AdminProjectResponse;
 import com.cdy.cdy.dto.response.study.AdminStudyResponse;
@@ -36,8 +38,9 @@ public class AdminController {
     private final AdminService adminService;
     private final StudyService studyService;
 
+
     @PreAuthorize("hasRole('ADMIN')")
-    @Operation(summary = "회원가입",description = "관리자(ADMIN권한)가 일반유저 생성,회원가입 ")
+    @Operation(summary = "회원가입", description = "관리자(ADMIN권한)가 일반유저 생성,회원가입 ")
     @PostMapping("/create")
     public ResponseEntity<String> createAdmin(@RequestBody SignUpRequest signUpRequest,
                                               @AuthenticationPrincipal CustomUserDetails userDetails) {
@@ -47,7 +50,7 @@ public class AdminController {
     }
 
 
-    @Operation(summary = "회원가입 admin용",description = "어드민 계정 생성용")
+    @Operation(summary = "회원가입 admin용", description = "어드민 계정 생성용")
     @PostMapping("/createAdmin")
     public ResponseEntity<String> createUser(@RequestBody SignUpRequest signUpRequest,
                                              @AuthenticationPrincipal CustomUserDetails userDetails) {
@@ -65,7 +68,6 @@ public class AdminController {
                                                                          @RequestParam(defaultValue = "10") int limit) {
         return ResponseEntity.ok(adminService.getHomeData(lastUserId, limit));
     }
-
 
 
     @PreAuthorize("hasRole('ADMIN')")
@@ -131,6 +133,19 @@ public class AdminController {
         return ResponseEntity.ok(result);
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
+    @Operation(summary = "배너추가", description = "관리자가 배너를 추가")
+    @PostMapping("/addBanner")
+    public ResponseEntity<?> addBanner(@RequestParam String imageKey) {
 
+        adminService.addBanner(imageKey);
+        return ResponseEntity.ok("배너가 추가되었습니다.");
+    }
 
+    @PostMapping("/login")
+    public ResponseEntity<LoginResponse> adminLogin(@RequestBody LoginRequest loginRequest) {
+
+        LoginResponse token = adminService.login(loginRequest);
+        return ResponseEntity.ok(token);
+    }
 }

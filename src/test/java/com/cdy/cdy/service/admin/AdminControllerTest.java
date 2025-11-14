@@ -4,10 +4,16 @@ import com.cdy.cdy.controller.admin.AdminController;
 import com.cdy.cdy.dto.admin.CursorResponse;
 import com.cdy.cdy.dto.admin.DeleteStudyReason;
 import com.cdy.cdy.dto.admin.UserInfoResponse;
+import com.cdy.cdy.dto.request.LoginRequest;
 import com.cdy.cdy.dto.response.study.AdminStudyResponse;
 import com.cdy.cdy.dto.response.study.StudyChannelResponse;
+import com.cdy.cdy.entity.User;
+import com.cdy.cdy.entity.UserRole;
+import com.cdy.cdy.repository.UserRepository;
 import com.cdy.cdy.service.AuthService;
 import com.cdy.cdy.service.StudyService;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
@@ -24,7 +30,9 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
+import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.BDDMockito.given;
 
@@ -32,12 +40,10 @@ import static org.mockito.Mockito.*;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-
+@AutoConfigureMockMvc(addFilters = false)
 @WebMvcTest(AdminController.class)
-@AutoConfigureMockMvc
 class AdminControllerTest {
 
     private static final Logger log = LoggerFactory.getLogger(AdminControllerTest.class);
@@ -55,6 +61,12 @@ class AdminControllerTest {
 
     @MockitoBean
     private StudyService studyService;
+
+    @MockitoBean
+    private UserRepository userRepository;
+
+    @Autowired
+    private ObjectMapper objectMapper;
 
     @Test
     @WithMockUser(roles = "ADMIN")
@@ -191,6 +203,41 @@ class AdminControllerTest {
         verify(adminService, times(1)).deleteStudy(any(DeleteStudyReason.class)); // ✅ AdminService 호출 확인
     }
 
+    @Test
+    void 로그인성공_200반환() throws Exception {
+        // given
+        LoginRequest req = new LoginRequest("admin@test.com", "1234");
 
+        // adminService.login() 이 예외를 던지지 않으면 성공이라고 가정
+        doNothing().when(adminService).login(any(LoginRequest.class));
+
+        // when & then
+        mockMvc.perform(post("/api/admin/login")   // 👉 네가 만든 URL 맞춰라
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(req)))
+                .andExpect(status().isOk())
+                .andExpect(content().string("관리자 로그인 성공"));
+
+        // 서비스가 실제로 호출됐는지 검증
+        verify(adminService, times(1)).login(any(LoginRequest.class));
+    }
+
+    // -----------------------------------------
+    // 2) 관리자 아님 → 400 or 403 예외 발생
+    // -----------------------------------------
+    @Test
+    void 관리자아님_예외발생() throws Exception {
+        // given
+        LoginRequest req = new LoginRequest("user@test.com", "1234");
+
+        doThrow(new IllegalArgumentException("관리자 계정이 아닙니다."))
+                .when(adminService).login(any(LoginRequest.class));
+
+        // when & then
+        mockMvc.perform(post("/api/admin/login")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(req)))
+                .andExpect(status().isBadRequest());
+    }
 
 }

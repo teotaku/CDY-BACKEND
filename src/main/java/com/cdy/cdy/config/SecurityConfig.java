@@ -94,7 +94,8 @@ public class SecurityConfig {
                 .authorizeHttpRequests((auth) -> auth
 
                         .requestMatchers(
-                                "/api/admin/createAdmin"
+                                "/api/admin/createAdmin",
+                                "/api/admin/login"
                         ).permitAll()
 
 
