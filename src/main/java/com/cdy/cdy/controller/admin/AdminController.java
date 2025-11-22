@@ -143,6 +143,7 @@ public class AdminController {
     }
 
     @PostMapping("/login")
+    @Operation(summary = "관리자 로그인")
     public ResponseEntity<LoginResponse> adminLogin(@RequestBody LoginRequest loginRequest) {
 
         LoginResponse token = adminService.login(loginRequest);

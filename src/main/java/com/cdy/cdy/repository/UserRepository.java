@@ -102,6 +102,7 @@ LIMIT :limit
 
     @Query(value = """
         SELECT 
+            id AS id,
             name AS name,
             phone_number AS phoneNumber,
             email AS email,
