@@ -128,5 +128,9 @@ LIMIT :limit
 
     )
     Optional<User> findByStudyID(@Param("studyId")  Long studyId);
+
+
+    @Query(value = "SELECT MAX(id) FROM users", nativeQuery = true)
+    Long findMaxId();
 }
 

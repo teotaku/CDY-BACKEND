@@ -152,11 +152,19 @@ public class AdminService {
     public CursorResponse<UserInfoResponse> getUserInfoList(Long lastUserId, int limit) {
 
 
+        if (lastUserId == null) {
+            lastUserId = userRepository.findMaxId();
+        }
+
+        if (lastUserId == null) {
+            return new CursorResponse<>(List.of(), null, false);
+        }
+
         List<UserInfoResponse> users = userRepository.getUserInfoList(lastUserId, limit);
 
         boolean hasNext = users.size() == limit;
 
-        Long nextCursor = users.isEmpty() ? null : lastUserId + limit; // 단순 예시
+        Long nextCursor = users.isEmpty() ? null : users.get(users.size() - 1).getId();// 단순 예시
 
         CursorResponse<UserInfoResponse> response = new CursorResponse<>(users, nextCursor, hasNext);
 
