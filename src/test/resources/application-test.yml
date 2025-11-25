@@ -24,7 +24,12 @@ spring:
       mode: always  # ✅ schema.sql, data.sql 자동 실행 허용
 
 
+
   logging:
     level:
       org.hibernate.SQL: off
       org.hibernate.type.descriptor.sql: off
+
+jwt:
+  secret: "test-secret-key"
+  expiration: 3600000   # 1

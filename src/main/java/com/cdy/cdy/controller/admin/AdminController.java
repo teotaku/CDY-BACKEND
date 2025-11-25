@@ -1,13 +1,11 @@
 package com.cdy.cdy.controller.admin;
 
-import com.cdy.cdy.dto.admin.AdminHomeResponseDto;
-import com.cdy.cdy.dto.admin.CursorResponse;
-import com.cdy.cdy.dto.admin.DeleteStudyReason;
-import com.cdy.cdy.dto.admin.UserInfoResponse;
+import com.cdy.cdy.dto.admin.*;
 import com.cdy.cdy.dto.request.LoginRequest;
 import com.cdy.cdy.dto.request.SignUpRequest;
 import com.cdy.cdy.dto.response.CustomUserDetails;
 import com.cdy.cdy.dto.response.LoginResponse;
+import com.cdy.cdy.dto.response.project.SingleProjectResponse;
 import com.cdy.cdy.dto.response.study.StudyChannelResponse;
 import com.cdy.cdy.dto.response.project.AdminProjectResponse;
 import com.cdy.cdy.dto.response.study.AdminStudyResponse;
@@ -115,6 +113,17 @@ public class AdminController {
 
     }
 
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @Operation(summary = "프로젝트 상세 조회", description = "프로젝트 id, 설명, 로고이미지 반환")
+    @GetMapping("/findSingleProject/{id}")
+    public ResponseEntity<SingleProjectResponse> findSingleProject(@PathVariable Long id) {
+
+        SingleProjectResponse dto = adminService.getSingleProject(id);
+        return ResponseEntity.ok(dto);
+    }
+
+
     @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "스터디 삭제", description = "관리자가 스터디 id를 파라미터로 받고 스터디를 삭제")
     @DeleteMapping("/deleteStudy")
@@ -124,6 +133,7 @@ public class AdminController {
         return ResponseEntity.ok("스터디가 삭제되었습니다.");
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "스터디 상세 조회", description = "관리자가 스터디 id를 파라미터로 받고 스터디를 조회")
     @GetMapping("/findStudy/{studyId}")
     public ResponseEntity<StudyChannelResponse> findStudyById(@PathVariable Long studyId) {
@@ -134,7 +144,7 @@ public class AdminController {
     }
 
     @PreAuthorize("hasRole('ADMIN')")
-    @Operation(summary = "배너추가", description = "관리자가 배너를 추가")
+    @Operation(summary = "배너추가", description = "프론트에서 presign을 통해 얻은 imagekey를 넘겨주면 관리자가 배너를 추가")
     @PostMapping("/addBanner")
     public ResponseEntity<?> addBanner(@RequestParam String imageKey) {
 
@@ -142,11 +152,53 @@ public class AdminController {
         return ResponseEntity.ok("배너가 추가되었습니다.");
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
+    @Operation(summary = "배너 전체 조회", description = "배너id,이미지url 반환")
+    @GetMapping("/findAllBanner")
+    public ResponseEntity<List<BannerResponseDto>> findAllBanners() {
+        List<BannerResponseDto> dto = adminService.findAllBanner();
+        return ResponseEntity.ok(dto);
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @Operation(summary = "배너 단건 조회", description = "배너 id를 받고 해당 배너id,이미지url 반환")
+    @GetMapping("/findOneBanner/{bannerId}")
+    public ResponseEntity<BannerResponseDto> findOneBanner(@PathVariable Long bannerId) {
+        BannerResponseDto dto = adminService.findOneBanner(bannerId);
+
+        return ResponseEntity.ok(dto);
+    }
+
+    //관리자 로그인
     @PostMapping("/login")
     @Operation(summary = "관리자 로그인")
     public ResponseEntity<LoginResponse> adminLogin(@RequestBody LoginRequest loginRequest) {
 
         LoginResponse token = adminService.login(loginRequest);
         return ResponseEntity.ok(token);
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @Operation(summary = "파트너 추가", description = "파트너이름, 이미지key 받고 파트저 저장")
+    @PostMapping("/addPartner")
+    public ResponseEntity<?> addPartner(CreatePartner createPartner) {
+        adminService.AddPartner(createPartner);
+        return ResponseEntity.ok("파트너가 저장되었습니다.");
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @Operation(summary = "파트너 전체 조회", description = "관리자가 파트너 전체 조회")
+    @GetMapping("/findAllPartner")
+    public ResponseEntity<List<PartnerResponseDto>> findAllPartners() {
+        List<PartnerResponseDto> result = adminService.findAllPartners();
+        return ResponseEntity.ok(result);
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @Operation(summary = "파트너 단건 조회", description = "파트너 단건 조회 id,imageurl 반환")
+    @GetMapping("/findOnePartner/{id}")
+    public ResponseEntity<PartnerResponseDto> findOnePartner(Long id) {
+        PartnerResponseDto result = adminService.findOnePartner(id);
+        return ResponseEntity.ok(result);
     }
 }
