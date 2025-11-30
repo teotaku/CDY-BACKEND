@@ -3,6 +3,7 @@ package com.cdy.cdy.service.admin;
 import com.cdy.cdy.CdyApplication;
 import com.cdy.cdy.controller.admin.AdminController;
 import com.cdy.cdy.dto.admin.BannerResponseDto;
+import com.cdy.cdy.dto.admin.CreateBanner;
 import com.cdy.cdy.dto.response.project.SingleProjectResponse;
 import com.cdy.cdy.entity.Banner;
 import com.cdy.cdy.entity.User;
@@ -154,4 +155,25 @@ class AdminIntegrationTest {
         assertThat(result.getImageUrl())
                 .isEqualTo(imageUrlResolver.toPresignedUrl("key123"));
     }
+
+
+    @Test
+    void CreateBanner_DTO받고_배너생성() {
+
+        //given
+        CreateBanner createBanner = new CreateBanner();
+        createBanner.setLink("youtube.com");
+        createBanner.setImageKey("imageKey");
+        //when&then
+        adminService.addBanner(createBanner);
+
+        // then
+        List<Banner> list = bannerRepository.findAll();
+        assertThat(list).hasSize(1);
+        assertThat(list.get(0).getLink()).isEqualTo("youtube.com");
+        assertThat(list.get(0).getImageKey()).isEqualTo("imageKey");
+
+
+    }
+
 }

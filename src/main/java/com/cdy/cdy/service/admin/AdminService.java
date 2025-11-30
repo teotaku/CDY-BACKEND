@@ -172,17 +172,14 @@ public class AdminService {
     }
     //배너추가
     @Transactional
-    public void addBanner(String imageKey) {
-
-        if (imageKey == null || imageKey.isEmpty()) {
-            throw new IllegalStateException("이미지 키가 유효하지 않습니다.");
-        }
+    public void addBanner(CreateBanner createBanner) {
 
         Banner banner = Banner.builder()
-                .imageKey(imageKey)
+                .link(createBanner.getLink())
+                .imageKey(createBanner.getImageKey())
                 .build();
-        bannerRepository.save(banner);
 
+        bannerRepository.save(banner);
     }
 
 
@@ -241,6 +238,7 @@ public class AdminService {
         Partner partner = Partner.builder()
                 .name(createPartner.getName())
                 .imageKey(createPartner.getImageKey())
+                .link(createPartner.getLink())
                 .build();
         partnerRepository.save(partner);
     }

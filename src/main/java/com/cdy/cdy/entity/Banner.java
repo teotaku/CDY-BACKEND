@@ -19,4 +19,7 @@ public class Banner {
     @Column(name = "image_key")
     private String imageKey;
 
+    @Column(name = "link")
+    private String link;
+
 }

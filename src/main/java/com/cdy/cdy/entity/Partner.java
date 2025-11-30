@@ -21,4 +21,8 @@ public class Partner extends BaseEntity {
     @Column(name = "image_key")
     private String imageKey;
 
+    @Column(name = "link")
+    private String link;
+
+
 }

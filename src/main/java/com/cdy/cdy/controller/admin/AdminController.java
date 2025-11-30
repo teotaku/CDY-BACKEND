@@ -146,9 +146,9 @@ public class AdminController {
     @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "배너추가", description = "프론트에서 presign을 통해 얻은 imagekey를 넘겨주면 관리자가 배너를 추가")
     @PostMapping("/addBanner")
-    public ResponseEntity<?> addBanner(@RequestParam String imageKey) {
+    public ResponseEntity<?> addBanner(@RequestBody CreateBanner createBanner) {
 
-        adminService.addBanner(imageKey);
+        adminService.addBanner(createBanner);
         return ResponseEntity.ok("배너가 추가되었습니다.");
     }
 
@@ -181,7 +181,7 @@ public class AdminController {
     @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "파트너 추가", description = "파트너이름, 이미지key 받고 파트저 저장")
     @PostMapping("/addPartner")
-    public ResponseEntity<?> addPartner(CreatePartner createPartner) {
+    public ResponseEntity<?> addPartner(@RequestBody CreatePartner createPartner) {
         adminService.AddPartner(createPartner);
         return ResponseEntity.ok("파트너가 저장되었습니다.");
     }
