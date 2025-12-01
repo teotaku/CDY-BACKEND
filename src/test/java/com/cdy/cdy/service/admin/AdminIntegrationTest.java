@@ -6,21 +6,32 @@ import com.cdy.cdy.dto.admin.BannerResponseDto;
 import com.cdy.cdy.dto.admin.CreateBanner;
 import com.cdy.cdy.dto.response.project.SingleProjectResponse;
 import com.cdy.cdy.entity.Banner;
+import com.cdy.cdy.entity.Partner;
 import com.cdy.cdy.entity.User;
 import com.cdy.cdy.entity.UserRole;
 import com.cdy.cdy.entity.project.Project;
+import com.cdy.cdy.exception.GlobalExceptionHandler;
 import com.cdy.cdy.repository.BannerRepository;
+import com.cdy.cdy.repository.PartnerRepository;
 import com.cdy.cdy.repository.ProjectRepository;
 import com.cdy.cdy.repository.UserRepository;
 import com.cdy.cdy.service.ImageUrlResolver;
 import com.cdy.cdy.service.R2StorageService;
 import jakarta.transaction.Transactional;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.Import;
 import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.presigner.S3Presigner;
 
@@ -29,11 +40,19 @@ import software.amazon.awssdk.services.s3.presigner.S3Presigner;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @ActiveProfiles("test")
 @SpringBootTest(classes = CdyApplication.class)
 @Transactional
+@AutoConfigureMockMvc(addFilters = false)
 class AdminIntegrationTest {
+
+
+    @Autowired
+    MockMvc mockMvc;
 
     // 🔥 진짜로 사용할 repository (JPA 테스트용)
     @Autowired
@@ -42,6 +61,9 @@ class AdminIntegrationTest {
 
     @Autowired
     BannerRepository bannerRepository;
+
+    @Autowired
+    PartnerRepository partnerRepository;
 
     // 🔥 테스트할 대상
     @Autowired
@@ -62,7 +84,7 @@ class AdminIntegrationTest {
 
     @MockitoBean
     JavaMailSender javaMailSender;
-//    @MockitoBean
+    //    @MockitoBean
 //    BannerRepository bannerRepository;
     @MockitoBean
     ImageUrlResolver imageUrlResolver;
@@ -78,6 +100,12 @@ class AdminIntegrationTest {
     @MockitoBean
     S3Client s3Client;
 
+//    @BeforeEach
+//    void setUp() {
+//        mockMvc = MockMvcBuilders.standaloneSetup(adminController)
+//                .setControllerAdvice(GlobalExceptionHandler.class) // @RestControllerAdvice 등록된 부분
+//                .build();
+//    }
 
 
     @Test
@@ -109,7 +137,6 @@ class AdminIntegrationTest {
         // 4) 검증
         assertThat(result.getContent()).isEqualTo("설명");
     }
-
 
 
     @Test
@@ -176,4 +203,106 @@ class AdminIntegrationTest {
 
     }
 
+    @Test
+    void 배너삭제() {
+
+
+        //given
+
+        Long bannerID = 1L;
+
+        for (int i = 0; i < 2; i++) {
+            Banner banner = Banner.builder()
+                    .imageKey("imagekey")
+                    .link("link")
+                    .build();
+
+            bannerRepository.save(banner);
+        }
+
+        //when
+
+        adminService.deleteBanner(bannerID);
+        List<BannerResponseDto> result = adminService.findAllBanner();
+
+        //then
+
+        assertThat(result).hasSize(1);
+
+
+    }
+
+
+    @Test
+    @WithMockUser(roles = "ADMIN")
+    void 배너삭제컨트롤러_200반환() throws Exception {
+
+
+        //given: 삭제 대상 배너 하나 저장
+        Banner banner = bannerRepository.save(
+                Banner.builder()
+                        .imageKey("image")
+                        .link("link")
+                        .build()
+        );
+
+        bannerRepository.save(banner);
+
+        Long id = banner.getId();
+
+        //when & then
+        mockMvc.perform(delete("/api/admin/deleteBanner/" + 1)
+                        .header("Authorization", "Bearer test-token")) // 필요하면 추가
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(content().string("배너가 삭제되었습니다 id : " + id));
+    }
+
+    @Test
+    @WithMockUser(roles = "ADMIN")
+    void 배너삭제컨트롤_존재하지않는아이디면_404반환() throws Exception {
+
+        // given
+        Long notExistId = 9999L;   // 존재할 수 없는 ID 만듦
+
+
+        // when & then
+        mockMvc.perform(delete("/api/admin/deleteBanner/" + notExistId))
+                .andExpect(status().isNotFound());
+    }
+
+
+    @Test
+    @WithMockUser(roles = "ADMIN")
+    void 파트너_삭제_200_반환() throws Exception {
+
+        //given
+
+        Partner partner = Partner.builder()
+                .link("link")
+                .name("기업")
+                .imageKey("djqtasd")
+                .build();
+        partnerRepository.save(partner);
+
+        //when && then
+
+        mockMvc.perform(delete("/api/admin/deletePartner/" + partner.getId()))
+                .andExpect(status().isOk());
+
+
+    }
+
+    @Test
+    @WithMockUser(roles = "ADMIN")
+    void 파트너_삭제_존재하지않는_id면_404반환() throws Exception {
+
+
+        //when & then
+
+        mockMvc.perform(
+                        delete("/api/admin/deletePartner/" + 999)
+                )
+                .andExpect(status().is(404));
+
+    }
 }

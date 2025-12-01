@@ -16,6 +16,7 @@ import com.cdy.cdy.service.ImageUrlResolver;
 import com.cdy.cdy.service.MailService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -24,6 +25,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
+@Slf4j
 @RequiredArgsConstructor
 @Service
 public class AdminService {
@@ -216,6 +218,19 @@ public class AdminService {
         return dto;
     }
 
+    //배너 삭제
+    @Transactional
+    public void deleteBanner(Long id) {
+
+        log.info("deleteBanner 서비스로직 실행");
+
+        Banner banner = bannerRepository.findById(id).orElseThrow
+                (() -> new EntityNotFoundException("배너를 찾을 수 없습니다 id : " + id));
+
+        bannerRepository.delete(banner);
+
+    }
+
 
     //관리자 로그인
     public LoginResponse login(LoginRequest loginRequest) {
@@ -273,6 +288,17 @@ public class AdminService {
                 .build();
 
         return dto;
+    }
+
+
+    //파트너 삭제
+    public void deletePartner(Long id) {
+
+        partnerRepository.findById(id)
+                .orElseThrow(()->new EntityNotFoundException("파트너를 찾을 수 없습니다."));
+
+        partnerRepository.deleteById(id);
+
     }
 
 }

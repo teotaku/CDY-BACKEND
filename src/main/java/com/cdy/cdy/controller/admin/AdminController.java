@@ -14,6 +14,7 @@ import com.cdy.cdy.service.StudyService;
 import com.cdy.cdy.service.admin.AdminService;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -26,7 +27,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-
+@Slf4j
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/admin")
@@ -169,10 +170,23 @@ public class AdminController {
         return ResponseEntity.ok(dto);
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
+    @Operation(summary = "배너삭제", description = "배너 아이디를 받고 관리자가 배너 삭제")
+    @DeleteMapping("/deleteBanner/{id}")
+    public ResponseEntity<String> deleteBanner(@PathVariable("id") Long id) {
+
+        log.info("deleteBanner 컨트롤러 실행");
+
+        adminService.deleteBanner(id);
+        return ResponseEntity.ok("배너가 삭제되었습니다 id : " + id);
+    }
+
+
     //관리자 로그인
     @PostMapping("/login")
     @Operation(summary = "관리자 로그인")
     public ResponseEntity<LoginResponse> adminLogin(@RequestBody LoginRequest loginRequest) {
+
 
         LoginResponse token = adminService.login(loginRequest);
         return ResponseEntity.ok(token);
@@ -201,4 +215,14 @@ public class AdminController {
         PartnerResponseDto result = adminService.findOnePartner(id);
         return ResponseEntity.ok(result);
     }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @Operation(summary = "파트너삭제", description = "파트너 아이디 받고 해당 파트너 삭제")
+    @DeleteMapping("/deletePartner/{id}")
+    public ResponseEntity<String> deletePartner(@PathVariable("id") Long id) {
+
+        adminService.deletePartner(id);
+        return ResponseEntity.ok("파트너가 삭제 되었습니다 id : " + id);
+    }
+
 }
