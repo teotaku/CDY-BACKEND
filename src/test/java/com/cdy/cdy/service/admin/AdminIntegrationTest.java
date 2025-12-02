@@ -4,6 +4,8 @@ import com.cdy.cdy.CdyApplication;
 import com.cdy.cdy.controller.admin.AdminController;
 import com.cdy.cdy.dto.admin.BannerResponseDto;
 import com.cdy.cdy.dto.admin.CreateBanner;
+import com.cdy.cdy.dto.admin.CursorResponse;
+import com.cdy.cdy.dto.admin.UserInfoResponse;
 import com.cdy.cdy.dto.response.project.SingleProjectResponse;
 import com.cdy.cdy.entity.Banner;
 import com.cdy.cdy.entity.Partner;
@@ -305,4 +307,33 @@ class AdminIntegrationTest {
                 .andExpect(status().is(404));
 
     }
-}
+
+
+    @Test
+    void 첫페이지요청시_최신ID가_반드시_조회된다() {
+        // given — 유저 3명 생성 (ID 자동 증가: 1,2,3)
+        User u1 = userRepository.save(User.builder()
+                .name("A").email("a@test.com").passwordHash("pw").build());
+        User u2 = userRepository.save(User.builder()
+                .name("B").email("b@test.com").passwordHash("pw").build());
+        User u3 = userRepository.save(User.builder()
+                .name("C").email("c@test.com").passwordHash("pw").build()); // 최신
+
+        Long maxId = u3.getId(); // 최신 ID (예: 3)
+
+        // when — lastUserId = null → 내부에서 maxId + 1 로 조회됨
+        CursorResponse<UserInfoResponse> response =
+                adminService.getUserInfoList(null, 10);
+
+        List<UserInfoResponse> data = response.getData();
+
+        // then — 최신 ID가 포함되어 있어야 정상
+        boolean containsLatest = data.stream()
+                .anyMatch(dto -> dto.getId().equals(maxId));
+
+        assertThat(containsLatest)
+                .as("첫 페이지에는 최신 유저(ID=%s)가 반드시 포함되어야 한다.", maxId)
+                .isTrue();
+    }
+    }
+

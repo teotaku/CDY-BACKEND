@@ -110,7 +110,7 @@ LIMIT :limit
             category AS category,
             created_at AS createdAt
         FROM users
-        WHERE id < :lastUserId
+        WHERE id <= :lastUserId
         ORDER BY id DESC
         LIMIT :limit
     """, nativeQuery = true)
