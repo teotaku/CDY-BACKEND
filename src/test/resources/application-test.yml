@@ -31,5 +31,5 @@ spring:
       org.hibernate.type.descriptor.sql: off
 
 jwt:
-  secret: "test-secret-key"
+  secret: asdflkasjdadsasdflkadsjgldaksga5128120asdfasdba
   expiration: 3600000   # 1

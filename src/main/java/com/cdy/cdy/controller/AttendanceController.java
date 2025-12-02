@@ -31,7 +31,7 @@ public class AttendanceController {
     @GetMapping("/calendar")
     public ResponseEntity<MonthCalendarResponse> calendar(
             @AuthenticationPrincipal CustomUserDetails user,
-            @RequestParam(required = false) String month // "YYYY-MM"
+            @RequestParam(value = "month",required = false) String month // "YYYY-MM"
     ) {
         YearMonth ym = (month == null || month.isBlank())
                 ? YearMonth.now(KST)
