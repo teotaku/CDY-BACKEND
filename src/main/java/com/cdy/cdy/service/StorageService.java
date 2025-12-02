@@ -18,7 +18,7 @@ import java.net.URL;
 import java.time.Duration;
 import java.util.UUID;
 
-@Profile("dev")
+
 @Service
 @RequiredArgsConstructor
 public class StorageService {

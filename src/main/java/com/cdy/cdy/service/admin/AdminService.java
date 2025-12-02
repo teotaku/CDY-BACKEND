@@ -1,28 +1,22 @@
 package com.cdy.cdy.service.admin;
 
 
-import com.cdy.cdy.dto.admin.AdminHomeResponseDto;
-import com.cdy.cdy.dto.admin.CursorResponse;
-import com.cdy.cdy.dto.admin.DeleteStudyReason;
-import com.cdy.cdy.dto.admin.UserInfoResponse;
+import com.cdy.cdy.dto.admin.*;
 import com.cdy.cdy.dto.request.LoginRequest;
 import com.cdy.cdy.dto.request.SignUpRequest;
 import com.cdy.cdy.dto.response.LoginResponse;
 import com.cdy.cdy.dto.response.project.AdminProjectResponse;
+import com.cdy.cdy.dto.response.project.SingleProjectResponse;
 import com.cdy.cdy.dto.response.study.AdminStudyResponse;
-import com.cdy.cdy.entity.Banner;
-import com.cdy.cdy.entity.User;
-import com.cdy.cdy.entity.UserCategory;
-import com.cdy.cdy.entity.UserRole;
-import com.cdy.cdy.repository.BannerRepository;
-import com.cdy.cdy.repository.ProjectRepository;
-import com.cdy.cdy.repository.StudyChannelRepository;
-import com.cdy.cdy.repository.UserRepository;
+import com.cdy.cdy.entity.*;
+import com.cdy.cdy.entity.project.Project;
+import com.cdy.cdy.repository.*;
 import com.cdy.cdy.service.AuthService;
 import com.cdy.cdy.service.ImageUrlResolver;
 import com.cdy.cdy.service.MailService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -31,6 +25,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
+@Slf4j
 @RequiredArgsConstructor
 @Service
 public class AdminService {
@@ -41,9 +36,12 @@ public class AdminService {
     private final ProjectRepository projectRepository;
     private final MailService mailService;
     private final BannerRepository bannerRepository;
-    private ImageUrlResolver imageUrlResolver;
+    private final ImageUrlResolver imageUrlResolver;
     private final AuthService authService;
+    private final PartnerRepository partnerRepository;
 
+
+    //관리자용 아이디 생성
     @Transactional
     public void createdAdmin(SignUpRequest signUpRequest) {
         if (userRepository.existsByEmail(signUpRequest.getEmail())) {
@@ -62,7 +60,7 @@ public class AdminService {
         userRepository.save(user);
     }
 
-
+    //홈화면 데이터 조회
     @Transactional(readOnly = true)
     public CursorResponse<AdminHomeResponseDto> getHomeData(Long lastUserId, int limit) {
 
@@ -112,6 +110,25 @@ public class AdminService {
 
     }
 
+    public SingleProjectResponse getSingleProject(Long id) {
+
+
+        Project project = projectRepository.findProjectWithFirstImageByProjectId(id)
+                .orElseThrow(() -> new EntityNotFoundException("프로젝트를 찾을 수 없습니다. 프로젝트 id : " + id));
+
+        SingleProjectResponse dto = SingleProjectResponse.builder()
+                .id(project.getId())
+                .imageUrl(imageUrlResolver.toPresignedUrl(project.getLogoImageKey()))
+                .content(project.getDescription())
+                .build();
+
+
+        return dto;
+    }
+
+
+
+
 
     //스터디 삭제
     @Transactional
@@ -137,30 +154,85 @@ public class AdminService {
     public CursorResponse<UserInfoResponse> getUserInfoList(Long lastUserId, int limit) {
 
 
+        if (lastUserId == null) {
+            lastUserId = userRepository.findMaxId();
+        }
+
+        if (lastUserId == null) {
+            return new CursorResponse<>(List.of(), null, false);
+        }
+
         List<UserInfoResponse> users = userRepository.getUserInfoList(lastUserId, limit);
 
         boolean hasNext = users.size() == limit;
 
-        Long nextCursor = users.isEmpty() ? null : lastUserId + limit; // 단순 예시
+        Long nextCursor = users.isEmpty() ? null : users.get(users.size() - 1).getId();// 단순 예시
 
         CursorResponse<UserInfoResponse> response = new CursorResponse<>(users, nextCursor, hasNext);
 
         return response;
     }
     //배너추가
-    public void addBanner(String imageKey) {
-
-        if (imageKey == null || imageKey.isEmpty()) {
-            throw new IllegalStateException("이미지 키가 유효하지 않습니다.");
-        }
+    @Transactional
+    public void addBanner(CreateBanner createBanner) {
 
         Banner banner = Banner.builder()
-                .imageKey(imageKey)
+                .link(createBanner.getLink())
+                .imageKey(createBanner.getImageKey())
                 .build();
+
         bannerRepository.save(banner);
+    }
+
+
+    //배너 전체 조회
+    public List<BannerResponseDto> findAllBanner() {
+
+        List<Banner> banners = bannerRepository.findAll();
+
+        List<BannerResponseDto> dto = banners.stream().map(banner ->
+                BannerResponseDto.builder()
+                        .id(banner.getId())
+                        .imageUrl(imageUrlResolver.toPresignedUrl(banner.getImageKey()))
+                        .build()
+
+        ).toList();
+
+        return dto;
 
     }
 
+    //특정 배너 조회
+    public BannerResponseDto findOneBanner(Long bannerId) {
+
+        Banner banner = bannerRepository.findById(bannerId).orElseThrow(() ->
+                new EntityNotFoundException("존재하지 않는 배너 아이디입니다 id : " + bannerId));
+
+        String imageKey = banner.getImageKey();
+
+        BannerResponseDto dto = BannerResponseDto.builder()
+                .id(bannerId)
+                .imageUrl(imageUrlResolver.toPresignedUrl(imageKey))
+                .build();
+
+        return dto;
+    }
+
+    //배너 삭제
+    @Transactional
+    public void deleteBanner(Long id) {
+
+        log.info("deleteBanner 서비스로직 실행");
+
+        Banner banner = bannerRepository.findById(id).orElseThrow
+                (() -> new EntityNotFoundException("배너를 찾을 수 없습니다 id : " + id));
+
+        bannerRepository.delete(banner);
+
+    }
+
+
+    //관리자 로그인
     public LoginResponse login(LoginRequest loginRequest) {
 
         User user = userRepository.findByEmail(loginRequest.getEmail())
@@ -172,4 +244,61 @@ public class AdminService {
 
         return authService.login(loginRequest);
     }
+
+    //파트너 추가
+    @Transactional
+    public void AddPartner(CreatePartner createPartner) {
+
+
+        Partner partner = Partner.builder()
+                .name(createPartner.getName())
+                .imageKey(createPartner.getImageKey())
+                .link(createPartner.getLink())
+                .build();
+        partnerRepository.save(partner);
+    }
+
+
+    //파트너 전체 조회
+    public List<PartnerResponseDto> findAllPartners() {
+
+        List<Partner> all = partnerRepository.findAll();
+
+
+        List<PartnerResponseDto> list = all.stream().map(partner ->
+                PartnerResponseDto.builder()
+                        .id(partner.getId())
+                        .imageUrl(imageUrlResolver.toPresignedUrl(partner.getImageKey()))
+                        .name(partner.getName())
+                        .build()
+        ).toList();
+        return list;
+    }
+
+    //파트너 단건 조회
+    public PartnerResponseDto findOnePartner(Long id) {
+
+        Partner partner = partnerRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("파트너를 찾을 수 없습니다 id : " + id));
+
+        PartnerResponseDto dto = PartnerResponseDto.builder()
+                .id(partner.getId())
+                .name(partner.getName())
+                .imageUrl(imageUrlResolver.toPresignedUrl(partner.getImageKey()))
+                .build();
+
+        return dto;
+    }
+
+
+    //파트너 삭제
+    public void deletePartner(Long id) {
+
+        partnerRepository.findById(id)
+                .orElseThrow(()->new EntityNotFoundException("파트너를 찾을 수 없습니다."));
+
+        partnerRepository.deleteById(id);
+
+    }
+
 }

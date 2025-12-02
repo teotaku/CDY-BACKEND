@@ -21,6 +21,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.domain.*;
 import org.springframework.http.MediaType;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -149,6 +150,7 @@ class AdminControllerTest {
         // given
         List<UserInfoResponse> mockData = List.of(
                 new UserInfoResponse() {
+                    public Long getId() { return 1L; }
                     public String getName() { return "테오"; }
                     public String getPhoneNumber() { return "010-1234-5678"; }
                     public String getEmail() { return "teo@example.com"; }
@@ -238,6 +240,72 @@ class AdminControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(req)))
                 .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    @WithMockUser(roles = "ADMIN")
+    @DisplayName("관리자 계정 - 유저목록 조회 - 커서 기반 정상 응답")
+    void 관리자계정_유저목록_조회_커서정상상태() throws Exception {
+
+        // mock 데이터 준비
+        List<UserInfoResponse> mockData = List.of(
+                new UserInfoResponse() {
+                    @Override
+                    public Long getId() {
+                        return 10L;
+                    }
+
+                    @Override
+                    public String getName() {
+                        return "테오";
+                    }
+
+                    @Override
+                    public String getPhoneNumber() {
+                        return "010-1234-5678";
+                    }
+
+                    @Override
+                    public String getEmail() {
+                        return "teo@example.com";
+                    }
+
+                    @Override
+                    public String getPasswordHash() {
+                        return "hash123";
+                    }
+
+                    @Override
+                    public String getCategory() {
+                        return "ADMIN";
+                    }
+
+                    @Override
+                    public LocalDateTime getCreatedAt() {
+                        return LocalDateTime.now();
+                    }
+                }
+        );
+
+        CursorResponse<UserInfoResponse> mockResponse =
+                new CursorResponse<>(mockData, 9L, true);
+
+        given(adminService.getUserInfoList(100L, 10))
+                .willReturn(mockResponse);
+
+        // when & then
+        mockMvc.perform(get("/api/admin/getUserInfoList")
+                        .param("lastUserId", "100")
+                        .param("limit", "10")
+                        .contentType(MediaType.APPLICATION_JSON)
+                )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data[0].id").value(10))
+                .andExpect(jsonPath("$.data[0].name").value("테오"))
+                .andExpect(jsonPath("$.data[0].email").value("teo@example.com"))
+                .andExpect(jsonPath("$.data[0].category").value("ADMIN"))
+                .andExpect(jsonPath("$.nextCursor").value(9))
+                .andExpect(jsonPath("$.hasNext").value(true));
     }
 
 }

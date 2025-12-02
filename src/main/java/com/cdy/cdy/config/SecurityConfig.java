@@ -98,6 +98,12 @@ public class SecurityConfig {
                                 "/api/admin/login"
                         ).permitAll()
 
+                        //홈화면 권한 전체허용
+                        .requestMatchers(
+                                "/api/home/**"
+
+                        ).permitAll()
+
 
 
                         .requestMatchers( // Swagger/OpenAPI 경로 허용

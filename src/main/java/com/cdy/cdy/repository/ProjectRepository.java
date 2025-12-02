@@ -68,5 +68,13 @@ public interface ProjectRepository extends JpaRepository<Project,Long> {
             countQuery = "SELECT COUNT(p) FROM Project p"
     )
     Page<AdminProjectResponse> findProjectforAdminPage(Pageable pageable);
+
+
+    @Query("""
+    SELECT p
+    FROM Project p
+    WHERE p.id = :id
+""")
+    Optional<Project> findProjectWithFirstImageByProjectId(@Param("id") Long id);
 }
 

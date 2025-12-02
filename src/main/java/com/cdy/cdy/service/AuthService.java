@@ -111,9 +111,11 @@ public class AuthService {
 
     // 아이디 일부 마스킹 (보안용)
     private String maskUserId(String userEmail) {
-        // 1️⃣ null 체크 (혹시 모를 NPE 방지)
-        if (userEmail == null || !userEmail.contains("@")) {
-            return userEmail;
+        if (userEmail == null) {
+            throw new IllegalArgumentException("email cannot be null");
+        }
+        if (!userEmail.contains("@")) {
+            throw new IllegalArgumentException("invalid email format");
         }
 
         // 2️⃣ 이메일을 @ 기준으로 앞/뒤 분리
@@ -121,20 +123,27 @@ public class AuthService {
         String localPart = parts[0];  // 아이디 부분 (dongik9467)
         String domainPart = parts[1]; // 도메인 부분 (naver.com)
 
-        // 3️⃣ 아이디 부분 마스킹 로직
-        if (localPart.length() <= 2) {
-            localPart = localPart.charAt(0) + "*";
-        } else {
-            int front = 3; // 앞부분 보여줄 글자 수
-            int back = Math.min(2, localPart.length() - front); // 뒤 부분 보여줄 글자 수
-            String visibleFront = localPart.substring(0, front);
-            String visibleBack = localPart.substring(localPart.length() - back);
-            String stars = "*".repeat(localPart.length() - (front + back));
-            localPart = visibleFront + stars + visibleBack;
+        int length = localPart.length();
+
+        //2글자일때
+        if (length <= 2) {
+            return localPart + "*" + "@" + domainPart;
         }
 
-        // 4️⃣ 다시 조합해서 반환
-        return localPart + "@" + domainPart;
+        if (length <= 4) {
+            return localPart.substring(0, 2)
+                    + "*".repeat(length - 2)
+                    + "@"
+                    + domainPart;
+        }
+
+        String visibleFront = localPart.substring(0, 4);
+        String visibleBack = localPart.substring(length - 1);
+        String stars = "*".repeat(length - 5);
+
+        return visibleFront + stars + visibleBack + "@" + domainPart;
+
+
     }
 
     private String createTempPassword() {

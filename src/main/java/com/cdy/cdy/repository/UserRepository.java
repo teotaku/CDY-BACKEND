@@ -102,6 +102,7 @@ LIMIT :limit
 
     @Query(value = """
         SELECT 
+            id AS id,
             name AS name,
             phone_number AS phoneNumber,
             email AS email,
@@ -109,7 +110,7 @@ LIMIT :limit
             category AS category,
             created_at AS createdAt
         FROM users
-        WHERE id < :lastUserId
+        WHERE id <= :lastUserId
         ORDER BY id DESC
         LIMIT :limit
     """, nativeQuery = true)
@@ -127,5 +128,9 @@ LIMIT :limit
 
     )
     Optional<User> findByStudyID(@Param("studyId")  Long studyId);
+
+
+    @Query(value = "SELECT MAX(id) FROM users", nativeQuery = true)
+    Long findMaxId();
 }
 
