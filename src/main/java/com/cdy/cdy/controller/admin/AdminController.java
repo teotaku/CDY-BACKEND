@@ -58,6 +58,16 @@ public class AdminController {
         return ResponseEntity.ok("어드민계정 생성 완료");
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
+    @Operation(summary = "유저 삭제", description = "유저 id를 받고 해당 유저 id 삭제")
+    @DeleteMapping("deleteUser/{id}")
+    public ResponseEntity<String> deleteUser(@PathVariable("id") Long id ) {
+
+        adminService.deleteUser(id);
+        return ResponseEntity.ok("유저가 삭제 되었습니다 id: " + id);
+    }
+
+
 
     @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "홈화면 데이터")
@@ -65,6 +75,7 @@ public class AdminController {
     public ResponseEntity<CursorResponse<AdminHomeResponseDto>> homeData(@AuthenticationPrincipal CustomUserDetails userDetails,
                                                                          @RequestParam(required = false) Long lastUserId,
                                                                          @RequestParam(defaultValue = "10") int limit) {
+
         return ResponseEntity.ok(adminService.getHomeData(lastUserId, limit));
     }
 
