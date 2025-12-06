@@ -14,6 +14,7 @@ import com.cdy.cdy.repository.*;
 import com.cdy.cdy.service.AuthService;
 import com.cdy.cdy.service.ImageUrlResolver;
 import com.cdy.cdy.service.MailService;
+import jakarta.persistence.EntityExistsException;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -59,6 +60,17 @@ public class AdminService {
                 .build();
         userRepository.save(user);
     }
+
+    @Transactional
+    public void deleteUser(Long userID) {
+
+        User user = userRepository.findById(userID).orElseThrow
+                (() -> new EntityNotFoundException("해당 아이디 유저가 존재하지 않습니다. id: " + userID));
+
+
+        userRepository.delete(user);
+    }
+
 
     //홈화면 데이터 조회
     @Transactional(readOnly = true)

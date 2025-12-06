@@ -6,13 +6,12 @@ import com.cdy.cdy.entity.UserRole;
 import com.cdy.cdy.repository.UserRepository;
 import com.cdy.cdy.service.AuthService;
 import jakarta.persistence.EntityNotFoundException;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
 import org.mockito.junit.jupiter.MockitoExtension;
+import static org.mockito.BDDMockito.given;
 
 import java.util.Optional;
 
@@ -103,4 +102,50 @@ public class AdminServiceTest {
         verify(userRepository).findByEmail(req.getEmail());
         }
 
+
+    @Test
+    void 유저아이디받고_해당유저_삭제() {
+
+
+        //gvien
+
+        User user = User.builder()
+                .id(1L)
+                .name("가나다")
+                .email("asdf@naver.com")
+                .passwordHash("12345125")
+                .build();
+
+        given(userRepository.findById(user.getId()))
+                .willReturn(Optional.of(user));
+
+        doNothing().when(userRepository).delete(user);
+
+        //when
+
+        adminService.deleteUser(user.getId());
+
+
+        //then
+        verify(userRepository).delete(user);
+
+    }
+
+    @Test
+    void 유저삭제시_존재하지않는_유저면_에러발생() {
+
+
+        //given
+
+        Long id = 1L;
+
+        given(userRepository.findById(id))
+                .willReturn(Optional.empty());
+
+        //when
+        assertThatThrownBy(() -> adminService.deleteUser(id))
+                .isInstanceOf(EntityNotFoundException.class)
+                .hasMessageContaining("해당 아이디 유저가 존재하지 않습니다. id: 1");
+
+    }
 }

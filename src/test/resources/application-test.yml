@@ -19,9 +19,9 @@ spring:
         show_sql: true
     defer-datasource-initialization: true  # ✅ JPA보다 DB 초기화 먼저 실행되게 함
 
-  sql:
-    init:
-      mode: always  # ✅ schema.sql, data.sql 자동 실행 허용
+#  sql:
+#    init:
+#      mode: always  # ✅ schema.sql, data.sql 자동 실행 허용
 
 
 

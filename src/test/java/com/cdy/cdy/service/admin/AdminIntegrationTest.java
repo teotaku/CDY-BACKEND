@@ -1,6 +1,7 @@
 package com.cdy.cdy.service.admin;
 
 import com.cdy.cdy.CdyApplication;
+import com.cdy.cdy.config.DataInitializer;
 import com.cdy.cdy.controller.admin.AdminController;
 import com.cdy.cdy.dto.admin.BannerResponseDto;
 import com.cdy.cdy.dto.admin.CreateBanner;
@@ -28,6 +29,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
@@ -43,13 +45,16 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @ActiveProfiles("test")
 @SpringBootTest(classes = CdyApplication.class)
 @Transactional
+@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
 @AutoConfigureMockMvc(addFilters = false)
+
 class AdminIntegrationTest {
 
 
@@ -59,6 +64,7 @@ class AdminIntegrationTest {
     // 🔥 진짜로 사용할 repository (JPA 테스트용)
     @Autowired
     ProjectRepository projectRepository;
+
 
 
     @Autowired
@@ -92,6 +98,8 @@ class AdminIntegrationTest {
     ImageUrlResolver imageUrlResolver;
 //    @MockitoBean
 //    AuthService authService;
+
+
 
     @MockitoBean
     R2StorageService r2StorageService;
@@ -335,5 +343,39 @@ class AdminIntegrationTest {
                 .as("첫 페이지에는 최신 유저(ID=%s)가 반드시 포함되어야 한다.", maxId)
                 .isTrue();
     }
+
+    @Test
+    @WithMockUser(roles = "ADMIN")
+    void 유저삭제_성공_200반환() throws Exception {
+
+
+        //given
+        User user = User.builder()
+                .name("가나다")
+                .email("asdf@naver.com")
+                .passwordHash("12345125")
+                .build();
+
+        userRepository.save(user);
+
+
+        //when&then
+
+        mockMvc.perform(delete("/api/admin/deleteUser/" + 1))
+                .andExpect(status().is(200));
+
     }
+
+    @Test
+    @WithMockUser(roles = "ADMIN")
+    void 유저삭제_존재하지않는유저면_404반환() throws Exception {
+
+
+        //when & then
+        mockMvc.perform(delete("/api/admin/deleteUser/" + 1))
+                .andExpect(status().is(404));
+
+
+    }
+}
 
