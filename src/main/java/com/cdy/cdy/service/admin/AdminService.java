@@ -60,15 +60,15 @@ public class AdminService {
                 .build();
         userRepository.save(user);
     }
-
+    //유저삭제
     @Transactional
     public void deleteUser(Long userID) {
 
         User user = userRepository.findById(userID).orElseThrow
                 (() -> new EntityNotFoundException("해당 아이디 유저가 존재하지 않습니다. id: " + userID));
 
+        user.deleteUser();
 
-        userRepository.delete(user);
     }
 
 
@@ -121,7 +121,7 @@ public class AdminService {
 
 
     }
-
+    //단일 프로젝트 상세조회
     public SingleProjectResponse getSingleProject(Long id) {
 
 
@@ -133,8 +133,6 @@ public class AdminService {
                 .imageUrl(imageUrlResolver.toPresignedUrl(project.getLogoImageKey()))
                 .content(project.getDescription())
                 .build();
-
-
         return dto;
     }
 

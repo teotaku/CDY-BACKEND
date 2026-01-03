@@ -4,7 +4,7 @@ services:
     image: mysql:8
     container_name: cdy_mysql
     ports:
-      - 3307:3306 # 로컬 호스트의 3307을 컨테이너 3306에 연결
+      - 3310:3306 # 로컬 호스트의 3307을 컨테이너 3306에 연결
 
     env_file:
       - ./.env

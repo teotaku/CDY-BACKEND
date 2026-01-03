@@ -11,6 +11,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;
 
 import java.util.Optional;
@@ -119,17 +121,15 @@ public class AdminServiceTest {
         given(userRepository.findById(user.getId()))
                 .willReturn(Optional.of(user));
 
-        doNothing().when(userRepository).delete(user);
 
         //when
 
         adminService.deleteUser(user.getId());
-
-
         //then
-        verify(userRepository).delete(user);
+        assertThat(user.getEmail()).isEqualTo(null);
 
-    }
+
+        }
 
     @Test
     void 유저삭제시_존재하지않는_유저면_에러발생() {
