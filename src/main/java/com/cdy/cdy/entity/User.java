@@ -106,6 +106,8 @@ public class User extends BaseEntity {
         this.deleted = true;
         this.nickname = "탈퇴한 사용자";
         this.email = null;
+        this.profileImageKey = null;
+        this.name = "탈퇴한 사용자";
 
     }
 }
