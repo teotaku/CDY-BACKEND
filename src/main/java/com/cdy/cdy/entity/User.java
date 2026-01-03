@@ -28,7 +28,7 @@ public class User extends BaseEntity {
     // ↑ unique=true: 컬럼 단일 유니크 제약(중복 닉네임 방지)
     private String nickname;
 
-    @Column(length = 255, nullable = false, unique = true)
+    @Column(length = 255, nullable = true, unique = true)
     // ↑ 이메일도 단일 유니크 제약(중복 가입 방지)
     private String email;
 
@@ -51,7 +51,7 @@ public class User extends BaseEntity {
     @Enumerated(EnumType.STRING)
     private UserCategory category;
 
-    @Column(name = "deleted")
+    @Column(name = "deleted", nullable = false)
     private Boolean deleted;
 
 
@@ -102,9 +102,10 @@ public class User extends BaseEntity {
         this.offLine = count;
     }
 
-    public void deleteUser(Boolean isDeleted,  String email) {
-        this.deleted = isDeleted;
+    public void deleteUser() {
+        this.deleted = true;
         this.nickname = "탈퇴한 사용자";
         this.email = null;
+
     }
 }

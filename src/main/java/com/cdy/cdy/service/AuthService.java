@@ -38,6 +38,11 @@ public class AuthService {
             throw new IllegalArgumentException("이미 가입된 이메일입니다.");
         }
 
+
+        if (signUpRequest.getEmail() == null && signUpRequest.getEmail().isBlank()) {
+            throw new IllegalArgumentException("이메일은 null일 수 없습니다");
+        }
+
         User user = User.builder()
                 .nickname(signUpRequest.getNickname())
                 .email(signUpRequest.getEmail())

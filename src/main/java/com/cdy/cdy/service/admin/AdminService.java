@@ -67,7 +67,7 @@ public class AdminService {
         User user = userRepository.findById(userID).orElseThrow
                 (() -> new EntityNotFoundException("해당 아이디 유저가 존재하지 않습니다. id: " + userID));
 
-        user.deleteUser(true, user.getEmail());
+        user.deleteUser();
 
     }
 
