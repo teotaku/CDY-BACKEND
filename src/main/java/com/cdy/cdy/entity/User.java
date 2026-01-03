@@ -51,6 +51,7 @@ public class User extends BaseEntity {
     @Enumerated(EnumType.STRING)
     private UserCategory category;
 
+    @Column(name = "deleted")
     private Boolean deleted;
 
 

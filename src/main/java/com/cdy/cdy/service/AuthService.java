@@ -53,9 +53,16 @@ public class AuthService {
 
     @Transactional(readOnly = true)
     public LoginResponse login(LoginRequest request) {
+
+
+
         User user = userRepository.findByEmail
                         (request.getEmail())
                 .orElseThrow(() -> new IllegalArgumentException("잘못된 이메일 또는 비밀번호"));
+
+        if (user.getDeleted()) {
+            throw new IllegalArgumentException("탈퇴한 사용자입니다.");
+        }
 
         if (!passwordEncoder.matches(request.getPassword(), user.getPasswordHash())) {
             throw new IllegalArgumentException("잘못된 이메일 또는 비밀번호");
