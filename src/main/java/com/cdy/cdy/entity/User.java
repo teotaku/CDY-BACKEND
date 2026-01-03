@@ -51,6 +51,8 @@ public class User extends BaseEntity {
     @Enumerated(EnumType.STRING)
     private UserCategory category;
 
+    private Boolean deleted;
+
 
    ;
 
@@ -99,4 +101,9 @@ public class User extends BaseEntity {
         this.offLine = count;
     }
 
+    public void deleteUser(Boolean isDeleted,  String email) {
+        this.deleted = isDeleted;
+        this.nickname = "탈퇴한 사용자";
+        this.email = null;
+    }
 }

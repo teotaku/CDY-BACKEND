@@ -214,7 +214,7 @@ class AdminControllerTest {
         doNothing().when(adminService).login(any(LoginRequest.class));
 
         // when & then
-        mockMvc.perform(post("/api/admin/login")   // 👉 네가 만든 URL 맞춰라
+        mockMvc.perform(post("/api/admin/login")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(req)))
                 .andExpect(status().isOk())
