@@ -104,10 +104,10 @@ public class User extends BaseEntity {
 
     public void deleteUser() {
         this.deleted = true;
-        this.nickname = "탈퇴한 사용자";
+        this.nickname = "탈퇴한 사용자" + this.id;
         this.email = null;
         this.profileImageKey = null;
-        this.name = "탈퇴한 사용자";
+        this.name = "탈퇴한 사용자" + this.id;
 
     }
 }
