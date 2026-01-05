@@ -91,7 +91,7 @@ LEFT JOIN (
     GROUP BY user_id
 ) pm ON u.id = pm.user_id
 WHERE (:lastUserId IS NULL OR u.id < :lastUserId)
-AND u.email is NULL
+AND u.deleted = 0
 ORDER BY u.id DESC
 LIMIT :limit
 """, nativeQuery = true)
@@ -112,6 +112,7 @@ LIMIT :limit
             created_at AS createdAt
         FROM users
         WHERE id <= :lastUserId
+        AND users.deleted = 0
         ORDER BY id DESC
         LIMIT :limit
     """, nativeQuery = true)
