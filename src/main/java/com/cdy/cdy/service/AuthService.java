@@ -51,6 +51,7 @@ public class AuthService {
                 .role(UserRole.USER) // 필요 시 지정, 아니면 of()로 기본값 처리
                 .phoneNumber(signUpRequest.getPhoneNumber())
                 .category(UserCategory.from(signUpRequest.getUserCategory()))
+                .deleted(false)
                 .build();
         userRepository.save(user);
 
